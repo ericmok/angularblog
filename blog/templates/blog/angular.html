@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
+		<style>
+
+		</style>
+	
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.js"></script>
+		
+		<link href="{{ STATIC_URL }}blog/libs/jasmine.css" rel="stylesheet" />
+		
+		<script src="http://codeorigin.jquery.com/jquery-2.0.3.min.js"></script>
+		<script src="{{ STATIC_URL }}blog/libs/jasmine.js"></script>
+		<script src="{{ STATIC_URL }}blog/libs/jasmine-html.js"></script>
+		
+		<script>
+			var app = angular.module('app', []);
+			app.controller('myController', function myController($scope) {
+				$scope.phones = [
+					{name: "Test1"},
+					{name: "Test2"}
+				];
+			});
+		</script>
+	</head>
+	<body>
+	{% verbatim %}
+		<div class="container" ng-app="app">
+			<div ng-controller="myController">
+				{{ phones.length }}
+				<div ng-repeat="i in phones">
+					{{i.name}}
+				</div>
+			</div>
+		</div>
+	{% endverbatim %}
+	</body>
+</html>
