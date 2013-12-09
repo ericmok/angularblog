@@ -33,3 +33,7 @@ def index(request):
             temp.save()
         
     return render(request, 'blog/test.html', {'sentences': sentences})
+
+
+def page(request):
+    return render(request, 'blog/blog.html', {'request': request})

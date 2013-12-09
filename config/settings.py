@@ -26,8 +26,9 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
+
+APPEND_SLASH = False
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -39,7 +40,8 @@ INSTALLED_APPS = (
 
     'rest_framework',
     'rest_framework.authtoken',
-    
+
+    #'session_tokens',
     'blog',
 )
 
@@ -95,11 +97,14 @@ REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
+        #'rest_framework.authentication.TokenAuthentication',
+        #'blog.rest2.sessions.ExpiringTokenAuthentication',
     ),
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
     ],
     'PAGINATE_BY': 16
 }

@@ -57,7 +57,14 @@ app.directive("usernameField", function() {
 
 		// TODO: NG_BIND_HTML_UNSAFE...
 
-		template: '<div> <input type="text" name="{{fieldname}}" style="{{style}}" ng-model="myModel"/> <div ng-if="waitingForAjax == true"><img src="/static/blog/images/ajax-loader.gif" /> {{VALIDATING_MESSAGE}}</div> <div ng-if="validationTimer == null"> <span ng-if="validity == false" class="{{errormessageclass}}">&#215; {{errorMessage}}</span> <span ng-if="validity == true" class="{{validmessageclass}}">&#10004; {{validMessage}}</span> </div> </div>',
+		template: '<div>' + 
+					'<input type="text" name="{{fieldname}}" style="{{style}}" ng-model="myModel" autocomplete="off"/>' + 
+					' <div ng-if="waitingForAjax == true"><img src="/static/blog/images/ajax-loader.gif" /> {{VALIDATING_MESSAGE}}</div>' + 
+					' <div ng-if="validationTimer == null">' + 
+					'  <span ng-if="validity == false" class="{{errormessageclass}}">&#215; {{errorMessage}}</span>' + 
+					'  <span ng-if="validity == true" class="{{validmessageclass}}">&#10004; {{validMessage}}</span>' + 
+					' </div>' + 
+				  ' </div>',
 		
 		controller: function($scope, $http) {
 

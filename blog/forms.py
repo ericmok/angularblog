@@ -27,3 +27,5 @@ class RegisterForm(forms.Form):
 		if self.cleaned_data['password'] != self.cleaned_data['password_confirm']:
 			raise forms.ValidationError("Passwords do not match!")
 		return self.cleaned_data['password']
+
+

@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.db import IntegrityError
+from django.contrib.auth import authenticate, login, logout
+from django.db import IntegrityError, transaction
+from django.http import HttpResponse
 from blog import forms
+import json
 
 
+@transaction.atomic
 def handle_post(request):
     
     register_form = forms.RegisterForm(request.POST)
@@ -31,3 +35,42 @@ def index(request):
     
     register_form = forms.RegisterForm()
     return render(request, 'blog/register.html', {'register_form': register_form, 'error': False, 'request': request})
+
+
+def content_negotiated_response(request, template_name, json_data, status = 200):
+    if request.META.get('CONTENT_TYPE', None) == 'application/json':
+        return HttpResponse(json.dumps(json_data), content_type="application/json", status = status)
+    return render(request, template_name)
+
+def content_negotiated_redirect(request, template_name, json_data, status = 303):
+    if request.META.get('CONTENT_TYPE', None) == 'application/json':
+        response = HttpResponse(json.dumps(json_data), content_type="application/json", status = status)
+        response['Location'] = "http://localhost:8000/blog/api/"
+        return response
+    return redirect(template_name)    
+
+def sign_in(request):
+
+    if request.method == "POST":
+        username = request.POST.get('username', None)
+        password = request.POST.get('password', None)
+
+        if request.META.get('CONTENT_TYPE', None) == 'application/json':
+            json_request = json.loads(request.body)
+            username = json_request['username']
+            password = json_request['password']
+
+        user = authenticate(username = username, password = password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                print("\033[94mLOGGING IN")
+                return content_negotiated_redirect(request, "/blog", {"status": "okay"}, 303)
+        else: 
+            return content_negotiated_response(request, "blog/sign-in.html", {"error": "Authentication failed."}, 400)
+    else: 
+        return content_negotiated_response(request, "blog/sign-in.html", {"template": {"data": [{"username": "Your username"}, {"password": "Your password"}]}}, 200)
+
+def sign_out(request):
+    logout(request)
+    return content_negotiated_redirect(request, "/blog/", {"status": "You are logged out"}, 200)

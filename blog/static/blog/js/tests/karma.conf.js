@@ -14,7 +14,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'test.js'
+      //'test.js'
+      'http://localhost:8000/static/blog/libs/jquery-1.9.1.js',
+      'http://localhost:8000/static/blog/libs/json2.js',
+      'http://localhost:8000/static/blog/libs/moment.js',
+      'blogtests.js'
     ],
 
 

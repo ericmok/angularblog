@@ -47,8 +47,8 @@
 
             <h2>Register</h2>
 
-              <div>
-                ERROR? {{error}} {{ path }}
+              <div class="error">
+                {% if error %} Cannot register that username. Please choose another. {% endif %} {{ path }}
               </div>
 
               <section ng-controller="UsernameController">
@@ -57,7 +57,7 @@
 
                 {% verbatim %}  
                 
-                <username-field ng-model="user.username" fieldname="username" errormessagestyle="test"></username-field>
+                <username-field class="form-input" ng-model="user.username" fieldname="username" errormessagestyle="test"></username-field>
       
                 {% endverbatim %}
                     
@@ -69,19 +69,19 @@
               <section>
                 <div class="password-field">
                   <label class="form-label password-field">Create a Password:</label> 
-                  <input name="password" type="password" placeholder="Password" />
+                  <input class="form-input" name="password" type="password" placeholder="Password" />
                   {{ register_form.errors.password }}
                   <div style="clear: both"></div>
                 </div>
                 <div class="password-reconfirm">
                   <label class="form-label">Type your password again:</label> 
-                  <input name="password_confirm" type="password" placeholder="Re enter password" />
+                  <input class="form-input" name="password_confirm" type="password" placeholder="Re enter password" />
 
                   <div style="clear: both"></div>
                 </div>
               </section>
               <section>
-                <input type="submit" value="Sign up!" />
+                <input type="submit" onsubmit="function(ev){ev.preventDefault()}" value="Sign up!" />
                 <div style="clear: both"></div>
               </section>
             

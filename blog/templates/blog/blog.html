@@ -13,13 +13,21 @@
 
   <script type="text/x-handlebars" data-template-name="index">
     <div class="container">
+    INDEX
       {{ outlet }}
     </div>
   </script>
 
   <script type="text/x-handlebars" data-template-name="blogs">
   	<div class="container">
+        {% endverbatim %}
 
+          {% if request.user.is_authenticated %}
+            <a href="{% url 'blog.views.register.sign_out' %}">Sign out</a>
+          {% else %}
+            <a href="{% url 'blog.views.register.sign_in' %}">Sign in</a>
+          {% endif %}
+        {% verbatim %}
         ROOT <br/>
 
         {{input type="text" placeholder="New User?" value=blogName action="createBlog"}}

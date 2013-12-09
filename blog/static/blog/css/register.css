@@ -6,8 +6,9 @@
 .register-form 
 {
 	text-align: center;
-	width: 20em;
+	width: 30em;
 }
+
 .register-form section
 {
 	margin-bottom: 1.4em;
@@ -21,6 +22,10 @@
 	float:left;
 	display: block;
 	color: #444;
+}
+.form-input
+{
+    float: right;
 }
 .password-field label
 {

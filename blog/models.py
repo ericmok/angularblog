@@ -10,10 +10,10 @@ from django.db.models.signals import post_save
 from rest_framework.authtoken.models import Token
 
 # Make tokens when saving a user
-@receiver(post_save, sender = User)
-def create_auth_token(sender, instance = None, created = False, **kwargs):
-    if created:
-        Token.objects.create(user = instance)
+#@receiver(post_save, sender = User)
+#def create_auth_token(sender, instance = None, created = False, **kwargs):
+#    if created:
+#        Token.objects.create(user = instance)
 
 
 # Sentence indices: 
@@ -47,6 +47,9 @@ class Blog(models.Model):
     class Meta:
         unique_together = ('title', 'creator')
 
+    def content_type(self):
+        return "blog"
+
 class Post(models.Model):
     """
     Recursive model that contains a collection of sentences.
@@ -65,12 +68,12 @@ class Post(models.Model):
     created = models.DateTimeField(auto_now_add = True)
     modified = models.DateTimeField(auto_now = True)
     
-    ordering = models.FloatField()
-
     parent_content_type = models.ForeignKey(ContentType, null = True, blank = True)
     parent_id = models.PositiveIntegerField(null = True, blank = True)
     parent_object = generic.GenericForeignKey('parent_content_type', 'parent_id')    
      
+    def content_type(self):
+        return "post"
 
 class Sentence(models.Model):
     """
@@ -78,7 +81,7 @@ class Sentence(models.Model):
     """
     created = models.DateTimeField(auto_now_add = True)
     
-    post = models.ForeignKey(Post)
+    post = models.ForeignKey(Post, related_name = 'sentences')
     text = models.TextField()
     
     ordering = models.FloatField()
@@ -86,3 +89,6 @@ class Sentence(models.Model):
     class Meta:
         ordering = ['ordering']
         unique_together = ('post', 'ordering')
+
+    def content_type(self):
+        return "sentence"
