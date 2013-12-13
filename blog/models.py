@@ -62,18 +62,22 @@ class Post(models.Model):
     
     In addition. posts are ordered.
     """
+    # Write fields
     title = models.CharField(max_length = 1024)
     author = models.ForeignKey(User)    
     
+    # Read fields
     created = models.DateTimeField(auto_now_add = True)
     modified = models.DateTimeField(auto_now = True)
     
+    # Dynamic fields
     parent_content_type = models.ForeignKey(ContentType, null = True, blank = True)
     parent_id = models.PositiveIntegerField(null = True, blank = True)
     parent_object = generic.GenericForeignKey('parent_content_type', 'parent_id')    
      
     def content_type(self):
         return "post"
+
 
 class Sentence(models.Model):
     """

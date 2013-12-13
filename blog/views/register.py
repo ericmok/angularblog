@@ -42,12 +42,12 @@ def content_negotiated_response(request, template_name, json_data, status = 200)
         return HttpResponse(json.dumps(json_data), content_type="application/json", status = status)
     return render(request, template_name)
 
-def content_negotiated_redirect(request, template_name, json_data, status = 303):
+def content_negotiated_redirect(request, url, json_data, status = 303):
     if request.META.get('CONTENT_TYPE', None) == 'application/json':
         response = HttpResponse(json.dumps(json_data), content_type="application/json", status = status)
         response['Location'] = "http://localhost:8000/blog/api/"
         return response
-    return redirect(template_name)    
+    return redirect(url)    
 
 def sign_in(request):
 
@@ -64,7 +64,7 @@ def sign_in(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                print("\033[94mLOGGING IN")
+                print("\03394[mLOGGING IN")
                 return content_negotiated_redirect(request, "/blog", {"status": "okay"}, 303)
         else: 
             return content_negotiated_response(request, "blog/sign-in.html", {"error": "Authentication failed."}, 400)

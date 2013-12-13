@@ -28,6 +28,7 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         utc_now = datetime.datetime.utcnow().replace(tzinfo=utc)
 
         if token.created < utc_now - datetime.timedelta(hours=24):
+        	# TODO: Should I delete the token to clean it up?
             raise exceptions.AuthenticationFailed('Token has expired')
 
         return (token.user, token)
@@ -68,7 +69,7 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 	def post(self, request):
 		serializer = self.serializer_class(data=request.DATA)
 		if serializer.is_valid():
-			print("\033[94mToken input is Valid")
+			#print("\033[94mToken input is Valid")
 			try: 
 				existing_token = Token.objects.get(user = serializer.object['user'])
 				existing_token.delete()

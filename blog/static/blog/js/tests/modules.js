@@ -1,6 +1,7 @@
-function testAjax(ajaxCallback, testCallback) {
+function testAjax(ajaxCallback, testCallback, delay) {
 	var response = null;
 	var responseXHR = null;
+	var delay = delay || 1000;
 
 	var testObj = {
 		callback: function(data, textStatus, jqXHR) {
@@ -15,7 +16,7 @@ function testAjax(ajaxCallback, testCallback) {
 	});
 	waitsFor(function() {
 		return (testObj.callback.callCount > 0);
-	}, "ajax to finish", 1000);
+	}, "ajax to finish", delay);
 	runs(function() {
 		testCallback(response, responseXHR);
 	});
@@ -27,6 +28,7 @@ var Helpers = {
 	USERS_URL: "http://localhost:8000/blog/api/users", 
 	BLOGS_URL: "http://localhost:8000/blog/api/blogs",
 	POSTS_URL: "http://localhost:8000/blog/api/posts",
+	SENTENCES_URL: "http://localhost:8000/blog/api/sentences",
 
 	getCookie: function(key) {
 		var cookieValue = null;
