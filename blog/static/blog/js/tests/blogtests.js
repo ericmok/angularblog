@@ -9,7 +9,7 @@ describe("Jasmine", function() {
 	});
 });
 
-describe("Ajax", function() {
+describe("BLOG Ajax", function() {
 	describe("GET", function() {
 
 		it("can make ajax call to blogs", function() {
@@ -274,6 +274,45 @@ describe("Ajax", function() {
 			});
 		});
 
+
+		it("can refuses to make duplicate Blog (title, creator) with POST request", function() {
+			var response = null;
+			var responseXHR = null;
+
+			var testObj = {
+				callback: function(data, textStatus, jqXHR) {
+					response = data;
+					responseXHR = jqXHR;
+				}
+			};
+
+			var payload = {
+				title: "My Blog",
+				creator: 1
+			};
+			
+			spyOn(testObj, "callback").andCallThrough();
+			
+			runs(function() {
+
+				AuthModule.requestToken("eric", "wt25yq186vke1dcd", function(data, textStatus, jqXHR) {
+					console.log("TOKEN: " + data.token);
+					Helpers.jsonRequest( Helpers.BLOGS_URL, 
+										 "POST", payload, 
+										 testObj.callback, 
+										 { 
+										 	"X-Authorization": "Token " + data.token
+										});
+				});
+			});
+			waitsFor(function() {
+				return testObj.callback.callCount > 0;
+			}, "ajax to finish", 1000);
+			runs(function() {
+				expect( response ).not.toBeNull();
+				expect( responseXHR.status ).not.toBe(201); // FORBIDDEN
+			});
+		});
 	});
 
 	describe("Serialization", function() {

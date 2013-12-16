@@ -111,7 +111,7 @@ describe("Post AJAX", function() {
 			});			
 		}, function(data, xhr) { 
 			expect(xhr.status).toEqual(201);
-		});
+		}, 2000);
 	});
 
 	it("can create post {title, parent_content_type, parent_id} with credentials", function() {
@@ -122,7 +122,7 @@ describe("Post AJAX", function() {
 			});			
 		}, function(data, xhr) { 
 			expect(xhr.status).toEqual(201);
-		});
+		}, 2000);
 	});
 
 	it("can GET post and receive fields", function() {
@@ -139,7 +139,7 @@ describe("Post AJAX", function() {
 			expect( data.parent_content_type ).not.toBeNull();
 			expect( data.parent_id ).not.toBeNull();
 			expect( data.sentences ).not.toBeNull();
-		});
+		}, 2000);
 	});
 
 	it("can create post with sentence payload", function() {
@@ -162,7 +162,7 @@ describe("Post AJAX", function() {
 			expect(data.sentences).toEqual( jasmine.any(Array) );
 			expect(data.number_sentences).toEqual(3);
 			expect(data.sentences[0].id).toEqual( jasmine.any(Number) );
-		}, 2000);
+		}, 3000);
 	});
 
 
@@ -198,6 +198,21 @@ describe("Post AJAX", function() {
 			});			
 		}, function(data, xhr) { 
 			expect(xhr.status).not.toEqual(405);
+		}, 2000);
+	});
+
+	xit("can  make post on a sentence", function() {
+		testAjax(function(callback) {
+			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", {username: "eric", password: "wt25yq186vke1dcd"}, function(data, xhr) {
+				var payload = {
+					text: "Editing a sentence."
+				};
+				setTimeout(function() {
+					Helpers.jsonRequest( Helpers.SENTENCES_URL, "POST", payload, callback, {'X-Authorization': 'Token ' + data.token} );
+				}, 300);
+			});			
+		}, function(data, xhr) { 
+			expect(xhr.status).not.toEqual(201);
 		}, 2000);
 	});
 

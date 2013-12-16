@@ -23,6 +23,13 @@ function testAjax(ajaxCallback, testCallback, delay) {
 }
 
 
+var TestDB = {
+	user: {
+		username: "eric",
+		password: "wt25yq186vke1dcd"
+	}
+};
+
 
 var Helpers = {
 	USERS_URL: "http://localhost:8000/blog/api/users", 

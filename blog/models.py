@@ -74,25 +74,69 @@ class Post(models.Model):
     parent_content_type = models.ForeignKey(ContentType, null = True, blank = True)
     parent_id = models.PositiveIntegerField(null = True, blank = True)
     parent_object = generic.GenericForeignKey('parent_content_type', 'parent_id')    
-     
+    
+    # Posts can be deleted
+    is_active = models.NullBooleanField(null = True, blank = True, default = True)
+
     def content_type(self):
         return "post"
 
+class SentenceSet(models.Model):
+    """
+    An addressing mechanism for storing versions of a post as it is edited throughout
+    its life.
+    """
+    parent = models.ForeignKey(Post)
+    created = models.DateTimeField(auto_now_add = True)
+
+    def content_type(self):
+        return "sentenceset"
+
+    class Meta:
+        ordering = ["-created"]
 
 class Sentence(models.Model):
     """
-    post: Owner of the sentence
+    A binary relation between a Sentenceset and Text.
+    Text can belong to multiple posts yet, in each post,
+    each Text might be commented in context of the post.
+    You can comment on a Sentence (text given a context) but not the text itself
+    which could be wrapped by a proposition.
+
+    Creation date is taken from SentenceSet as sentences are created in batch
+
+    previous_version points to a version of the sentence for which this sentence
+    was derived from as a result of an editorial change.
     """
-    created = models.DateTimeField(auto_now_add = True)
+    previous_version = models.ForeignKey('Sentence', null = True, blank = True, related_name = 'new_version')
     
-    post = models.ForeignKey(Post, related_name = 'sentences')
-    text = models.TextField()
-    
+    # A binary relation
+    # Pointer to parent of a set of sentences
+    sentence_set = models.ForeignKey('SentenceSet', related_name = 'sentences')
+    # And pointer to text
+    text = models.ForeignKey('Text')
+
+    # The order in which this sentence appears in the sentence set
     ordering = models.FloatField()
 
     class Meta:
         ordering = ['ordering']
-        unique_together = ('post', 'ordering')
+        unique_together = ('sentence_set', 'text', 'ordering')
 
     def content_type(self):
         return "sentence"
+
+class Text(models.Model):
+    """
+    Contains the string values input by the user. 
+    Text may be classified based on similarity? (wordnet?, previous_versions?)
+    """
+    created = models.DateTimeField(auto_now_add = True)
+    classifier = models.CharField(max_length = 512, null = True, blank = True)
+    value = models.TextField()
+
+    def content_type(self):
+        return "text"
+
+    class Meta:
+        unique_together = ('value',)

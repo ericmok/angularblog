@@ -39,9 +39,8 @@ class BlogSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Blog
-    fields = ('id', 'href', 'title', 'creator')
-
-
+    fields = ('id', 'href', 'title')
+    read_only_fields = ('creator',)
 
 
 
@@ -91,3 +90,4 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ('created', 'modified',)
         
         #depth = 1
+
