@@ -17,6 +17,7 @@ router.register(r'users', viewsets.UserViewSet, base_name = 'user')
 router.register(r'blogs', viewsets.BlogViewSet, base_name = 'blog')
 #router.register(r'sessions', sessions.SessionViewSet, base_name = 'session')
 router.register(r'posts', viewsets.PostViewSet, base_name = 'post')
+router.register(r'sentences', viewsets.SentenceViewSet, base_name = 'sentence')
 # router.register(r'sentences', sentences.SentenceViewSet, base_name = 'sentence')
 # router.register(r'blogs', blogs.BlogViewSet, base_name = 'blog')
 
@@ -41,6 +42,9 @@ urlpatterns = patterns('',
 	url(r'^/api/', include(router.urls)),
     #url(r'^api/', include(router_with_no_slashes.urls)),
 
+    #url(r'^/api/sentences', )
+    #url(r'^/api/sentences/(?<pk>\d*))
+
     url(r'^/test/?$', TemplateView.as_view(template_name = 'blog/test.html')),
     url(r'^/sentencer/?$', blog.views.index.index),
     
@@ -56,4 +60,5 @@ urlpatterns = patterns('',
     
     url(r'^/tests/user/?$', tester("blog/ajaxtester.html")),
     url(r'^/tests/blog/?$', tester("blog/jasminetests.html")),
+
 )

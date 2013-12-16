@@ -47,7 +47,7 @@ class UserViewSet(viewsets.GenericViewSet,
                 serializer.object = user
                 return Response(serializer.data, status = status.HTTP_201_CREATED)
             except IntegrityError as e:
-                return Response({"Error": "Something went wrong"}, status = status.HTTP_409_CONFLICT)
+                return Response({"error": "Something went wrong"}, status = status.HTTP_409_CONFLICT)
         else:
             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
         # if serializer.is_valid():
@@ -403,12 +403,57 @@ class PostViewSet(viewsets.GenericViewSet):
             sentences = Sentence.objects.filter(sentence_set = current_version)
 
             for sentence in sentences:
-                return_json['sentences'].append(sentence.text.value)
+                return_json['sentences'].append({"id": sentence.pk, "text":sentence.text.value, "ordering": sentence.ordering, "previous_version": sentence.previous_version})
 
             # Response 
             return Response(return_json, status = 200)
         except Post.DoesNotExist as dne:
             return Response(self.NOT_FOUND_JSON, status = 404)
 
+from django.forms.models import model_to_dict
 
-#class Sentence(viewsets.GenericViewSet):
+class SentenceViewSet(viewsets.GenericViewSet):
+    
+    def list(self, request):
+        pagination = request.GET.get('page', None)
+        if pagination is not None:
+            limit = pagination
+        else:
+            pagination = 16
+        sentences = Sentence.objects.all()[:pagination]
+
+        return_json = []
+        for sentence in sentences:
+            payload = {'id': sentence.pk, \
+                         'text': sentence.text.value, \
+                         'post': sentence.sentence_set.parent.id, \
+                         'ordering': sentence.ordering}
+            
+            payload['href'] = '/api/sentences/%s'  % (sentence.pk,)
+            if sentence.previous_version is not None:
+                payload['previous_version'] = sentence.previous_version.pk
+            
+            return_json.append( payload )
+
+        return Response(return_json, status = 200)
+
+    def retrieve(self, request, pk = None):
+        try:
+            pk = int(pk)
+        except:
+            return Response({"detail": "Not found"}, status = 404)
+
+        sentence = Sentence.objects.get(pk = pk)
+        # previous_version
+        # sentence_set
+        # text 
+        # ordering
+        return_json = {'id': sentence.pk, \
+                       'text': sentence.text.value, \
+                       'post': sentence.sentence_set.parent.id, \
+                       'ordering': sentence.ordering}
+
+        if sentence.previous_version is not None:
+            return_json['previous_version'] = sentence.previous_version.pk
+
+        return Response(return_json, status = 200)
