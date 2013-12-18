@@ -78,6 +78,9 @@ class Post(models.Model):
     # Posts can be deleted
     is_active = models.NullBooleanField(null = True, blank = True, default = True)
 
+    class Meta:
+        ordering = ['-created']
+
     def content_type(self):
         return "post"
 

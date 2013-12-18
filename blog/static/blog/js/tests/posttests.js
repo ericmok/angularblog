@@ -5,37 +5,61 @@ describe("Post AJAX", function() {
 		expect(1).toEqual(jasmine.any(Number));
 	});
 
-	it("can make GET request", function() {
-		testAjax(function(callback) {
-			Helpers.jsonRequest( Helpers.POSTS_URL, "GET", null, callback);
-		}, function(data, xhr) { 
-			expect(data).not.toBeNull();
-			expect(xhr.status).toEqual(200);
-			expect(data.results).not.toBeNull();
+	describe("GET request", function() {
+		it("can make GET request", function() {
+			testAjax(function(callback) {
+				Helpers.jsonRequest( Helpers.POSTS_URL, "GET", null, callback);
+			}, function(data, xhr) { 
+				expect(data).not.toBeNull();
+				expect(xhr.status).toEqual(200);
+				expect(data.results).not.toBeNull();
+			}, 1000);
+		});
+
+		it("can filter by ?blog= query parameter", function() {
+			
+			testAjax(function(callback) {
+				Helpers.jsonRequest( Helpers.POSTS_URL + "?blog=1", "GET", null, callback);
+			}, function(data, xhr) {
+				expect(xhr.status).toEqual(200);
+				expect(data.length).toBeGreaterThan(0);
+			}, 2000);
+		});
+
+
+		it("can handle malformed ?blog= query parameter", function() {
+			
+			testAjax(function(callback) {
+				Helpers.jsonRequest( Helpers.POSTS_URL + "?blog=1as", "GET", null, callback);
+			}, function(data, xhr) {
+				expect(xhr.status).toEqual(404);
+			}, 2000);
+		});
+
+		/**
+		Preconditions: 
+		Database must be with sparse post data!
+		**/
+		it("responds to bad pk's in URL", function() {
+			testAjax(function(callback) {
+				Helpers.jsonRequest( Helpers.POSTS_URL + "/1a", "GET", null, callback );
+			}, function(data, xhr) { 
+				expect(data).not.toBeNull();
+				expect(xhr.status).toEqual(404);
+				expect(data.detail).not.toBeNull();
+			});
+
+			testAjax(function(callback) {
+				Helpers.jsonRequest( Helpers.POSTS_URL + "/1254635634", "GET", null, callback );
+			}, function(data, xhr) { 
+				expect(data).not.toBeNull();
+				expect(xhr.status).toEqual(404);
+				expect(data.detail).not.toBeNull();
+			});
 		});
 	});
 
-	/**
-	Preconditions: 
-	Database must be with sparse post data!
-	**/
-	it("responds to bad pk's in URL", function() {
-		testAjax(function(callback) {
-			Helpers.jsonRequest( Helpers.POSTS_URL + "/1a", "GET", null, callback );
-		}, function(data, xhr) { 
-			expect(data).not.toBeNull();
-			expect(xhr.status).toEqual(404);
-			expect(data.detail).not.toBeNull();
-		});
 
-		testAjax(function(callback) {
-			Helpers.jsonRequest( Helpers.POSTS_URL + "/1254635634", "GET", null, callback );
-		}, function(data, xhr) { 
-			expect(data).not.toBeNull();
-			expect(xhr.status).toEqual(404);
-			expect(data.detail).not.toBeNull();
-		});
-	});
 	
 	it("returns UnAuthorized 401 when POST with no credentials", function() {
 		testAjax(function(callback) {
@@ -215,7 +239,6 @@ describe("Post AJAX", function() {
 			expect(xhr.status).not.toEqual(201);
 		}, 2000);
 	});
-
 
 
 });

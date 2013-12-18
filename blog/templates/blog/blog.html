@@ -28,7 +28,7 @@
             <a href="{% url 'blog.views.register.sign_in' %}">Sign in</a>
           {% endif %}
         {% verbatim %}
-        ROOT <br/>
+        
 
         {{input type="text" placeholder="New User?" value=blogName action="createBlog"}}
 
@@ -36,7 +36,8 @@
           {{#each blog in blogs}}
             <div>
               <h3> {{blog.title}} </h3> <span>started by {{blog.creator}}</span>
-              <div>{{#link-to 'blog' blog}}link{{/link-to}}</div>
+              <div>id = {{ blog.id }}</div>
+              <div>{{#link-to 'blog' blog}} {{blog.title}} {{/link-to}}</div>
             </div>
           {{/each}}
 

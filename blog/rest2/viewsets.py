@@ -5,8 +5,9 @@ from rest_framework.decorators import action, permission_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.contrib.contenttypes.models import ContentType
 from blog.rest2.sessions import ExpiringTokenAuthentication
-
+from django.conf import settings
 from django.db import IntegrityError
+from django.http import Http404
 
 import json
 from blog.rest2.serializers import *
@@ -16,6 +17,86 @@ from blog.models import *
 from blog import parser
 import nltk
 import difflib
+
+
+class PaginationError(Exception):
+    pass
+
+
+def build_collection_json_from_query(request, query_set, per_model_serializer_callback):
+    """
+    Builds a skeleton collection data structure to be used for JSON serialization.
+    Sets up pagination and links.
+
+    Returns a json that can be further edited (such as template, debug properties)
+
+    Throws PaginationError on cases 
+    1) page parameter is not an int
+    2) page is out of bounds (too low or too high)
+
+    @per_model_serializer_callback A callback to be used to serialize a model of the query_set to a python dict
+    The callback takes a single argument which is the singular django model of the query_set.
+    """
+    # Pagination:
+    # For queries returning large number of items
+    # show only a subset of the items with an upper bound limit to size
+    # as determined by settings
+    # User can offer a page parameter to provide an offset
+    # Paginate by settings.REST_FRAMEWORK['PAGINATE_BY']
+    try:
+        page = int( request.GET.get('page', 1) )
+    except ValueError:
+        raise PaginationError()
+
+    page_size = settings.REST_FRAMEWORK['PAGINATE_BY']
+    offset = ( (page - 1) * page_size )
+
+    # Get the query set size and check if pagination is valid
+    size = len( query_set )
+
+    # Check if offset is not too low
+    # To check of offset is too high
+    if (offset < 0) or (offset > size):
+        raise PaginationError()
+
+
+    result_set = query_set[offset : offset+page_size]
+
+
+    return_json = {}
+    return_json['collection'] = {}
+    return_json['collection']['version'] = 1.0
+
+    return_json['collection']['href'] = '%s' % (request.build_absolute_uri(""),)
+
+    return_json['collection']['links'] = []
+
+    # Display next link if offset + page_size is still less than size of result_set
+    # len(result_set) vs page_size
+    if offset + page_size < size:
+        return_json['collection']['links'].append( {'rel': 'next', 'href': request.build_absolute_uri().split("?")[0] + ('?page=%s' % (page + 1,))} )
+
+    if offset > 1:
+        return_json['collection']['links'].append( {'rel': 'prev', 'href': request.build_absolute_uri().split("?")[0] + ('?page=%s' % (page - 1,))} )
+
+    # This will have to be set on case by case basis
+    return_json['collection']['template'] = {}
+
+    return_json['collection']['size'] = size
+    return_json['collection']['items'] = []
+
+    for q in result_set:
+        return_json['collection']['items'].append( per_model_serializer_callback(q) )
+
+    return_json['debug'] = {}
+    return_json['debug']['offset'] = offset
+    return_json['debug']['page_size'] = page_size
+    return_json['debug']['size'] = size
+
+    return return_json
+
+
+
 
 class UserViewSet(viewsets.GenericViewSet, 
                   mixins.ListModelMixin, 
@@ -87,6 +168,23 @@ class UserViewSet(viewsets.GenericViewSet,
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+def post_view(model_name, request, pk):
+    try:
+        pk = int(pk)
+    except:
+        return Response({"detail": "Not found"}, status = 404)
+
+    query = Post.objects.filter(parent_content_type = ContentType.objects.get(model = model_name), parent_id = pk).order_by('-created')
+
+    try:
+        return_json = build_collection_json_from_query(request, query, lambda m: {"id": m.id, "title": m.title, "href": '/blog/api/posts/%s' % (m.id,)})
+    except PaginationError:
+        return Response({"detail": "Not found"}, status = 404)
+
+    return Response( return_json, status = 200 )
+
+
 class BlogViewSet(viewsets.GenericViewSet, 
                   mixins.CreateModelMixin,
                   mixins.ListModelMixin, 
@@ -109,6 +207,11 @@ class BlogViewSet(viewsets.GenericViewSet,
         else:
             return Response(blog_serializer.errors, status = 400)
 
+    @action(methods=['GET'])
+    def posts(self, request, pk = None):
+        return post_view("blog", request, pk)
+
+
 class PostViewSet(viewsets.GenericViewSet):
     
     authentication_classes = (ExpiringTokenAuthentication,)
@@ -128,8 +231,37 @@ class PostViewSet(viewsets.GenericViewSet):
         """
         TODO:
         Can I add a template field?
+
+        Filter posts its parent_object, be it blog, post, or sentence as determined by input pk
         """
-        posts = Post.objects.all()
+        blog_pk = request.GET.get('blog', None)
+        post_pk = request.GET.get('post', None)
+        sentence_pk = request.GET.get('sentence', None)
+
+        try:
+            parent_content_type = None
+
+            if blog_pk is not None:
+                parent_content_type = ContentType.objects.get(name = 'blog')
+                parent_id = int(blog_pk)
+            elif post_pk is not None:
+                parent_content_type = ContentType.objects.get(name = 'post')
+                parent_id = int(post_pk)
+            elif sentence_pk is not None:
+                parent_content_type = ContentType.objects.get(name = 'sentence')
+                parent_id = int(sentence_pk)
+            else:
+                # Everything is none
+                posts = Post.objects.all()
+        except ValueError:
+            return Response(self.NOT_FOUND_JSON, status = 404)                
+
+        if parent_content_type is not None:
+            posts = Post.objects.filter(parent_content_type = parent_content_type, parent_id = parent_id).order_by('-created')
+
+        if len(posts) < 1:
+            return Response(self.NOT_FOUND_JSON, status = 404)
+
         serialized_posts = PostSerializer(posts, many = True, context = {'request': request})
         return Response( serialized_posts.data, status = 200 )
 
@@ -410,7 +542,10 @@ class PostViewSet(viewsets.GenericViewSet):
         except Post.DoesNotExist as dne:
             return Response(self.NOT_FOUND_JSON, status = 404)
 
-from django.forms.models import model_to_dict
+    @action(methods=['GET'])
+    def posts(self, request, pk = None):
+        return post_view("post", request, pk)
+
 
 class SentenceViewSet(viewsets.GenericViewSet):
     
@@ -457,3 +592,7 @@ class SentenceViewSet(viewsets.GenericViewSet):
             return_json['previous_version'] = sentence.previous_version.pk
 
         return Response(return_json, status = 200)
+
+    @action(methods=['GET'])
+    def posts(self, request, pk = None):
+        return post_view("sentence", request, pk)

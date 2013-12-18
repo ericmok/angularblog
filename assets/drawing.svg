@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="960"
+   height="600"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="drawing.svg">
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="424.30819"
+     inkscape:cy="246.49457"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1855"
+     inkscape:window-height="1056"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1">
+    <sodipodi:guide
+       id="guide4101"
+       position="0,300"
+       orientation="0,1" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="640,0"
+       id="guide3089" />
+  </sodipodi:namedview>
+  <defs
+     id="defs4" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1"
+     transform="translate(0,-452.36218)">
+    <path
+       transform="matrix(1.4784689,0,0,1.4784689,-664.46345,116.68932)"
+       d="m 700.00002,332.36218 a 144.28572,144.28572 0 1 1 -288.57145,0 144.28572,144.28572 0 1 1 288.57145,0 z"
+       sodipodi:ry="144.28572"
+       sodipodi:rx="144.28572"
+       sodipodi:cy="332.36218"
+       sodipodi:cx="555.71429"
+       id="path4921"
+       style="fill:#dbcea2;fill-opacity:1;stroke:#5c3e00;stroke-width:10;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       sodipodi:type="arc" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       inkscape:connector-curvature="0"
+       id="path2985"
+       d="m 172.71978,502.19667 c 0.25689,4.04115 -54.37691,1.98333 -108.340346,0 25.882133,30.74284 51.018076,64.30775 55.876526,63.75227 -6.52559,30.57538 -40.627252,58.76026 -54.138446,73.55608 24.850303,-8.42757 104.333596,5.51185 110.368106,0"
+       style="fill:none;stroke:#823e00;stroke-width:8.07932091;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <flowRoot
+       transform="matrix(0.72370131,0,0,0.72370131,-199.4943,514.29186)"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       id="flowRoot4931"
+       xml:space="preserve"><flowRegion
+         id="flowRegion4933"><rect
+           y="176.6479"
+           x="361.42856"
+           height="125.71429"
+           width="397.14285"
+           id="rect4935" /></flowRegion><flowPara
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Josefin Sans;-inkscape-font-specification:Josefin Sans Bold"
+         id="flowPara4937">Prototype</flowPara></flowRoot>    <text
+       sodipodi:linespacing="125%"
+       id="text3047"
+       y="522.36218"
+       x="391.42856"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         id="tspan3051"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Josefin Sans;-inkscape-font-specification:Josefin Sans"
+         y="522.36218"
+         x="391.42856"
+         sodipodi:role="line">A return to long-form and rigorous</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Josefin Sans;-inkscape-font-specification:Josefin Sans"
+         y="572.36218"
+         x="391.42856"
+         sodipodi:role="line"
+         id="tspan3093">disussions on the internet</tspan></text>
+  </g>
+</svg>

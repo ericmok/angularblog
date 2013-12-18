@@ -3,6 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
 
 import blog.views.index
+import blog.views.ember
 import blog.views.register
 
 from rest_framework import routers
@@ -38,27 +39,22 @@ def tester(template):
 
 
 urlpatterns = patterns('',
-	
+
 	url(r'^/api/', include(router.urls)),
     #url(r'^api/', include(router_with_no_slashes.urls)),
 
-    #url(r'^/api/sentences', )
-    #url(r'^/api/sentences/(?<pk>\d*))
+    #url(r'^/test/?$', TemplateView.as_view(template_name = 'blog/test.html')),
 
-    url(r'^/test/?$', TemplateView.as_view(template_name = 'blog/test.html')),
-    url(r'^/sentencer/?$', blog.views.index.index),
-    
     url(r'^/api-auth/$', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^/api-tokens/?', 'blog.rest2.sessions.obtain_auth_token'),
-    
 
-    url(r'^/?$', blog.views.index.page, name='index'),
+    #url(r'^/?$', blog.views.index.page, name='index'),
+    url(r'^/?$', blog.views.ember.index, name='index'),
 
     url(r'^/register/?$', blog.views.register.index, name = 'register'),
     url(r'^/sign-in/?$', blog.views.register.sign_in, name = 'sign-in'),
     url(r'^/sign-out/?$', blog.views.register.sign_out, name = 'sign-out'),
-    
-    url(r'^/tests/user/?$', tester("blog/ajaxtester.html")),
-    url(r'^/tests/blog/?$', tester("blog/jasminetests.html")),
+
+    url(r'^/tests/?$', tester("blog/jasminetests.html")),
 
 )
