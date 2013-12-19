@@ -13,35 +13,31 @@ describe("BLOG Ajax", function() {
 	describe("GET", function() {
 
 		it("can make ajax call to blogs", function() {
-
-			var testData = null;
-
-			var testObj = {
-				test: function(data) {
-					testData = data;
-				}
-			};
-
-			spyOn(testObj, "test").andCallThrough();
-
-			runs(function() {
-			 Helpers.jsonRequest( Helpers.BLOGS_URL, "GET", null, testObj.test);	
-			});
-			waitsFor(function() {
-				return testObj.test.callCount > 0;
-			}, "ajax to finish", 1000);
-			runs(function() {
-				expect(testObj.test).toHaveBeenCalled();
-				expect(testData).not.toBeNull();
-				expect(testData.results).toEqual(jasmine.any(Array));
-			});
 			
+			testAjax(function(callback) {
+ 				Helpers.jsonRequest( Helpers.BLOGS_URL, "GET", null, callback);
+			}, function(data, xhr) {
+				expect(data).not.toBeNull();
+			});
+		});
+
+		it("returns collection based response", function() {
+			
+			testAjax(function(callback) {
+ 				Helpers.jsonRequest( Helpers.BLOGS_URL, "GET", null, callback);
+			}, function(data, xhr) {
+				expect(data.count).not.toBeNull();
+				expect(data.items).not.toBeNull();
+				expect(data.href).not.toBeNull();
+				expect(data.template).not.toBeNull();
+				expect(data.links).not.toBeNull();
+			});
 		});
 
 	});
 
 
-	describe("Serialization", function() {
+	xdescribe("Serialization", function() {
 		it("can serialize created blog", function() {
 
 			var b = new Blog();
@@ -64,7 +60,7 @@ describe("BLOG Ajax", function() {
 			runs(function() {
 				expect( testData ).not.toBeNull();
 				expect( testData.length ).not.toBeNull();
-				expect( testData[0] instanceof Blog ).toBeTruthy();
+				expect( testData.items[0] instanceof Blog ).toBeTruthy();
 			});
 		});
 	});

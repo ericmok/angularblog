@@ -89,3 +89,31 @@ class TestPostView(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertTrue( json_response['collection']['links'] is not None )
 		self.assertTrue( json_response['collection']['links'][0]['rel'] == 'next')
+
+	def test_will_not_show_next_link(self):
+		for a in range(0,2):
+			Post.objects.create(title = "blah", author = User.objects.get(pk=1), 
+								parent_content_type = ContentType.objects.get(model='blog'), parent_id = 1)
+
+		client = Client()
+		response = client.get(BLOGS_URL + "/1/posts")
+
+		json_response = json.loads(response.content)
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue( json_response['collection']['links'] is not None )
+		self.assertTrue( len(json_response['collection']['links']) < 1 )
+
+	def test_will_show_prev_link(self):
+		for a in range(0,34):
+			Post.objects.create(title = "blah", author = User.objects.get(pk=1), 
+								parent_content_type = ContentType.objects.get(model='blog'), parent_id = 1)
+
+		client = Client()
+		response = client.get(BLOGS_URL + "/1/posts?page=2")
+
+		json_response = json.loads(response.content)
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue( json_response['collection']['links'] is not None )
+		self.assertEqual( len(json_response['collection']['links']), 2 )
+		self.assertTrue( json_response['collection']['links'][0]['rel'] == 'next' )
+		self.assertTrue( json_response['collection']['links'][1]['rel'] == 'prev' )

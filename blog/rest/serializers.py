@@ -39,7 +39,7 @@ class BlogSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Blog
-    fields = ('id', 'href', 'title')
+    fields = ('id', 'href', 'title', 'created')
     read_only_fields = ('creator',)
 
 

@@ -4,99 +4,21 @@ from rest_framework.response import Response
 from rest_framework.decorators import action, permission_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.contrib.contenttypes.models import ContentType
-from blog.rest2.sessions import ExpiringTokenAuthentication
+
+#from blog import rest
+#from blog.rest import sessions
+#from blog.rest.sessions import ExpiringTokenAuthentication
+from .. import sessions
+from .. import serializers
+
 from django.conf import settings
 from django.db import IntegrityError
 from django.http import Http404
 
 import json
-from blog.rest2.serializers import *
+#from blog.rest.serializers import *
 from blog.models import *
-
-
-from blog import parser
-import nltk
-import difflib
-
-
-class PaginationError(Exception):
-    pass
-
-
-def build_collection_json_from_query(request, query_set, per_model_serializer_callback):
-    """
-    Builds a skeleton collection data structure to be used for JSON serialization.
-    Sets up pagination and links.
-
-    Returns a json that can be further edited (such as template, debug properties)
-
-    Throws PaginationError on cases 
-    1) page parameter is not an int
-    2) page is out of bounds (too low or too high)
-
-    @per_model_serializer_callback A callback to be used to serialize a model of the query_set to a python dict
-    The callback takes a single argument which is the singular django model of the query_set.
-    """
-    # Pagination:
-    # For queries returning large number of items
-    # show only a subset of the items with an upper bound limit to size
-    # as determined by settings
-    # User can offer a page parameter to provide an offset
-    # Paginate by settings.REST_FRAMEWORK['PAGINATE_BY']
-    try:
-        page = int( request.GET.get('page', 1) )
-    except ValueError:
-        raise PaginationError()
-
-    page_size = settings.REST_FRAMEWORK['PAGINATE_BY']
-    offset = ( (page - 1) * page_size )
-
-    # Get the query set size and check if pagination is valid
-    size = len( query_set )
-
-    # Check if offset is not too low
-    # To check of offset is too high
-    if (offset < 0) or (offset > size):
-        raise PaginationError()
-
-
-    result_set = query_set[offset : offset+page_size]
-
-
-    return_json = {}
-    return_json['collection'] = {}
-    return_json['collection']['version'] = 1.0
-
-    return_json['collection']['href'] = '%s' % (request.build_absolute_uri(""),)
-
-    return_json['collection']['links'] = []
-
-    # Display next link if offset + page_size is still less than size of result_set
-    # len(result_set) vs page_size
-    if offset + page_size < size:
-        return_json['collection']['links'].append( {'rel': 'next', 'href': request.build_absolute_uri().split("?")[0] + ('?page=%s' % (page + 1,))} )
-
-    if offset > 1:
-        return_json['collection']['links'].append( {'rel': 'prev', 'href': request.build_absolute_uri().split("?")[0] + ('?page=%s' % (page - 1,))} )
-
-    # This will have to be set on case by case basis
-    return_json['collection']['template'] = {}
-
-    return_json['collection']['size'] = size
-    return_json['collection']['items'] = []
-
-    for q in result_set:
-        return_json['collection']['items'].append( per_model_serializer_callback(q) )
-
-    return_json['debug'] = {}
-    return_json['debug']['offset'] = offset
-    return_json['debug']['page_size'] = page_size
-    return_json['debug']['size'] = size
-
-    return return_json
-
-
-
+from blog.viewsets.common import build_collection_json_from_query, post_view
 
 class UserViewSet(viewsets.GenericViewSet, 
                   mixins.ListModelMixin, 

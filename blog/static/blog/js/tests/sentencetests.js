@@ -97,7 +97,7 @@ describe("Sentence Endpoint", function() {
 			Helpers.jsonRequest( Helpers.SENTENCES_URL, "GET", null, callback);	
 		}, function(data, xhr) {
 			expect(xhr.status).toEqual(200);
-			expect(data.length).toBeGreaterThan(1);
+			expect(data.results.length).toBeGreaterThan(1);
 		});	
 	});
 	it("can receive GET request for specific sentence", function() {
