@@ -108,6 +108,41 @@ describe("BLOG Ajax", function() {
 		});
 
 
+		it("can create blog with (title, description)", function() {
+
+			testAjax(function(callback) {
+				var payload = {
+					title: ["A super original blog!", Math.random()].join(" "),
+					description: "Some description"
+				};
+				AuthModule.requestToken("eric", "wt25yq186vke1dcd", function(data, status, xhr) {
+					Helpers.jsonRequest( Helpers.BLOGS_URL, "POST", payload, callback, {
+						"X-Authorization": "Token " + data.token
+					});
+				});
+			}, function(data, xhr) {
+				expect(xhr.status).toEqual(201);
+			});
+		});
+
+		it("can create blog with (title, description, is_restricted)", function() {
+
+			testAjax(function(callback) {
+				var payload = {
+					title: ["A brand new blog!", Math.random()].join(" "),
+					description: "Some description",
+					is_restricted: true
+				};
+				AuthModule.requestToken("eric", "wt25yq186vke1dcd", function(data, status, xhr) {
+					Helpers.jsonRequest( Helpers.BLOGS_URL, "POST", payload, callback, {
+						"X-Authorization": "Token " + data.token
+					});
+				});
+			}, function(data, xhr) {
+				expect(xhr.status).toEqual(201);
+			});
+		});
+
 		it("refuses to make duplicate Blog (title, creator) with POST request", function() {
 			var response = null;
 			var responseXHR = null;
@@ -146,6 +181,7 @@ describe("BLOG Ajax", function() {
 				expect( responseXHR.status ).not.toBe(201); // FORBIDDEN
 			});
 		});
+
 	});
 
 	

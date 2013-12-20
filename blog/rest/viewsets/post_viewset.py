@@ -16,7 +16,7 @@ from django.http import Http404
 
 import json
 from blog.rest.viewsets.common import PaginationError, build_collection_json_from_query, post_view
-from blog.rest.serializers import PostSerializer
+from blog.rest.serializers import PostSerializer, PostPaginationSerializer
 from blog.models import *
 
 
@@ -71,10 +71,12 @@ class PostViewSet(viewsets.GenericViewSet):
 
         page = self.paginate_queryset(posts)
         if page is not None:
-            serializer = self.get_pagination_serializer(page)
+            #serializer = self.get_pagination_serializer(page)
+            serializer = PostPaginationSerializer(page)
         else:
             serializer = self.get_serializer(posts, many=True)
 
+        serializer.data['href'] = request.build_absolute_uri('')
         serializer.data['template'] = [
             {"post": [
                 {"title": "(String) Title of the post"},
@@ -86,6 +88,8 @@ class PostViewSet(viewsets.GenericViewSet):
                 {"content": "(String) The body of the post consisting of multiple sentences."}
             ]}
         ]
+
+
         return Response(serializer.data)
 
 
@@ -128,6 +132,12 @@ class PostViewSet(viewsets.GenericViewSet):
         # if request.user != post_serializer.object['author']:
         #    return Response({'error': 'You are not logged in as the given author'}, status = 401)
         # Title is not null
+        # 
+        # TODO:
+        # If the parent object is a blog, abort write process, 
+        # 1) unless user is the creator
+        # 2) or user is white listed for that blog
+        # 
         # Parent object exists <- This is checked in serializer validation
         # Content can be empty or a string containing multiple sentences. 
         # 
@@ -138,12 +148,25 @@ class PostViewSet(viewsets.GenericViewSet):
         # Create sentences for each sentence
         if post_serializer.is_valid():
 
+            # Get the object that the parent_content_type and parent_id fields point to
+            ct_parent = ContentType.objects.get(model = post_serializer.data['parent_content_type'])
+            parent = ct_parent.get_object_for_this_type(pk = post_serializer.data['parent_id'])
+
+
+            # If the post is made on a blog that is RESTRICTED, perform 
+            # special authorization checks:
+            # A restricted blog means only users on the white list of the blog can post to it
+            if ct_parent.name == "blog":
+                if parent.is_restricted:
+                    # When a blog is restricted, the creator is allowed 
+                    # access to it by default, regardless of whether s/he is on whitelist!
+                    if parent.creator != request.user:
+                        wl = WhiteList.objects.filter(blog = parent, user = request.user)
+                        if len(wl) < 1:
+                            return Response({"status": "This blog is restricted to members in the white list."}, status = 401)
+
             # Create a new post
             new_post = Post.objects.create(title = post_serializer.data['title'], author = request.user)
-
-            # Get the object that the parent_content_type and parent_id fields point to
-            parent = ContentType.objects.get(model = post_serializer.data['parent_content_type'])
-            parent = parent.get_object_for_this_type(pk = post_serializer.data['parent_id'])
             new_post.parent_object = parent
 
             new_post.save() # Save after editing the parent field, modified field will change again
@@ -164,10 +187,6 @@ class PostViewSet(viewsets.GenericViewSet):
                     # Since index starts at 0, increment to get 1
 
                     # For each sentence, create or get text
-                    #try: 
-                    #    text_obj = Text.objects.get(value = value)
-                    #except:
-                    #    text_obj = Text.objects.create(value = value)
                     text_obj = self.create_or_get_text(value)
 
                     # Forge a binary relation between the created text and the set
@@ -385,6 +404,18 @@ class PostViewSet(viewsets.GenericViewSet):
             return Response(return_json, status = 200)
         except Post.DoesNotExist as dne:
             return Response(self.NOT_FOUND_JSON, status = 404)
+
+
+    def destroy(self, request, pk = None):
+        try: 
+            post = Post.objects.get(pk = pk)
+        except Post.DoesNotExist:
+            return Response({"status": "This post doesn't exist"}, status = 404)
+
+        post.is_active = False
+        post.save()
+
+        return Response({"status": "Marked inactive!"}, status = 202)
 
     @action(methods=['GET'])
     def posts(self, request, pk = None):

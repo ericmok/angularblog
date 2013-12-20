@@ -42,7 +42,7 @@ class SentenceViewSet(viewsets.GenericViewSet):
             return serialized_json
 
         #return_json = build_collection_json_from_query(request, sentences, sentence_collection_serializer)
-        return_json = build_paginated_simple_json(request, sentences, sentence_collection_serializer)
+        return_json = build_paginated_simple_json(request, sentences, sentence_collection_serializer, 'sentences')
 
         return Response(return_json, status = 200)
 

@@ -9,7 +9,7 @@ class PaginationError(Exception):
     pass
 
 
-def build_paginated_simple_json(request, query_set, per_model_serializer_callback):
+def build_paginated_simple_json(request, query_set, per_model_serializer_callback, results = 'result'):
     """
     Builds a paginated response in the format that django rest framework uses. 
     I don't like it, but the sake of speed, I'll just have to use this.
@@ -76,10 +76,10 @@ def build_paginated_simple_json(request, query_set, per_model_serializer_callbac
     return_json['template'] = {}
 
     return_json['count'] = size
-    return_json['results'] = []
+    return_json[results] = []
 
     for q in result_set:
-        return_json['results'].append( per_model_serializer_callback(q) )
+        return_json[results].append( per_model_serializer_callback(q) )
 
     # return_json['debug'] = {}
     # return_json['debug']['offset'] = offset
@@ -260,7 +260,13 @@ def post_view(model_name, request, pk):
 
     try:
         #return_json = build_collection_json_from_query(request, query, lambda m: {"id": m.id, "title": m.title, "href": '/blog/api/posts/%s' % (m.id,)})
-        return_json = build_paginated_simple_json(request, query, lambda m: {"id": m.id, "title": m.title, "href": '/blog/api/posts/%s' % (m.id,)})        
+        return_json = build_paginated_simple_json(request, query, 
+                        lambda m: 
+                            {"id": m.id, 
+                            "title": m.title, 
+                            "brief": m.get_brief(),
+                            "created": m.created,
+                            "href": '/blog/api/posts/%s' % (m.id,)})
     except PaginationError:
         return Response({"detail": "Not found"}, status = 404)
 

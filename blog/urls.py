@@ -21,7 +21,7 @@ router.register(r'blogs', viewsets.BlogViewSet, base_name = 'blog')
 router.register(r'posts', viewsets.PostViewSet, base_name = 'post')
 router.register(r'sentences', viewsets.SentenceViewSet, base_name = 'sentence')
 
-
+#router.register(r'whitelists', viewsets.WhiteListViewSet, base_name = 'whitelist')
 
 from django.shortcuts import render
 def tester(template):

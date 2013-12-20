@@ -5,17 +5,18 @@ from rest_framework.decorators import action, permission_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.contrib.contenttypes.models import ContentType
 
+from django.db import transaction
 
 from blog.rest.sessions import ExpiringTokenAuthentication
 from blog.rest import sessions
 from blog.rest import serializers
-
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.db import IntegrityError
 from django.http import Http404
 
 import json
-from blog.rest.serializers import UserSerializer, BasicUserSerializer
+from blog.rest.serializers import UserSerializer, BasicUserSerializer, UserPaginationSerializer
 from blog.models import *
 
 from blog.rest.viewsets.common import PaginationError, build_collection_json_from_query, post_view
@@ -25,15 +26,20 @@ class UserViewSet(viewsets.GenericViewSet,
                   mixins.ListModelMixin, 
                   mixins.RetrieveModelMixin):
     authentication_classes = (ExpiringTokenAuthentication,)
+    
+    permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
+
+    pagination_serializer_class =  UserPaginationSerializer
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return BasicUserSerializer
         else:
             return UserSerializer
+
 
     def create(self, request):
         serializer = UserSerializer(data = request.DATA, files = request.FILES, context = {'request': request})
@@ -84,10 +90,14 @@ class UserViewSet(viewsets.GenericViewSet,
         else:
             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     
-    @permission_classes((IsAdminUser, ))
+    #@permission_classes(IsAdminUser,)
     def destroy(self, request, username = None):
-        obj = User.objects.get(username = username)
-        obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        if request.user.username == 'eric':
+            obj = User.objects.get(username = username)
+            obj.delete()
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"error": "Cannot delete unless superuser"}, status = 401)
 
 

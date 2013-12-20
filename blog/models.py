@@ -35,6 +35,14 @@ from rest_framework.authtoken.models import Token
 # Blah is a sentence. It has no meaning.
 # That is it. The end!
 
+class WhiteList(models.Model):
+    """
+    A white list filters users for access to a blog.
+    TODO:
+    """
+    user = models.ForeignKey(User)
+    blog = models.ForeignKey('Blog', related_name = "whitelist")
+
 class Blog(models.Model):
     """
     Top Parent for Posts
@@ -44,11 +52,20 @@ class Blog(models.Model):
     title = models.TextField()    
     creator = models.ForeignKey(User)
 
+    description = models.CharField(max_length = 512, null = True, blank = True)
+
+    # Associated functionality Not implemented
+    # Only specific users in the white list can contribute to a blog
+    is_restricted = models.BooleanField(default = False)
+
     class Meta:
-        unique_together = ('title', 'creator')
+        unique_together = ('title',)
 
     def content_type(self):
         return "blog"
+
+    def get_whitelisted(self):
+        return WhiteList.objects.filter(blog = self).values('user')
 
 class Post(models.Model):
     """
@@ -81,6 +98,22 @@ class Post(models.Model):
     class Meta:
         ordering = ['-created']
 
+    def get_brief(self):
+        """
+        For convenience, get a brief section of the blog. 
+        Maybe should take more popular sentences...
+        """
+        ss = SentenceSet.objects.filter(parent = self).order_by('-created')
+        if len(ss) > 0:
+            sen = Sentence.objects.filter(sentence_set = ss[0], ordering = 1)[:3]
+            if len(sen) > 0:
+                ret = []
+                for s in sen:
+                    ret.append(s.text.value)
+                ret = ''.join(ret)
+                return ret
+        return None
+
     def content_type(self):
         return "post"
 
@@ -89,7 +122,7 @@ class SentenceSet(models.Model):
     An addressing mechanism for storing versions of a post as it is edited throughout
     its life.
     """
-    parent = models.ForeignKey(Post)
+    parent = models.ForeignKey('Post')
     created = models.DateTimeField(auto_now_add = True)
 
     def content_type(self):

@@ -1,6 +1,7 @@
 from blog.models import User, Blog, Post, Sentence
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
+from rest_framework.pagination import BasePaginationSerializer, NextPageField, PreviousPageField
 
 class BasicUserSerializer(serializers.ModelSerializer):
     href = serializers.HyperlinkedIdentityField(view_name = 'user-detail', lookup_field = 'username')
@@ -34,13 +35,31 @@ class UserSerializer(serializers.ModelSerializer):
         
         lookup_field = 'username'
 
+
+
+
 class BlogSerializer(serializers.ModelSerializer):
   href = serializers.HyperlinkedIdentityField(view_name = 'blog-detail')
+  white_list = serializers.Field(source = 'get_whitelisted')
 
   class Meta:
     model = Blog
-    fields = ('id', 'href', 'title', 'created')
+    fields = ('id', 'href', 'title', 'created', 'is_restricted')
     read_only_fields = ('creator',)
+
+
+
+class BlogPaginationSerializer(BasePaginationSerializer):
+    """
+    A default implementation of a pagination serializer.
+    """
+    #results_field = 'blogs'
+    count = serializers.Field(source='paginator.count')
+    next = NextPageField(source='*')
+    previous = PreviousPageField(source='*')
+
+    class Meta:
+        object_serializer_class = BlogSerializer
 
 
 
@@ -54,6 +73,8 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     href = serializers.HyperlinkedIdentityField(view_name = 'post-detail')
 
     content_type = serializers.Field(source = 'content_type')
+
+    brief = serializers.Field(source = 'get_brief')
 
     def validate_parent_content_type(self, attrs, source):
         if attrs.get('parent_content_type', None) is None:
@@ -85,9 +106,42 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         model = Post
         fields = ('content_type', 'id', 'href', 'title', 'author',
                   'created', 'modified',
-                  'parent_content_type', 'parent_id')
+                  'parent_content_type', 'parent_id', 'brief')
 
         read_only_fields = ('created', 'modified',)
         
         #depth = 1
+
+
+class PostPaginationSerializer(BasePaginationSerializer):
+    """
+    A default implementation of a pagination serializer.
+    """
+    #results_field = 'posts'
+    count = serializers.Field(source='paginator.count')
+    next = NextPageField(source='*')
+    previous = PreviousPageField(source='*')
+    
+    class Meta:
+        object_serializer_class = PostSerializer
+
+
+class WhiteListSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(slug_field = 'username')
+    blog = serializers.SlugRelatedField(slug_field = 'title')
+
+    class Meta:
+        fields = ('user', 'blog')
+
+class UserPaginationSerializer(BasePaginationSerializer):
+    """
+    A default implementation of a pagination serializer.
+    """
+    #results_field = 'users'
+    count = serializers.Field(source='paginator.count')
+    next = NextPageField(source='*')
+    previous = PreviousPageField(source='*')
+
+    class Meta:
+        object_serializer_class = BasicUserSerializer
 

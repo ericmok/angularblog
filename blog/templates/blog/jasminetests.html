@@ -9,6 +9,8 @@
 	<div id="csrfmiddlewaretoken">
 		{% csrf_token %}
 	</div>
+	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
+
 	<script src="{{ STATIC_URL }}blog/libs/jquery-1.9.1.js"></script>
 	<script src="{{ STATIC_URL }}blog/libs/underscore.js"></script>
 	<script src="{{ STATIC_URL }}blog/libs/handlebars-1.1.2.js"></script>
@@ -17,16 +19,28 @@
 	<script src="{{ STATIC_URL }}blog/libs/jasmine.js"></script>
 	<script src="{{ STATIC_URL }}blog/libs/jasmine-html.js"></script>
 	<script src="{{ STATIC_URL }}blog/js/tests/modules.js"></script>
-	
-	<!--<script src="{{ STATIC_URL }}blog/js/tests/usertests.js"></script>-->
-	
+	<!--
+	<script src="{{ STATIC_URL }}blog/js/tests/usertests.js"></script>
+	-->
+	<!--
 	<script src="{{ STATIC_URL }}blog/js/tests/tokentests.js"></script>
-	<script src="{{ STATIC_URL }}blog/js/tests/blogtests.js"></script>
 	
+
+	<script src="{{ STATIC_URL }}blog/js/tests/blogtests.js"></script>
+	-->
+
 	<script src="{{ STATIC_URL }}blog/js/tests/posttests.js"></script>
+	<!--
 	<script src="{{ STATIC_URL }}blog/js/tests/sentencetests.js"></script>
+	-->
 	
 	<script src="{{ STATIC_URL }}blog/js/tests/jsonformattests.js"></script>
+	
+	<!--
+	
+	<script src="{{ STATIC_URL }}blog/js/tests/fixturetests.js"></script>
+	-->
+
 	<script>
 		var htmlReporter = new jasmine.HtmlReporter();
 		jasmineEnv = jasmine.getEnv();
@@ -40,6 +54,19 @@
 		$(document).ready(function() {
 			document.querySelector("#spec").innerHTML = jasmineEnv.versionString();
 			jasmineEnv.execute();
+
+			// I was bored so I made this hashcash puzzle solver
+			// console.log("YEA");
+			//  nonce = 1;
+			//  hash = CryptoJS.SHA1("Message" + nonce);
+			// while ( (hash.toString()).substr(0,3) != '000' ) { 
+			// 	nonce++;
+			// 	hash = CryptoJS.SHA1("Message" + nonce);
+			// 	console.log("HASH: " + hash);
+			// }
+			// console.log("SOLVED! ");
+			// console.log("hash: " + hash);
+			// console.log("nonce: " + nonce);
 		});
 	</script>
 

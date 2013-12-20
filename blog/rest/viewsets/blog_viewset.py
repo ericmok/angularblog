@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from blog.rest.sessions import ExpiringTokenAuthentication
 from blog.rest import sessions
-from blog.rest.serializers import BlogSerializer
+from blog.rest.serializers import BlogSerializer, BlogPaginationSerializer
 
 from django.db import IntegrityError
 from django.http import Http404
@@ -18,11 +18,12 @@ from blog.rest.viewsets.common import PaginationError, build_collection_json_fro
 from blog.models import *
 
 
+
+
 class BlogViewSet(viewsets.GenericViewSet, 
                   mixins.CreateModelMixin,
                   mixins.ListModelMixin, 
-                  mixins.RetrieveModelMixin, 
-                  mixins.UpdateModelMixin):
+                  mixins.RetrieveModelMixin):
     authentication_classes = (ExpiringTokenAuthentication,)
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
@@ -43,10 +44,12 @@ class BlogViewSet(viewsets.GenericViewSet,
         lst = Blog.objects.all()
         page = self.paginate_queryset(lst)
         if page is not None:
-            serializer = self.get_pagination_serializer(page)
+            #serializer = self.get_pagination_serializer(page)
+            serializer = BlogPaginationSerializer(page, context = {'request': request})
         else:
-            serializer = self.get_serializer(lst, many=True)
+            serializer = self.get_serializer(lst, many=True, context = {'request': request})
 
+        serializer.data['href'] = request.build_absolute_uri('')
         serializer.data['template'] = [
             {"post": [
                 {"title": "(String) Name of the Blog"}
