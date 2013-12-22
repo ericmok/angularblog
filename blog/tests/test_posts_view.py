@@ -23,7 +23,7 @@ POSTS_URL = ROOT_URL + '/api/posts'
 SENTENCES_URL = ROOT_URL + '/api/sentences'
 
 class TestPostView(TestCase):
-	fixtures = ['fixture.json']
+	fixtures = ['nice_fixture.json']
 	
 	def test_works(self):
 		self.assertTrue(True)

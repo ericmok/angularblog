@@ -162,6 +162,56 @@ def expand_nodes_to_sentences(nodes):
             sentences.append( Node(node.mode, node.text) )
     return sentences
 
+def for_each_sentence_in_content(content):
+        # Split content into paragraphs (blocks)
+        # for each block, split into nodes of the same paragraph
+        # If the node is just text, then tokenize into sentences
+        
+        # Split the content into paragraphs. 
+        # Even if there is no split found, this function always returns at least 1 item
+        paragraphs = split_content_into_blocks(content)
+
+        # Run the sentencer on each paragraph
+        # Each new sentence receives the outer new_set variable as the sentence_set
+        # 
+        # [ "Sent1. Sent2. Sent3." ,  "Sent4. Sent5. Sent6." ]
+        for par_index, par_value in enumerate( paragraphs ):
+
+            # Use NLTK to tokenize each node into sentences
+            nodes = split_block_into_nodes( par_value )
+            tokenized_sentences = expand_nodes_to_sentences(nodes)
+            
+            # For each sentence in the paragraph, make a new sentence
+            # Each sentence is affected by the outer par_index counter
+            for sentence_index, sentence_text in enumerate(tokenized_sentences):
+                yield (par_index, par_value, sentence_index, sentence_text)
+
+
+
+def get_closest_sentence_model_to_text(text, sentence_models, cutoff = 0.4):
+    """
+    Given text, get the best Sentence model that most closely represents it
+
+    TODO: 
+    Use cosine similarity and take into account text ordering as well as text
+    """
+    winning_model = (0, sentence_models[0])
+    
+    s = difflib.SequenceMatcher()
+    s.set_seq2(text)
+
+    for sentence in sentence_models:
+        s.set_seq1(sentence.text.value)
+
+        if s.real_quick_ratio() >= cutoff and \
+            s.quick_ratio() >= cutoff:
+                ratio = s.ratio()
+                if ratio >= cutoff and ratio >= winning_model[0]:
+                    winning_model = (ratio, sentence)
+
+    return winning_model
+
+
 class PostViewSet(viewsets.GenericViewSet):
     
     authentication_classes = (ExpiringTokenAuthentication,)
@@ -295,6 +345,7 @@ class PostViewSet(viewsets.GenericViewSet):
         # TODO: lock database.
 
         # Get the object that the parent_content_type and parent_id fields point to
+        # TODO: Allow 'sentence' parent_content_type, Also allow in serialization validation
         ct_parent = ContentType.objects.get(model = post_serializer.data['parent_content_type'])
         parent = ct_parent.get_object_for_this_type(pk = post_serializer.data['parent_id'])
 
@@ -319,54 +370,29 @@ class PostViewSet(viewsets.GenericViewSet):
 
         # Create a brand new set for the post. It is time stamped on creation
         new_set = SentenceSet.objects.create(parent = new_post)
- 
-        # TODO: Split each node into MODE blocks
-        # Example:
-        #   't', 'link', 't'
-        # FOR: each MODE decide whether to split into sentences or not (if it is a 't' block)
-        #
-        # Split the content into paragraphs. 
-        # Even if there is no split found, this function always returns at least 1 item
-        paragraphs = split_content_into_blocks(content)
 
-        # Run the sentencer on each paragraph
-        # Each new sentence receives the outer new_set variable as the sentence_set
-        # 
-        # [ "Sent1. Sent2. Sent3." ,  "Sent4. Sent5. Sent6." ]
-        for par_index, par_value in enumerate( paragraphs ):
+        for par_index, par_value, sentence_index, sentence_text in for_each_sentence_in_content(content):
+            # For each sentence, create or get text. Cannot have duplicate texts.
+            text_obj = self.create_or_get_text(sentence_text)
 
-            nodes = split_block_into_nodes( par_value )
-            tokenized_sentences = expand_nodes_to_sentences(nodes)
+            # Forge a binary relation between the created text and the new set
+            # Remember to increment the indices by 1 since in the loop the indices start at 0
+            new_sentence = Sentence.objects.create(sentence_set = new_set, 
+                                                   text = text_obj,
+                                                   ordering = sentence_index + 1,
+                                                   paragraph = par_index + 1,
+                                                   mode = par_value.mode
+                                                   )
 
-            # Use NLTK to tokenize each paragraph into sentences
-            #tokenized_sentences = tokenize_into_sentences(par_value.text)
-            
-            # For each sentence in the paragraph, make a new sentence
-            # Each sentence is affected by the outer par_index counter
-            for index, value in enumerate(tokenized_sentences):
+        return_json = {}
 
-                # For each sentence, create or get text. Cannot have duplicate texts.
-                text_obj = self.create_or_get_text(value)
-
-                # Forge a binary relation between the created text and the new set
-                # Remember to increment the indices by 1 since in the loop the indices start at 0
-                new_sentence = Sentence.objects.create(sentence_set = new_set, 
-                                                       text = text_obj,
-                                                       ordering = index + 1,
-                                                       paragraph = par_index + 1,
-                                                       mode = par_value.mode
-                                                       )
-            
-
-        return_json = { 'sentences': [] }
-
+        return_json['sentences'] = []
         sentences = Sentence.objects.filter(sentence_set = new_set)
         for sentence in sentences:
             return_json['sentences'].append( serialize_sentence(sentence) )
-
         return_json['number_sentences'] = len(sentences)
 
-        return_json['number_paragraphs'] = len(paragraphs)
+        return_json['number_paragraphs'] = par_index + 1
 
         return Response(return_json, status = 201)
 
@@ -431,23 +457,22 @@ class PostViewSet(viewsets.GenericViewSet):
         # Throttle?
 
         # Loop through the content
-        detector = nltk.load('tokenizers/punkt/english.pickle')
-        new_sentences = detector.tokenize(content)
+        tokenize_into_sentences(content)
 
         self.note('%s' % new_sentences)
 
         # Get sentences of the lastest version
         try:
-            latest_version = SentenceSet.objects.filter(parent = post)[0]
+            latest_sentence_set = SentenceSet.objects.filter(parent = post)[0]
         except Exception as e:
             return Response({"error": str(e)}, status = 500)
 
         # This query is ordered by ordering
-        #existing_sentences = Sentence.objects.filter(sentence_set = latest_version)
-        existing_sentences = latest_version.sentences.all()
+        #existing_sentences = Sentence.objects.filter(sentence_set = latest_sentence_set)
+        existing_sentences = latest_sentence_set.sentences.all()
 
         self.note("SentenceSet")
-        self.note("%s %s" % (latest_version.pk, latest_version))
+        self.note("%s %s" % (latest_sentence_set.pk, latest_sentence_set))
         
 
         self.note("existing")
@@ -477,24 +502,15 @@ class PostViewSet(viewsets.GenericViewSet):
             self.note("new_text: " + str(new_text))
             self.note("Close Matches: " + str( match ))
             
-
             # Create new Text for each new_text 
-            # Then create new Setence for each new_text
-            #try: 
-            #    self.note("Creating new text object")
-            #    text = Text.objects.create(value = new_text)
-            #except IntegrityError as ie:
-            #    # If duplicate don't create text object
-            #    self.note("Getting old text object %s" % (ie))
-            #    text = Text.objects.get(value = new_text)
+            # Then create new Sentence for each new_text
             text = self.create_or_get_text(new_text)
-
 
             if len( match ) < 1:
                 # If there is no match, don't set the previous_version pointer
                 self.note("no match")
-                new_sentence = Sentence.objects.create(sentence_set = new_set, \
-                                                        text = text, \
+                new_sentence = Sentence.objects.create(sentence_set = new_set, 
+                                                        text = text, 
                                                         ordering = ordering_index + 1)
             else:                 
                 # There was a match! 
