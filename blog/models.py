@@ -155,6 +155,14 @@ class Sentence(models.Model):
     # The order in which this sentence appears in the sentence set
     ordering = models.FloatField()
 
+    # Intra-post sectioning and ordering via the paragraph mechanism
+    # Can create a paragraph of texts / code / etc.
+    paragraph = models.IntegerField()
+
+    # Modifier for use cases of the sentence
+    # Could be 'h' for header, 'c' for code, 't' for text, for example
+    mode = models.CharField(max_length = 4, default = 't')
+
     class Meta:
         ordering = ['ordering']
         unique_together = ('sentence_set', 'text', 'ordering')

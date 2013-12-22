@@ -3,6 +3,7 @@ import nltk
 import random
 from django.db import transaction, IntegrityError
 
+
 try:
 	with transaction.atomic():
 
@@ -48,6 +49,9 @@ try:
 
 			('Thank you', alice, ct_post, 11, True),
 			('Thank you again...', alice, ct_post, 12, True),
+
+			#('Constitutional Madness1', alice, ct_sent, 1, True),
+			#('Constitutional Madness2', bobby, ct_sent, 2, True),
 		]
 
 		chosen_counter = []
@@ -58,7 +62,10 @@ try:
 			p = Post.objects.create(title = fixture[0], author = fixture[1], parent_content_type = fixture[2], parent_id = fixture[3], is_active = fixture[4])
 			ss = SentenceSet.objects.create(parent = p)
 
-			for number_sentences in range(0, random.randrange(0,30)):
+			number_sentences = range(0, random.randrange(0,30))
+			paragraph_split = (len(number_sentences) / 2) + random.randrange(0,3)
+
+			for sentence_index in number_sentences:
 
 				# Choose a random element
 				chosen = random.randrange(0,9000)
@@ -74,8 +81,20 @@ try:
 				except:
 					txt = Text.objects.get(value = ' '.join(words))
 
+				if sentence_index >= paragraph_split:
+					paragraph = 2
+				else:
+					paragraph = 1
+
 				# Bind text to sentence to set for each post
-				sentence = Sentence.objects.create(sentence_set = ss, text = txt, ordering = number_sentences + 1)
+				sentence = Sentence.objects.create(sentence_set = ss, 
+													text = txt, 
+													ordering = sentence_index + 1, 
+													paragraph = paragraph,
+													mode = 't')
+
+
 
 except IntegrityError as ie:
 	print("ERROR: %s" + str(ie))
+

@@ -90,7 +90,7 @@
       <div class="col-xs-7">
         Post:
         {{ post.id }}
-        <h4>{{post.title}}</h4>
+        <h4 style="font-family: Times New Roman; font-size: 26px">{{post.title}}</h4>
         <div>
           Comment by {{post.author}}
         </div>
@@ -98,7 +98,7 @@
           {{#each sentence in post.sentences}}
             <span onmouseover="this.style.backgroundColor='#DDD'"
                   onmouseout="this.style.backgroundColor='#FFF'">
-              {{sentence.text}}
+              {{sentence.paragraph}} {{sentence.text}}
             </span>
           {{/each}}
         </div>

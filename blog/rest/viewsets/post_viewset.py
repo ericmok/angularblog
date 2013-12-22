@@ -16,13 +16,151 @@ from django.http import Http404
 
 import json
 from blog.rest.viewsets.common import PaginationError, build_collection_json_from_query, post_view
-from blog.rest.serializers import PostSerializer, PostPaginationSerializer
+from blog.rest.serializers import PostSerializer, PostPaginationSerializer, serialize_sentence
 from blog.models import *
 
-
+import re
 from blog import parser
 import nltk
 import difflib
+
+import collections
+
+Block = collections.namedtuple('Block', ['mode', 'text'])
+Node = collections.namedtuple('Node', ['mode', 'text'])
+
+BLOCK_MODE_TEXT = 't'
+BLOCK_MODE_CODE = 'c'
+NODE_MODE_TEXT = 't'
+NODE_MODE_CODE = 'c'
+
+def tokenize_into_sentences(content):
+    # Lazy loaded?
+    # When creating a new post, tokenize the content with this function
+    detector = nltk.load('tokenizers/punkt/english.pickle')        
+    return detector.tokenize( content )
+
+
+def split_content_into_blocks(content):
+    """
+    Split into blocks. 
+    Priority of splits:
+      1) Code block
+      2) Paragraph block
+    Split by 3 new lines
+    Prioritize Code Blocks over Text only Blocks
+    
+    [[[
+    
+                                       <-- Should this be a new paragraph?
+    ]]] A mixed type.
+                                       <-- Notice the paragraph ends here
+    Should that be a [[[blocked]]]? 
+
+    """
+    CODE_BLOCK_REGEX = '(\[\[\[.*?\]\]\])'
+    PARAGRAPH_SPLIT_REGEX = '\n[\s]*?\n[\s]*?\n'
+    
+    code_blocks = re.split(CODE_BLOCK_REGEX, content)
+
+
+    blocks = []
+    remaining_text = content
+    temp_string = ''
+
+    def search(txt):
+        return re.search(CODE_BLOCK_REGEX, txt)
+    
+    # Breaks text before match into paragraphs, keeps the match itself intact
+    # Appends to blocks
+    def consume_match(blocks, txt, match):
+        #blocks.append( Block(BLOCK_MODE_TEXT, txt[:match.start()] ) )
+        consume_non_code_match(blocks, txt[:match.start()])
+        blocks.append( Block(BLOCK_MODE_CODE, txt[match.start() : match.end()] ) )
+
+    # Breaks text into paragraphs before appending to blocks
+    def consume_non_code_match(blocks, txt):
+        paras = re.split(PARAGRAPH_SPLIT_REGEX, txt)
+        for para in paras:
+            blocks.append( Block(BLOCK_MODE_TEXT, para) )
+
+    # Get the text remaining after a match
+    # Deals with the case: [[[ [[[ ]]] ]]] A B /A /B
+    def move_cursor_to_end_of_match(txt, match):
+        return txt[match.end():]
+
+    while len(remaining_text) > 0:
+
+        match = search(remaining_text)
+
+        if match is not None:
+            consume_match(blocks, remaining_text, match)
+            remaining_text = move_cursor_to_end_of_match(remaining_text, match)
+        else:
+            consume_non_code_match(blocks, remaining_text)
+            remaining_text = ''
+
+
+    return blocks
+    #return re.split(PARAGRAPH_SPLIT_REGEX, content)
+
+#def split_node_into_paragraphs?
+
+def split_block_into_nodes(block):
+    """
+    Split a Block into nodes of text or inline code nodes.
+
+    If the Block mode is text, further split into nodes.
+    If the Block mode is code, the whole block is atomic and doesn't need splitting.
+
+    TODO:
+    Utilize markdown?
+
+    Example:
+    >>> split_blocks_into_nodes('This is a test [[[asdf.jpg]]] another sentence.')
+    ('t', 'This is a test'), ('a', '[[[asdf.jpg]]]'), ('t', 'another sentence')
+    """
+
+    # Could be used as a Markdown Block
+    CODE_NODE_REGEX = '(\@\[.*?\]\@)'
+
+    parsed = []
+
+    if block.mode == BLOCK_MODE_TEXT:
+        
+        # 'Multiple sentences.@[Some Markdown]@More text? Blah'
+        nodes = re.split(CODE_NODE_REGEX, block.text)
+
+        # ('Multiple sentences', '@[Some Markdown]@', 'More text? Blah')
+        for node in nodes:
+            if re.match(CODE_NODE_REGEX, node):
+                parsed.append( Node(NODE_MODE_CODE, node) )
+            else:
+                parsed.append( Node(NODE_MODE_TEXT, node) )
+    else:
+        # !!!For Lazyness I just made the block mode into node mode!!!
+        parsed.append( Node(block.mode, block.text) )
+
+
+    return parsed
+
+
+def expand_nodes_to_sentences(nodes):
+    """
+    Some nodes need even further processing. Split them into sentences.
+    """
+    sentences = [] # This gets returned
+
+    for node in nodes:
+        if node.mode == NODE_MODE_TEXT:
+            # Each 't' node may be made of a couple of sentences.
+            tokenized_sents = tokenize_into_sentences(node.text)
+            for token in tokenized_sents:
+                sentences.append( Node(node.mode, token.strip()) )
+        else:
+            # Each non 't' node (FOR NOW this must be 'c') node gets priviledge to get inputted as-is
+            sentences.append( Node(node.mode, node.text) )
+    return sentences
 
 class PostViewSet(viewsets.GenericViewSet):
     
@@ -113,11 +251,29 @@ class PostViewSet(viewsets.GenericViewSet):
         # ]
         # return Response(return_json, status = 200 )
 
+
     def create(self, request):
         """
+        Preconditions:
+        User is authenticated, either via tokens or cookie sessions
         The request is authenticated via the authentication class. 
-        TODO:
-        It should be assumed that the 'author' of a post is request.user!!!
+        The author *is* the user 
+        if request.user != post_serializer.object['author']:
+           return Response({'error': 'You are not logged in as the given author'}, status = 401)
+        Title is not null
+        
+        If the parent object is a blog and is RESTRICTED, abort write process, 
+        1) unless user is the creator
+        2) or user is white listed for that blog
+        
+        Parent object exists <- This is checked in serializer validation
+        Content can be empty or a string containing multiple sentences. 
+        
+        The post is created before content is validated...?
+        There are no validations on sentences...
+        
+        If there is content, parse it (ie. an essay) into sentences via NLTK punkt.
+        Create sentences for each sentence
         """
         #content_type = request.META.get('CONTENT_TYPE', None) 
         #if content_type == 'application/json' or content_type == 'text/javascript':
@@ -126,80 +282,93 @@ class PostViewSet(viewsets.GenericViewSet):
         # Parse user input
         post_serializer = PostSerializer(data = request.DATA, context={'request': request})
 
-        # Preconditions:
-        # User is authenticated, either via tokens or cookie sessions
-        # The author *is* the user 
-        # if request.user != post_serializer.object['author']:
-        #    return Response({'error': 'You are not logged in as the given author'}, status = 401)
-        # Title is not null
-        # 
-        # TODO:
-        # If the parent object is a blog, abort write process, 
-        # 1) unless user is the creator
-        # 2) or user is white listed for that blog
-        # 
-        # Parent object exists <- This is checked in serializer validation
-        # Content can be empty or a string containing multiple sentences. 
-        # 
-        # The post is created before content is validated...?
-        # There are no validations on sentences...
-        #
-        # If there is content, parse it (ie. an essay) into sentences via NLTK punkt.
-        # Create sentences for each sentence
-        if post_serializer.is_valid():
-
-            # Get the object that the parent_content_type and parent_id fields point to
-            ct_parent = ContentType.objects.get(model = post_serializer.data['parent_content_type'])
-            parent = ct_parent.get_object_for_this_type(pk = post_serializer.data['parent_id'])
-
-
-            # If the post is made on a blog that is RESTRICTED, perform 
-            # special authorization checks:
-            # A restricted blog means only users on the white list of the blog can post to it
-            if ct_parent.name == "blog":
-                if parent.is_restricted:
-                    # When a blog is restricted, the creator is allowed 
-                    # access to it by default, regardless of whether s/he is on whitelist!
-                    if parent.creator != request.user:
-                        wl = WhiteList.objects.filter(blog = parent, user = request.user)
-                        if len(wl) < 1:
-                            return Response({"status": "This blog is restricted to members in the white list."}, status = 401)
-
-            # Create a new post
-            new_post = Post.objects.create(title = post_serializer.data['title'], author = request.user)
-            new_post.parent_object = parent
-
-            new_post.save() # Save after editing the parent field, modified field will change again
-
-            # Create a brand new set for the post. It is time stamped on creation
-            new_set = SentenceSet.objects.create(parent = new_post)
-
-            print("DATA:")
-            print(request.DATA)
-
-            if request.DATA.get('content', None) is not None:
-                detector = nltk.load('tokenizers/punkt/english.pickle')
-                sentences = detector.tokenize( request.DATA['content'] )
-
-                return_json = { "sentences": [] }
-
-                for index, value in enumerate(sentences):
-                    # Since index starts at 0, increment to get 1
-
-                    # For each sentence, create or get text
-                    text_obj = self.create_or_get_text(value)
-
-                    # Forge a binary relation between the created text and the set
-                    new_sentence = Sentence.objects.create(sentence_set = new_set, text = text_obj, ordering = index + 1)
-                    return_json['sentences'].append({"id": new_sentence.pk, "text": value, "ordering": index + 1})
-
-                return_json['number_sentences'] = len(sentences)
-                return Response(return_json, status = 201)
-
-            return Response({"status": "Success!"}, status = 201)
-        else:
-            # If user input was invalid
+        if not post_serializer.is_valid():
+            # The user input was invalid
             return Response(post_serializer.errors, status = 400)
+
+        # Serializer doesn't check for empty content since its IO is dynamic 
+        content = request.DATA.get('content', None)
+        if content is None:
+            return Response({"error": "There was no content, refer to template for reference."}, status = 400)
+       
+        # Perform the creation algorithm. 
+        # TODO: lock database.
+
+        # Get the object that the parent_content_type and parent_id fields point to
+        ct_parent = ContentType.objects.get(model = post_serializer.data['parent_content_type'])
+        parent = ct_parent.get_object_for_this_type(pk = post_serializer.data['parent_id'])
+
+
+        # If the post is made on a blog content type and the blog is RESTRICTED, perform 
+        # special authorization checks:
+        # A restricted blog means only users on the white list of the blog can post to it
+        if ct_parent.name == "blog":
+            if parent.is_restricted:
+                # When a blog is restricted, the creator is allowed 
+                # access to it by default, regardless of whether s/he is on whitelist!
+                if parent.creator != request.user:
+                    wl = WhiteList.objects.filter(blog = parent, user = request.user)
+                    if len(wl) < 1:
+                        return Response({"status": "This blog is restricted to members in the white list."}, status = 401)
+
+        # Create a new post
+        new_post = Post.objects.create(title = post_serializer.data['title'], author = request.user)
+        new_post.parent_object = parent
+
+        new_post.save() # Save after editing the parent field, modified field will change again
+
+        # Create a brand new set for the post. It is time stamped on creation
+        new_set = SentenceSet.objects.create(parent = new_post)
+ 
+        # TODO: Split each node into MODE blocks
+        # Example:
+        #   't', 'link', 't'
+        # FOR: each MODE decide whether to split into sentences or not (if it is a 't' block)
+        #
+        # Split the content into paragraphs. 
+        # Even if there is no split found, this function always returns at least 1 item
+        paragraphs = split_content_into_blocks(content)
+
+        # Run the sentencer on each paragraph
+        # Each new sentence receives the outer new_set variable as the sentence_set
+        # 
+        # [ "Sent1. Sent2. Sent3." ,  "Sent4. Sent5. Sent6." ]
+        for par_index, par_value in enumerate( paragraphs ):
+
+            nodes = split_block_into_nodes( par_value )
+            tokenized_sentences = expand_nodes_to_sentences(nodes)
+
+            # Use NLTK to tokenize each paragraph into sentences
+            #tokenized_sentences = tokenize_into_sentences(par_value.text)
+            
+            # For each sentence in the paragraph, make a new sentence
+            # Each sentence is affected by the outer par_index counter
+            for index, value in enumerate(tokenized_sentences):
+
+                # For each sentence, create or get text. Cannot have duplicate texts.
+                text_obj = self.create_or_get_text(value)
+
+                # Forge a binary relation between the created text and the new set
+                # Remember to increment the indices by 1 since in the loop the indices start at 0
+                new_sentence = Sentence.objects.create(sentence_set = new_set, 
+                                                       text = text_obj,
+                                                       ordering = index + 1,
+                                                       paragraph = par_index + 1,
+                                                       mode = par_value.mode
+                                                       )
+            
+
+        return_json = { 'sentences': [] }
+
+        sentences = Sentence.objects.filter(sentence_set = new_set)
+        for sentence in sentences:
+            return_json['sentences'].append( serialize_sentence(sentence) )
+
+        return_json['number_sentences'] = len(sentences)
+
+        return_json['number_paragraphs'] = len(paragraphs)
+
+        return Response(return_json, status = 201)
 
 
     def note(self, str):
@@ -398,7 +567,13 @@ class PostViewSet(viewsets.GenericViewSet):
             sentences = Sentence.objects.filter(sentence_set = current_version)
 
             for sentence in sentences:
-                return_json['sentences'].append({"id": sentence.pk, "text":sentence.text.value, "ordering": sentence.ordering, "previous_version": sentence.previous_version})
+                return_json['sentences'].append( 
+                    {"id": sentence.pk, 
+                    "text":sentence.text.value, 
+                    "ordering": sentence.ordering, 
+                    "paragraph": sentence.paragraph,
+                    "mode": sentence.mode,
+                    "previous_version": sentence.previous_version})
 
             # Response 
             return Response(return_json, status = 200)

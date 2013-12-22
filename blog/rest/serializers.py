@@ -145,3 +145,16 @@ class UserPaginationSerializer(BasePaginationSerializer):
     class Meta:
         object_serializer_class = BasicUserSerializer
 
+def serialize_sentence(sentence):
+    return_json = {
+        "id": sentence.pk, 
+        "text": sentence.text.value, 
+        "ordering": sentence.ordering,
+        "mode": sentence.mode,
+        "paragraph": sentence.paragraph
+        }
+    if (sentence.previous_version is not None):
+        return_json['previous_version'] = sentence.previous_version.pk
+    else:
+        return_json['previous_version'] = None
+    return return_json

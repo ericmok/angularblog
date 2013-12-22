@@ -136,21 +136,29 @@ describe("Post Endpoint AJAX", function() {
 
 		testAjax(function(callback) {
 			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", {username: "eric", password: "wt25yq186vke1dcd"}, function(data, xhr) {
-				Helpers.jsonRequest( Helpers.POSTS_URL, "POST", {"title": ["AJAX Post", Math.random()].join(' '), parent_content_type: "blog", parent_id: 2}, callback, {'X-Authorization': 'Token ' + data.token} );
+				var payload = { title: ["AJAX Post", Math.random()].join(' '), 
+								parent_content_type: "blog", 
+								parent_id: 2,
+								content: "This is test user's post."}
+				Helpers.jsonRequest( Helpers.POSTS_URL, "POST", payload , callback, {'X-Authorization': 'Token ' + data.token} );
 			});			
 		}, function(data, xhr) { 
 			expect(xhr.status).toEqual(201);
 		}, 2000);
 	});
 
-	it("can create post {title, parent_content_type, parent_id} with credentials", function() {
+	it("cannot create post {title, parent_content_type, parent_id} without sentence content in the payload", function() {
 
 		testAjax(function(callback) {
 			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", {username: "eric", password: "wt25yq186vke1dcd"}, function(data, xhr) {
-				Helpers.jsonRequest( Helpers.POSTS_URL, "POST", {"title": ["AJAX Post", Math.random()].join(' '), parent_content_type: "post", parent_id: 1}, callback, {'X-Authorization': 'Token ' + data.token} );
+				var payload = { title: ["AJAX Post", Math.random()].join(' '), 
+								parent_content_type: "post", 
+								parent_id: 1}
+				Helpers.jsonRequest( Helpers.POSTS_URL, "POST", payload, callback, {'X-Authorization': 'Token ' + data.token} );
 			});			
 		}, function(data, xhr) { 
-			expect(xhr.status).toEqual(201);
+			expect(xhr.status).toEqual(400);
+			expect(data.error).not.toBeNull();
 		}, 2000);
 	});
 
@@ -246,6 +254,9 @@ describe("Post Endpoint AJAX", function() {
 	});
 
 
+	//describe("Adding new lines to post", function() {
+	//});
+
 	describe("Posting on Blog Restrictions", function() {
 
 		it("bobby cannot create a post on a alice's restricted blog", function() {
@@ -288,6 +299,50 @@ describe("Post Endpoint AJAX", function() {
 				expect(xhr.status).toEqual(201);
 			}, 3000);
 		});
+
 	});
 });
 
+
+
+describe("Post Paragraphing", function() {
+	it("can split input into paragraphs", function() {
+		testAjax(function(callback) {
+			var alice = { username: "alice", password: "testtest" };
+			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", alice, function(data, xhr) {
+				var payload = {
+					"title": ["AJAX Post", Math.random()].join(' '), 
+					parent_content_type: "blog", 
+					parent_id: 1,
+					content: "Hello Mr. Jason. I am Dr. Black.\n\n\nHow is Mr. Snowden?"
+				};
+				setTimeout(function() {
+					Helpers.jsonRequest( Helpers.POSTS_URL, "POST", payload, callback, {'X-Authorization': 'Token ' + data.token} );
+				}, 300);
+			});			
+		}, function(data, xhr) { 
+			//expect(xhr.status).toEqual(201);
+			expect(data.number_paragraphs).toEqual(2);
+		}, 3000);
+	});
+
+	it("can treat code blocks as extra paragraphs", function() {
+		testAjax(function(callback) {
+			var alice = { username: "alice", password: "testtest" };
+			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", alice, function(data, xhr) {
+				var payload = {
+					"title": ["AJAX Post", Math.random()].join(' '), 
+					parent_content_type: "blog", 
+					parent_id: 1,
+					content: "Hello Mr. Jason. I am Dr. Black.\n\n\nHow is Mr. Snowden?[[[code_block]]]This is some test.\n\n\nOkay."
+				};
+				setTimeout(function() {
+					Helpers.jsonRequest( Helpers.POSTS_URL, "POST", payload, callback, {'X-Authorization': 'Token ' + data.token} );
+				}, 300);
+			});			
+		}, function(data, xhr) { 
+			//expect(xhr.status).toEqual(201);
+			expect(data.number_paragraphs).toEqual(5);
+		}, 3000);
+	});
+});
