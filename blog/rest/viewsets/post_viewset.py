@@ -26,6 +26,7 @@ import difflib
 
 import collections
 
+
 Block = collections.namedtuple('Block', ['mode', 'text'])
 Node = collections.namedtuple('Node', ['mode', 'text'])
 
@@ -33,6 +34,9 @@ BLOCK_MODE_TEXT = 't'
 BLOCK_MODE_CODE = 'c'
 NODE_MODE_TEXT = 't'
 NODE_MODE_CODE = 'c'
+
+# TODO: WRITE TESTS FOR THESE GLOBALS, 
+# I've tested them already but could use the redundancy.
 
 def tokenize_into_sentences(content):
     # Lazy loaded?
@@ -145,9 +149,10 @@ def split_block_into_nodes(block):
     return parsed
 
 
-def expand_nodes_to_sentences(nodes):
+def expand_nodes_that_have_sentences(nodes):
     """
-    Some nodes need even further processing. Split them into sentences.
+    TODO: PUT THIS IN THAT FUNCTION UP OVER THERE, YOU KNOW ^^^
+    Some nodes need even further processing. Split text nodes into more text nodes.
     """
     sentences = [] # This gets returned
 
@@ -162,7 +167,7 @@ def expand_nodes_to_sentences(nodes):
             sentences.append( Node(node.mode, node.text) )
     return sentences
 
-def for_each_sentence_in_content(content):
+def for_each_node_in_content(content):
         # Split content into paragraphs (blocks)
         # for each block, split into nodes of the same paragraph
         # If the node is just text, then tokenize into sentences
@@ -179,12 +184,12 @@ def for_each_sentence_in_content(content):
 
             # Use NLTK to tokenize each node into sentences
             nodes = split_block_into_nodes( par_value )
-            tokenized_sentences = expand_nodes_to_sentences(nodes)
+            sentenced_nodes = expand_nodes_that_have_sentences(nodes)
             
             # For each sentence in the paragraph, make a new sentence
             # Each sentence is affected by the outer par_index counter
-            for sentence_index, sentence_text in enumerate(tokenized_sentences):
-                yield (par_index, par_value, sentence_index, sentence_text)
+            for node_index, node in enumerate(sentenced_nodes):
+                yield (par_index, par_value, node_index, node)
 
 
 
@@ -192,10 +197,12 @@ def get_closest_sentence_model_to_text(text, sentence_models, cutoff = 0.4):
     """
     Given text, get the best Sentence model that most closely represents it
 
+    @Returns (ratio:float, Sentence:model)
+
     TODO: 
     Use cosine similarity and take into account text ordering as well as text
     """
-    winning_model = (0, sentence_models[0])
+    winning_model = (-1000, None)
     
     s = difflib.SequenceMatcher()
     s.set_seq2(text)
@@ -208,6 +215,9 @@ def get_closest_sentence_model_to_text(text, sentence_models, cutoff = 0.4):
                 ratio = s.ratio()
                 if ratio >= cutoff and ratio >= winning_model[0]:
                     winning_model = (ratio, sentence)
+
+    if winning_model[1] == None:
+        return None
 
     return winning_model
 
@@ -265,17 +275,19 @@ class PostViewSet(viewsets.GenericViewSet):
             serializer = self.get_serializer(posts, many=True)
 
         serializer.data['href'] = request.build_absolute_uri('')
-        serializer.data['template'] = [
-            {"post": [
-                {"title": "(String) Title of the post"},
-                {"parent_content_type": "(String) Either 'blog', 'post', or 'sentence' representing the parent"},
-                {"parent_id": "(Number) id of the parent"},
-                {"content": "(String) The body of the post consisting of multiple sentences."}
-            ]},
-            {"patch": [
-                {"content": "(String) The body of the post consisting of multiple sentences."}
-            ]}
-        ]
+        serializer.data['template'] = {
+            "post": [
+                {"name": "title",               "prompt": "(String) Title of the post"},
+                {"name": "parent_content_type", "prompt": "(String) Either 'blog', 'post', or 'sentence' representing the parent"},
+                {"name": "parent_id",           "prompt": "(Number) id of the parent"},
+                {"name": "content",             "prompt": "(String) The body of the post consisting of multiple sentences."}
+            ],
+            "patch": [
+                {"name": "content",             "prompt": "(String) The body of the post consisting of multiple sentences."}
+            ]
+        }
+        
+        
 
 
         return Response(serializer.data)
@@ -371,17 +383,17 @@ class PostViewSet(viewsets.GenericViewSet):
         # Create a brand new set for the post. It is time stamped on creation
         new_set = SentenceSet.objects.create(parent = new_post)
 
-        for par_index, par_value, sentence_index, sentence_text in for_each_sentence_in_content(content):
+        for par_index, par_value, node_index, node in for_each_node_in_content(content):
             # For each sentence, create or get text. Cannot have duplicate texts.
-            text_obj = self.create_or_get_text(sentence_text)
+            text_obj = self.create_or_get_text(node.text)
 
             # Forge a binary relation between the created text and the new set
             # Remember to increment the indices by 1 since in the loop the indices start at 0
             new_sentence = Sentence.objects.create(sentence_set = new_set, 
                                                    text = text_obj,
-                                                   ordering = sentence_index + 1,
+                                                   ordering = node_index + 1,
                                                    paragraph = par_index + 1,
-                                                   mode = par_value.mode
+                                                   mode = node.mode
                                                    )
 
         return_json = {}
@@ -398,7 +410,7 @@ class PostViewSet(viewsets.GenericViewSet):
 
 
     def note(self, str):
-        #print(str)
+        print(str)
         pass
 
     def partial_update(self, request, pk = None):
@@ -435,12 +447,9 @@ class PostViewSet(viewsets.GenericViewSet):
         """
         try:
             pk = int(pk)
+            post = Post.objects.get(pk = pk)
         except ValueError:
             return Response(self.NOT_FOUND_JSON, status = 404)
-
-        # Test if post with pk exists
-        try:
-            post = Post.objects.get(pk = pk)
         except Post.DoesNotExist:
             return Response(self.NOT_FOUND_JSON, status = 404)
 
@@ -454,38 +463,16 @@ class PostViewSet(viewsets.GenericViewSet):
         if (content is None) or ( len(content) < 1 ):
             return Response(self.CONTENT_TO_SHORT_JSON, status = 400)
 
-        # Throttle?
-
-        # Loop through the content
-        tokenize_into_sentences(content)
-
-        self.note('%s' % new_sentences)
-
         # Get sentences of the lastest version
         try:
             latest_sentence_set = SentenceSet.objects.filter(parent = post)[0]
         except Exception as e:
             return Response({"error": str(e)}, status = 500)
 
-        # This query is ordered by ordering
-        #existing_sentences = Sentence.objects.filter(sentence_set = latest_sentence_set)
-        existing_sentences = latest_sentence_set.sentences.all()
+        # To compare the new sentences to old sentence models
+        old_sentence_models = Sentence.objects.filter(sentence_set = latest_sentence_set)
 
-        self.note("SentenceSet")
-        self.note("%s %s" % (latest_sentence_set.pk, latest_sentence_set))
-        
-
-        self.note("existing")
-        self.note(existing_sentences)
-
-        existing_sentences_text = [ sentence.text for sentence in existing_sentences ]
-        existing_sentences_text_value = [ text.value for text in existing_sentences_text ]
-        
-        self.note("OLD TEXTS")
-        self.note(existing_sentences_text)
-        self.note(existing_sentences_text_value)
-        self.note("--")
-
+        # Create a new version of the post
         new_set = SentenceSet.objects.create(parent = post)
 
         # Count the number of merged sentences. 
@@ -494,47 +481,47 @@ class PostViewSet(viewsets.GenericViewSet):
 
         # Loop through new sentences, create new sentences
         # Set the previous_version pointer if there is a match
-        for ordering_index, new_text in enumerate(new_sentences):
+        for par_index, par_value, node_index, node in for_each_node_in_content(content):
 
-            # Gets the closest string to the new string
-            match = difflib.get_close_matches(new_text, existing_sentences_text_value, n = 1, cutoff = 0.4)
+            # Gets the match to the new string
+            # A match is a (ratio, Sentence)
+            match = get_closest_sentence_model_to_text(node.text, old_sentence_models, cutoff = 0.4)
 
-            self.note("new_text: " + str(new_text))
-            self.note("Close Matches: " + str( match ))
+            self.note("Node: %s" % (node,))
+            self.note("Closest Match: " + str( match ))
+            if match:
+                self.note("Match: (%s, %s): %s, %s" % (match[0], match[1], match[1].text, match[1].text.value))
             
-            # Create new Text for each new_text 
-            # Then create new Sentence for each new_text
-            text = self.create_or_get_text(new_text)
+            # Create new Text for each node 
+            # Then create new Sentence for each node
+            text = self.create_or_get_text( node.text )
 
-            if len( match ) < 1:
+            if match is None:
                 # If there is no match, don't set the previous_version pointer
                 self.note("no match")
-                new_sentence = Sentence.objects.create(sentence_set = new_set, 
-                                                        text = text, 
-                                                        ordering = ordering_index + 1)
+                self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
+                Sentence.objects.create(sentence_set = new_set, 
+                                        text = text, 
+                                        ordering = node_index + 1,
+                                        paragraph = par_index + 1,
+                                        mode = node.mode)
             else:                 
                 # There was a match! 
                 # Set the previous_version pointer so that the new sentence has a reference
                 # to the old sentence
-                # 
-                # Since difflib returns only the closest old sentence as a string 
-                # We need to find the Sentence model that represents the string
-                #
-                # Since the existing strings are cached, do a linear search in RAM instead
-                # of a query
                 similarity_counter += 1
 
-                for index_representing_the_model, string_value_to_compare in enumerate(existing_sentences_text_value):
-                    if string_value_to_compare == match[0]:
-                        self.note("match")
-                        previous_version = existing_sentences[index_representing_the_model]
-                        new_sentence = Sentence.objects.create(sentence_set = new_set, \
-                                                                text = text, \
-                                                                ordering = ordering_index + 1, \
-                                                                previous_version = previous_version)
+                self.note("match")
+                self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
+                Sentence.objects.create(sentence_set = new_set, 
+                                        text = text, 
+                                        ordering = node_index + 1, 
+                                        paragraph = par_index + 1,
+                                        mode = node.mode,
+                                        previous_version = match[1])
 
         return_json = {}
-        return_json['number_sentences'] = len(new_sentences)
+        return_json['number_sentences'] = node_index + 1
         return_json['number_merged'] = similarity_counter
         return_json['number_versions'] = len( SentenceSet.objects.filter(parent = post) )
         return_json['post'] = post.pk
@@ -582,14 +569,17 @@ class PostViewSet(viewsets.GenericViewSet):
             # ordered by ordering
             sentences = Sentence.objects.filter(sentence_set = current_version)
 
+            # for sentence in sentences:
+            #     return_json['sentences'].append({
+            #         "id": sentence.pk, 
+            #         "text":sentence.text.value, 
+            #         "ordering": sentence.ordering, 
+            #         "paragraph": sentence.paragraph,
+            #         "mode": sentence.mode,
+            #         "previous_version": sentence.previous_version})
+
             for sentence in sentences:
-                return_json['sentences'].append( 
-                    {"id": sentence.pk, 
-                    "text":sentence.text.value, 
-                    "ordering": sentence.ordering, 
-                    "paragraph": sentence.paragraph,
-                    "mode": sentence.mode,
-                    "previous_version": sentence.previous_version})
+                return_json['sentences'].append( serialize_sentence(sentence) )
 
             # Response 
             return Response(return_json, status = 200)

@@ -345,4 +345,25 @@ describe("Post Paragraphing", function() {
 			expect(data.number_paragraphs).toEqual(5);
 		}, 3000);
 	});
+
+	it("can treat @[ ]@ code blocks as extra sentences", function() {
+		testAjax(function(callback) {
+			var alice = { username: "alice", password: "testtest" };
+			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", alice, function(data, xhr) {
+				var payload = {
+					"title": ["AJAX Post", Math.random()].join(' '), 
+					parent_content_type: "blog", 
+					parent_id: 1,
+					content: "Hello Mr. Jason. @[ Inline code. ]@ I am Dr. Black.\n\n\nHow is Mr. Snowden?[[[ block code. ]]]"
+				};
+				setTimeout(function() {
+					Helpers.jsonRequest( Helpers.POSTS_URL, "POST", payload, callback, {'X-Authorization': 'Token ' + data.token} );
+				}, 300);
+			});			
+		}, function(data, xhr) { 
+			//expect(xhr.status).toEqual(201);
+			expect(data.number_paragraphs).toEqual(3);
+			expect(data.number_sentences).toEqual(5);
+		}, 3000);
+	});
 });

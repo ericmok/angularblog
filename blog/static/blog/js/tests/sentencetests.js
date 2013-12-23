@@ -49,7 +49,8 @@ describe("Posts Cont'd", function() {
 		it("can make update to existing post", function() {
 
 			testAjax(function(callback) {
-				AuthModule.requestToken(TestDB.user.username, TestDB.user.password, function(data) {
+
+				AuthModule.requestToken(TestDB.alice.username, TestDB.alice.password, function(data) {
 					Helpers.jsonRequest( Helpers.POSTS_URL + "/1", "PATCH", {
 						content: "This is my sentence. This is my modified sentence"
 					}, callback, {"X-HTTP-METHOD-OVERRIDE": "PATCH", "X-Authorization": "Token " + data.token});
@@ -63,7 +64,7 @@ describe("Posts Cont'd", function() {
 		it("can merge with old sentences in post", function() {
 
 			testAjax(function(callback) {
-				AuthModule.requestToken(TestDB.user.username, TestDB.user.password, function(data) {
+				AuthModule.requestToken(TestDB.alice.username, TestDB.alice.password, function(data) {
 					Helpers.jsonRequest( Helpers.POSTS_URL + "/1", "PATCH", {
 						content: "This is first sentence. This is my modified second sentence"
 					}, callback, {"X-HTTP-METHOD-OVERRIDE": "PATCH", "X-Authorization": "Token " + data.token});
@@ -77,7 +78,7 @@ describe("Posts Cont'd", function() {
 
 		it("can make revisions to post with no merging", function() {
 			testAjax(function(callback) {
-				AuthModule.requestToken(TestDB.user.username, TestDB.user.password, function(data) {
+				AuthModule.requestToken(TestDB.alice.username, TestDB.alice.password, function(data) {
 					Helpers.jsonRequest( Helpers.POSTS_URL + "/1", "PATCH", {
 						content: "Equal protection law today is divided. When minorities challenge laws of general application and argue that government has segregated or profiled on the basis of race, plaintiffs must show that government acted for a discriminatory purpose, a standard that doctrine has made extraordinarily difficult to satisfy."
 					}, callback, {"X-HTTP-METHOD-OVERRIDE": "PATCH", "X-Authorization": "Token " + data.token});
@@ -91,7 +92,7 @@ describe("Posts Cont'd", function() {
 	});
 });
 
-describe("Sentence Endpoint", function() {
+xdescribe("Sentence Endpoint", function() {
 	it("can receive GET request as array", function() {
 		testAjax(function(callback) {
 			Helpers.jsonRequest( Helpers.SENTENCES_URL, "GET", null, callback);	

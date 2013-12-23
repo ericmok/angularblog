@@ -27,6 +27,14 @@ var TestDB = {
 	user: {
 		username: "eric",
 		password: "wt25yq186vke1dcd"
+	},
+	alice: {
+		username: "alice",
+		password: "testtest"
+	},
+	bobby: {
+		username: "bobby",
+		password: "testtest"
 	}
 };
 
