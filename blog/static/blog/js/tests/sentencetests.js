@@ -92,7 +92,7 @@ describe("Posts Cont'd", function() {
 	});
 });
 
-xdescribe("Sentence Endpoint", function() {
+describe("Sentence Endpoint", function() {
 	it("can receive GET request as array", function() {
 		testAjax(function(callback) {
 			Helpers.jsonRequest( Helpers.SENTENCES_URL, "GET", null, callback);	

@@ -58,6 +58,8 @@ class Blog(models.Model):
     # Only specific users in the white list can contribute to a blog
     is_restricted = models.BooleanField(default = False)
 
+    number_children = models.IntegerField(default = 0)
+
     class Meta:
         unique_together = ('title',)
 
@@ -95,6 +97,8 @@ class Post(models.Model):
     # Posts can be deleted
     is_active = models.NullBooleanField(null = True, blank = True, default = True)
 
+    number_children = models.IntegerField(default = 0)
+    
     class Meta:
         ordering = ['-created']
 
@@ -105,7 +109,7 @@ class Post(models.Model):
         """
         ss = SentenceSet.objects.filter(parent = self).order_by('-created')
         if len(ss) > 0:
-            sen = Sentence.objects.filter(sentence_set = ss[0], ordering = 1)[:3]
+            sen = Sentence.objects.filter(sentence_set = ss[0]).order_by('ordering')[:3]
             if len(sen) > 0:
                 ret = []
                 for s in sen:
@@ -162,6 +166,9 @@ class Sentence(models.Model):
     # Modifier for use cases of the sentence
     # Could be 'h' for header, 'c' for code, 't' for text, for example
     mode = models.CharField(max_length = 4, default = 't')
+
+    # To save queries
+    number_children = models.IntegerField(default = 0)
 
     class Meta:
         ordering = ['ordering']

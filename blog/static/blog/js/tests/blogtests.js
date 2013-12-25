@@ -21,6 +21,32 @@ describe("BLOG Ajax", function() {
 			});
 		});
 
+
+		it("can find blog in nice_fixture if pk is a number", function() {
+			testAjax(function(callback) {
+ 				Helpers.jsonRequest( Helpers.BLOGS_URL + "/3", "GET", null, callback);
+			}, function(data, xhr) {
+				expect(xhr.status).toEqual(200);
+			});
+		});
+
+		it("can find blog in nice_fixture if pk is the title name 'equality_issues'", function() {
+			testAjax(function(callback) {
+ 				Helpers.jsonRequest( Helpers.BLOGS_URL + "/equality_issues", "GET", null, callback);
+			}, function(data, xhr) {
+				expect(xhr.status).toEqual(200);
+			});
+		});
+
+
+		it("returns 404 on not found", function() {
+			testAjax(function(callback) {
+ 				Helpers.jsonRequest( Helpers.BLOGS_URL + "/304_", "GET", null, callback);
+			}, function(data, xhr) {
+				expect(xhr.status).toEqual(404);
+			});
+		});
+
 		it("returns collection based response", function() {
 			
 			testAjax(function(callback) {
@@ -112,7 +138,7 @@ describe("BLOG Ajax", function() {
 
 			testAjax(function(callback) {
 				var payload = {
-					title: ["A super original blog!", Math.random()].join(" "),
+					title: ["A super original blog", (Math.random()*100).toString(36).substring(3)].join(" "),
 					description: "Some description"
 				};
 				AuthModule.requestToken("eric", "wt25yq186vke1dcd", function(data, status, xhr) {
@@ -129,7 +155,7 @@ describe("BLOG Ajax", function() {
 
 			testAjax(function(callback) {
 				var payload = {
-					title: ["A brand new blog!", Math.random()].join(" "),
+					title: ["A brand new blog", (Math.random()*100).toString(36).substring(3)].join(" "),
 					description: "Some description",
 					is_restricted: true
 				};
@@ -140,6 +166,25 @@ describe("BLOG Ajax", function() {
 				});
 			}, function(data, xhr) {
 				expect(xhr.status).toEqual(201);
+			});
+		});
+
+
+		it("cannot create blog with punctuation", function() {
+
+			testAjax(function(callback) {
+				var payload = {
+					title: ["A brand new blog!!", (Math.random()*100).toString(36).substring(3)].join(" "),
+					description: "Some description",
+					is_restricted: true
+				};
+				AuthModule.requestToken("eric", "wt25yq186vke1dcd", function(data, status, xhr) {
+					Helpers.jsonRequest( Helpers.BLOGS_URL, "POST", payload, callback, {
+						"X-Authorization": "Token " + data.token
+					});
+				});
+			}, function(data, xhr) {
+				expect(xhr.status).toEqual(400);
 			});
 		});
 

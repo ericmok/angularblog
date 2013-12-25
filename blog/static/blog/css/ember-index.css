@@ -1,0 +1,58 @@
+.blog-list-item h3
+{
+	font-family: Times New Roman;
+}
+
+.blog-title
+{
+	font-family: Times New Roman;
+	margin-bottom: 1em;
+}
+
+.post-list-item
+{
+
+}
+
+.post-list-item h3
+{
+	font-family: 'Times New Roman';
+}
+
+.post-list-item .brief
+{
+	font-family: 'Open Sans' !important;
+}
+
+.breadcrumb
+{
+	font-family: Raleway;
+}
+
+.post-title
+{
+	font-family: Times New Roman;
+	font-size: 32px;
+	margin: 0px;
+	line-height: 1.5;
+}
+
+.post-author
+{
+	margin: 0px 0px 1em 0px;
+	color: #AAA;
+}
+
+.post-body span
+{
+	font-size: 16px;
+	font-family: Average Sans;
+	font-weight: lighter;
+	color: #808080;
+	line-height: 1.56;
+}
+
+.is-hovering
+{
+	background-color: #DEDEDE;
+}

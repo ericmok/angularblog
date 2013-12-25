@@ -16,9 +16,7 @@ import json
 from blog.rest.viewsets.common import PaginationError, build_collection_json_from_query, build_paginated_json, post_view
 
 from blog.models import *
-
-
-
+import re
 
 class BlogViewSet(viewsets.GenericViewSet, 
                   mixins.CreateModelMixin,
@@ -58,6 +56,7 @@ class BlogViewSet(viewsets.GenericViewSet,
         ]
         return Response(serializer.data)
 
+
     def create(self, request):
         if request.user is None:
             return Response({"detail": "Authorization required"}, status = 401)
@@ -70,6 +69,21 @@ class BlogViewSet(viewsets.GenericViewSet,
                 return Response({"error": "A blog with that name already exists."}, status = 409)
         else:
             return Response(blog_serializer.errors, status = 400)
+
+    def retrieve(self, request, pk = None):
+        try: 
+            try:
+                pk = int (pk)
+                blog = Blog.objects.get(pk = pk)
+            except ValueError:
+                title = re.sub('[\-\_]', ' ', pk)
+                title = title.lower()
+                blog = Blog.objects.get(title__iexact = title)
+        except Blog.DoesNotExist:
+            return Response({"detail": "Not found"}, status = 404)
+
+        blog_serializer = BlogSerializer(blog, context = {'request': request})
+        return Response(blog_serializer.data, status = 200)
 
     @action(methods=['GET'])
     def posts(self, request, pk = None):

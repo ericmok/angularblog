@@ -5,8 +5,17 @@
 
     <link href='http://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
-    <link href="{{ STATIC_URL }}blog/css/blog.css" type="text/css" rel="stylesheet" />
-    
+  
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,500' rel='stylesheet' type='text/css'>
+
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,400,300,600,700' rel='stylesheet' type='text/css'>
+
+
+    <link href='http://fonts.googleapis.com/css?family=Average+Sans' rel='stylesheet' type='text/css'>
+
+    <link href="{{ STATIC_URL }}blog/css/ember-index.css" type="text/css" rel="stylesheet" />
+
+    <!-- <link href="{{ STATIC_URL }}blog/css/blog.css" type="text/css" rel="stylesheet" /> -->
 	</head>
   <script>
     window.server = {
@@ -25,85 +34,132 @@
   {% verbatim %}
 
   <script type="text/x-handlebars" data-template-name="index">
-    <div class="container">
-    INDEX
-      {{ outlet }}
-    </div>
+  	<div class="container" style="border-left: solid 1px #DDD; border-right: solid 1px #DDD; min-height: 800px">
+      <div>
+          {{#if server.auth.isSignedIn }}
+          Signed in
+          {{/if}}
+
+          {{#unless server.auth.isSignedIn }}
+          {{ server.auth.user }}
+          Signed out
+          {{/unless}}
+      </div>
+
+        <!-- {{input type="text" placeholder="New User?" value=blogName action="createBlog"}} -->
+
+      <div>
+        {{ outlet }}
+      </div>
+
+
+	 </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="frontpage">
+      <div>
+        {{#each result in results}}
+          <h4>{{#link-to 'post' result.id}}{{result.title}} {{/link-to}}</h4>
+        {{/each}}
+      </div>
+
   </script>
 
   <script type="text/x-handlebars" data-template-name="blogs">
-  	<div class="container">
-      <div>
-        {{ ../server.auth.user }}
-        {{#if ../server.auth.isSignedIn }}
-        Signed in
-        {{/if}}
-
-        {{#unless ../server.auth.isSignedIn }}
-        Signed out
-        {{/unless}}
-      </div>
-        {{input type="text" placeholder="New User?" value=blogName action="createBlog"}}
-
-        <div style="border: solid 1px #DDD;">
+    <div class="container">
+    <h1>
           {{#each blog in blogs}}
-            <div>
-              <h3> {{blog.title}} </h3> <span>started by {{blog.creator}}</span>
-              <div>{{#link-to 'posts' blog.id}} {{blog.title}} {{/link-to}}</div>
+            <div class="blog-list-item">
+              {{#link-to 'blog' blog.id}} <h3> {{blog.title}} </h3> {{/link-to}}
+              <!-- <small>started by {{blog.creator}}</small> -->
             </div>
           {{/each}}
 
-          <div>
-            {{ outlet }}
-          </div>
-        </div>
-
-	 </div>
+    </h1>
+      {{ outlet }}
+    </div>
   </script>
 
   <script type="text/x-handlebars" data-template-name="simple-post-view">
     POST VIEW
   </script>
 
-  <script type="text/x-handlebars" data-template-name="posts">
-    {{#each post in posts}}
-      <div style="border-radius: 3px; border: solid 1px #DDD;">
-        <h4>{{#link-to 'post' post.id}} {{post.title}} {{/link-to}}</h4>
-        <h5>{{post.title}}</h5> 
-        <small>{{post.id}}</small>
-        <div>{{post.brief}}</div>
+  <script type="text/x-handlebars" data-template-name="blog">
+    <div class="container">
+      <div class="row">
+        <h1 class="blog-title">{{urlSegment.blog_id}}</h1>
+        <h2 class="blog-desc"></h2>
       </div>
-    {{/each}}
-    <h3>{{ title }}</h3>
-    <div>
-      {{#if next}}
-        <button {{action "next"}}>Next</button>
-      {{/if}}
-      {{#if prev}}
-        <button {{action "prev"}}>Prev</button>
-      {{/if}}
+      <div class="col-xs-7">
+        {{#each post in posts}}
+        <div class="post-list-item">
+          <h3>{{#link-to 'post' post.id}} {{post.title}} {{/link-to}}</h3> 
+          <div class="post-list-item brief">{{post.brief}}</div>
+          <small>{{post.id}}</small>
+        </div>
+        {{/each}}
+        
+        <div>
+          {{#if next}}
+            <button {{action "next"}}>Next</button>
+          {{/if}}
+          {{#if prev}}
+            <button {{action "prev"}}>Prev</button>
+          {{/if}}
+        </div>      
+      </div>
+      <div class="col-xs-5">
+        This is the sidebar, if any.
+      </div>
     </div>
   </script>
   
   <script type="text/x-handlebars" data-template-name="post">
     <div class="container">
+      <div class="row">
+        <h4 class="breadcrumb"> 
+        {{#if parentModel.isSentence}}
+          {{parentModel.text}}
+        {{else}}
+          {{parentModel.title}}
+        {{/if}}
+        </h4>
+      </div>
       <div class="col-xs-7">
-        Post:
-        {{ post.id }}
-        <h4 style="font-family: Times New Roman; font-size: 26px">{{post.title}}</h4>
-        <div>
-          Comment by {{post.author}}
-        </div>
-        <div style="font-family: Josefin Sans">
-          {{#each sentence in post.sentences}}
-            <span onmouseover="this.style.backgroundColor='#DDD'"
-                  onmouseout="this.style.backgroundColor='#FFF'">
-              {{sentence.paragraph}} {{sentence.text}}
-            </span>
+        {{my-post post=post action="show" }}
+      </div>  
+      <div class="col-xs-5">
+        
+        {{#each comment in comments}}
+          
+          <!--
+          {{#each s in comment.sentences }}
+            {{post-sentence model=s}}
           {{/each}}
-        </div>
-      </div>      
+          -->
+          {{my-post post=comment action="show"}}
+        {{/each}}
+      </div>    
     </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="components/my-post">
+    <h4 class="post-title">{{post.title}}</h4>
+    <div class="post-author">
+      post:
+      {{ post.id }}
+      Comment by {{post.author}}
+    </div>
+    <div class="post-body" id="postBody">
+
+      {{#each sentence_model in post.sentences}}
+        {{ post-sentence model=sentence_model action="show" onTest="test" }}
+      {{/each}}
+    </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="components/post-sentence">
+    {{model.text}}
   </script>
 
   {% endverbatim %}

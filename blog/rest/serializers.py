@@ -2,13 +2,14 @@ from blog.models import User, Blog, Post, Sentence
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.pagination import BasePaginationSerializer, NextPageField, PreviousPageField
+import re
 
 class BasicUserSerializer(serializers.ModelSerializer):
     href = serializers.HyperlinkedIdentityField(view_name = 'user-detail', lookup_field = 'username')
 
     class Meta:
         model = User
-        fields = ('id', 'href', 'username', 'date_joined')
+        fields = ('id', 'href', 'username', 'date_joined',)
         lookup_field = 'username'
 
 class UserSerializer(serializers.ModelSerializer):
@@ -42,10 +43,22 @@ class BlogSerializer(serializers.ModelSerializer):
   href = serializers.HyperlinkedIdentityField(view_name = 'blog-detail')
   white_list = serializers.Field(source = 'get_whitelisted')
 
+  creator = serializers.SlugRelatedField(slug_field = 'username')
+
+  def validate_title(self, attrs, source):
+    title = attrs.get('title', None)
+    if title is None:
+        raise serializers.ValidationError("Title cannot be empty")
+    else:
+        if re.search('[^a-zA-Z0-9 ]', title) is None:
+            return attrs
+        else:
+            raise serializers.ValidationError("Title can only contain alphanumeric characters and spaces") 
+
   class Meta:
     model = Blog
     fields = ('id', 'href', 'title', 'created', 'is_restricted')
-    read_only_fields = ('creator',)
+    #read_only_fields = ('creator',)
 
 
 
@@ -151,7 +164,8 @@ def serialize_sentence(sentence):
         "text": sentence.text.value, 
         "ordering": sentence.ordering,
         "mode": sentence.mode,
-        "paragraph": sentence.paragraph
+        "paragraph": sentence.paragraph,
+        "replies": sentence.number_children
         }
     if (sentence.previous_version is not None):
         return_json['previous_version'] = sentence.previous_version.pk

@@ -9,7 +9,7 @@ class PaginationError(Exception):
     pass
 
 
-def build_paginated_simple_json(request, query_set, per_model_serializer_callback, results = 'result'):
+def build_paginated_simple_json(request, query_set, per_model_serializer_callback, results = 'results'):
     """
     Builds a paginated response in the format that django rest framework uses. 
     I don't like it, but the sake of speed, I'll just have to use this.

@@ -5,7 +5,7 @@ from django.db import transaction, IntegrityError
 
 
 try:
-	with transaction.atomic():
+	#with transaction.atomic():
 
 		alice = User.objects.create_user(username = 'alice', password = 'testtest')
 		bobby = User.objects.create_user(username = 'bobby', password = 'testtest')
@@ -50,8 +50,10 @@ try:
 			('Thank you', alice, ct_post, 11, True),
 			('Thank you again...', alice, ct_post, 12, True),
 
-			#('Constitutional Madness1', alice, ct_sent, 1, True),
-			#('Constitutional Madness2', bobby, ct_sent, 2, True),
+			('Some Post', alice, ct_sent, 1, True),
+			('Yeah', bobby, ct_sent, 2, True),
+			('ASDF', bobby, ct_sent, 3, True),
+			('Woot', bobby, ct_sent, 16, True),
 		]
 
 		chosen_counter = []
@@ -60,6 +62,11 @@ try:
 			print("Fixture")
 			print(fixture)
 			p = Post.objects.create(title = fixture[0], author = fixture[1], parent_content_type = fixture[2], parent_id = fixture[3], is_active = fixture[4])
+			
+			parent = fixture[2].get_object_for_this_type(pk = fixture[3])
+			parent.number_children = parent.number_children + 1
+			parent.save()
+
 			ss = SentenceSet.objects.create(parent = p)
 
 			number_sentences = range(0, random.randrange(0,30))

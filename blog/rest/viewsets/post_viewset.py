@@ -11,7 +11,7 @@ from blog.rest import sessions
 from blog.rest import serializers
 
 
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import Http404
 
 import json
@@ -241,9 +241,6 @@ class PostViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         """
-        TODO:
-        Can I add a template field?
-
         Removed: Filter posts its parent_object, be it blog, post, or sentence as determined by input pk
         Pagination is a little icky
         """
@@ -287,9 +284,6 @@ class PostViewSet(viewsets.GenericViewSet):
             ]
         }
         
-        
-
-
         return Response(serializer.data)
 
 
@@ -374,11 +368,19 @@ class PostViewSet(viewsets.GenericViewSet):
                     if len(wl) < 1:
                         return Response({"status": "This blog is restricted to members in the white list."}, status = 401)
 
+
         # Create a new post
         new_post = Post.objects.create(title = post_serializer.data['title'], author = request.user)
         new_post.parent_object = parent
 
         new_post.save() # Save after editing the parent field, modified field will change again
+
+        # TODO: Make these transactions atomic
+        # Increase number children for parent. 
+        # This will decrease unneccessary queries to sentences that have no posts
+        parent.number_children = parent.number_children + 1
+        parent.save()
+
 
         # Create a brand new set for the post. It is time stamped on creation
         new_set = SentenceSet.objects.create(parent = new_post)
@@ -561,22 +563,10 @@ class PostViewSet(viewsets.GenericViewSet):
 
             return_json['versions'] = len( post_versions )
 
-            #for version in post_versions:
-            #    return_json['versions'].append( version.pk )
-
             return_json["sentences"] = []
 
             # ordered by ordering
             sentences = Sentence.objects.filter(sentence_set = current_version)
-
-            # for sentence in sentences:
-            #     return_json['sentences'].append({
-            #         "id": sentence.pk, 
-            #         "text":sentence.text.value, 
-            #         "ordering": sentence.ordering, 
-            #         "paragraph": sentence.paragraph,
-            #         "mode": sentence.mode,
-            #         "previous_version": sentence.previous_version})
 
             for sentence in sentences:
                 return_json['sentences'].append( serialize_sentence(sentence) )
