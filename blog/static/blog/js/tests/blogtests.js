@@ -155,7 +155,7 @@ describe("BLOG Ajax", function() {
 
 			testAjax(function(callback) {
 				var payload = {
-					title: ["A brand new blog", (Math.random()*100).toString(36).substring(3)].join(" "),
+					title: ["A brand new blog", (Math.random()*100)toString(36).substring(3)].join(" "),
 					description: "Some description",
 					is_restricted: true
 				};

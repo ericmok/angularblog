@@ -26,10 +26,12 @@ import difflib
 
 import collections
 
-
+# For parsing post content. Blocks contain nodes containing text
 Block = collections.namedtuple('Block', ['mode', 'text'])
 Node = collections.namedtuple('Node', ['mode', 'text'])
 
+# 't' = text
+# 'c' = code
 BLOCK_MODE_TEXT = 't'
 BLOCK_MODE_CODE = 'c'
 NODE_MODE_TEXT = 't'
@@ -151,6 +153,8 @@ def split_block_into_nodes(block):
 
 def expand_nodes_that_have_sentences(nodes):
     """
+    Second pass allows some flexibility. But could be refactored to be faster....
+
     TODO: PUT THIS IN THAT FUNCTION UP OVER THERE, YOU KNOW ^^^
     Some nodes need even further processing. Split text nodes into more text nodes.
     """
@@ -167,29 +171,30 @@ def expand_nodes_that_have_sentences(nodes):
             sentences.append( Node(node.mode, node.text) )
     return sentences
 
+
 def for_each_node_in_content(content):
-        # Split content into paragraphs (blocks)
-        # for each block, split into nodes of the same paragraph
-        # If the node is just text, then tokenize into sentences
+    # Split content into paragraphs (blocks)
+    # for each block, split into nodes of the same paragraph
+    # If the node is just text, then tokenize into sentences
+    
+    # Split the content into paragraphs. 
+    # Even if there is no split found, this function always returns at least 1 item
+    paragraphs = split_content_into_blocks(content)
+
+    # Run the sentencer on each paragraph
+    # Each new sentence receives the outer new_set variable as the sentence_set
+    # 
+    # [ "Sent1. Sent2. Sent3." ,  "Sent4. Sent5. Sent6." ]
+    for par_index, par_value in enumerate( paragraphs ):
+
+        # Use NLTK to tokenize each node into sentences
+        nodes = split_block_into_nodes( par_value )
+        sentenced_nodes = expand_nodes_that_have_sentences(nodes)
         
-        # Split the content into paragraphs. 
-        # Even if there is no split found, this function always returns at least 1 item
-        paragraphs = split_content_into_blocks(content)
-
-        # Run the sentencer on each paragraph
-        # Each new sentence receives the outer new_set variable as the sentence_set
-        # 
-        # [ "Sent1. Sent2. Sent3." ,  "Sent4. Sent5. Sent6." ]
-        for par_index, par_value in enumerate( paragraphs ):
-
-            # Use NLTK to tokenize each node into sentences
-            nodes = split_block_into_nodes( par_value )
-            sentenced_nodes = expand_nodes_that_have_sentences(nodes)
-            
-            # For each sentence in the paragraph, make a new sentence
-            # Each sentence is affected by the outer par_index counter
-            for node_index, node in enumerate(sentenced_nodes):
-                yield (par_index, par_value, node_index, node)
+        # For each sentence in the paragraph, make a new sentence
+        # Each sentence is affected by the outer par_index counter
+        for node_index, node in enumerate(sentenced_nodes):
+            yield (par_index, par_value, node_index, node)
 
 
 
@@ -222,6 +227,161 @@ def get_closest_sentence_model_to_text(text, sentence_models, cutoff = 0.4):
     return winning_model
 
 
+def create_or_get_text(text_string):
+    try: 
+        text_obj = Text.objects.get(value = text_string)
+    except:
+        text_obj = Text.objects.create(value = text_string)
+    return text_obj
+
+
+def create_post(title, author, parent_content_type, parent_id, content):
+    """
+    Perform the post creation algorithm by creating the associated django models 
+    and ensuring their integrity. 
+
+    @returns a dictionary of results
+    """
+
+    # Django's generic foreign key doesn't use a string field
+    parent_content_type = ContentType.objects.get(model = parent_content_type)
+
+    # Create a new post
+    new_post = Post.objects.create(title = title, author = author, parent_content_type = parent_content_type, parent_id = parent_id)
+    
+    #new_post.parent_object = parent
+    #new_post.save() # Save after editing the parent field, modified field will change again
+
+    # TODO: Make these transactions atomic
+    # Increase number children for parent. 
+    # This will decrease unneccessary queries to sentences that have no posts
+    parent = parent_content_type.get_object_for_this_type(pk = parent_id)
+    parent.number_children = parent.number_children + 1
+    parent.save()
+
+    # Create a brand new set for the post. It is time stamped on creation
+    new_set = SentenceSet.objects.create(parent = new_post)
+
+    # For caching so don't have to re-query the result
+    new_sentences = []
+
+    for par_index, par_value, node_index, node in for_each_node_in_content(content):
+        # For each sentence, create or get text. Cannot have duplicate texts.
+        text_obj = create_or_get_text(node.text)
+
+        # Forge a binary relation between the created text and the new set
+        # Remember to increment the indices by 1 since in the loop the indices start at 0
+        new_sentence = Sentence.objects.create(sentence_set = new_set, 
+                                               text = text_obj,
+                                               ordering = node_index + 1,
+                                               paragraph = par_index + 1,
+                                               mode = node.mode
+                                               )
+        # Cache the new sentence
+        new_sentences.append(new_sentence)
+
+    return {
+        'sentence_set': new_set,
+        'number_sentences': node_index + 1,
+        'number_paragraphs': par_index + 1,
+        'sentences': new_sentences
+    }
+
+
+def patch_post(post, content):
+    """
+    Patch request will create a new SentenceSet (version) of the post if 
+    the content is different.
+
+    Tokenize input for sentences.
+    For each sentence in the new pack, 
+    decide whether it has a similarity pairing with an old sentence.
+
+    Case 1:
+    No pairing
+    A sentence has shown up which cannot be found in the old set. 
+    Create new text and new sentence.
+
+    (Note)
+    If the comparison was reversed (compare old set to new set), then
+    information about deleted sentences would be found. I have decided to
+    do the comparison the other way...
+
+    Case 2:
+    A pairing exists
+    The new sentence is either moved, unchanged, or edited.
+    - If it has not been edited, there is no need to create new text.
+    Just create a new sentence.
+    - The new sentence is likely an edit of the previous sentence.
+    Create new text and new sentence, but set its previous_version pointer to
+    point to the old sentence. The previous_version pointer will allow readers
+    to see previous comments made on the same sentence throughout its chain of edits.
+
+    @param post: Post model
+    @param content: A string containing multiple sentences to be parsed.
+    @returns a dictionary of results
+    """
+    # Get sentences of the lastest version
+    # Assumption: That each post has a sentence set    
+    latest_sentence_set = SentenceSet.objects.filter(parent = post)[0]
+
+    # To compare the new sentences to old sentence models
+    old_sentence_models = Sentence.objects.filter(sentence_set = latest_sentence_set)
+
+    # Create a new version of the post
+    new_set = SentenceSet.objects.create(parent = post)
+
+    # Count the number of merged sentences. 
+    # This is incremented for every match found as we iterate over the new_sentences
+    similarity_counter = 0
+
+    # Loop through new sentences, create new sentences
+    # Set the previous_version pointer if there is a match
+    for par_index, par_value, node_index, node in for_each_node_in_content(content):
+
+        # Gets the match to the new string
+        # A match is a (ratio, Sentence)
+        match = get_closest_sentence_model_to_text(node.text, old_sentence_models, cutoff = 0.4)
+
+        #self.note("Node: %s" % (node,))
+        #self.note("Closest Match: " + str( match ))
+        #if match:
+        #    self.note("Match: (%s, %s): %s, %s" % (match[0], match[1], match[1].text, match[1].text.value))
+        
+        # Create new Text for each node 
+        # Then create new Sentence for each node
+        text = create_or_get_text( node.text )
+
+        if match is None:
+            # If there is no match, don't set the previous_version pointer
+            #self.note("no match")
+            #self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
+            Sentence.objects.create(sentence_set = new_set, 
+                                    text = text, 
+                                    ordering = node_index + 1,
+                                    paragraph = par_index + 1,
+                                    mode = node.mode)
+        else:                 
+            # There was a match! 
+            # Set the previous_version pointer so that the new sentence has a reference
+            # to the old sentence
+            similarity_counter += 1
+
+            #self.note("match")
+            #self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
+            Sentence.objects.create(sentence_set = new_set, 
+                                    text = text, 
+                                    ordering = node_index + 1, 
+                                    paragraph = par_index + 1,
+                                    mode = node.mode,
+                                    previous_version = match[1])
+
+    return {
+        'number_merged': similarity_counter,
+        'number_sentences': node_index + 1,
+        'number_paragraphs': par_index + 1
+    }
+
 class PostViewSet(viewsets.GenericViewSet):
     
     authentication_classes = (ExpiringTokenAuthentication,)
@@ -232,12 +392,6 @@ class PostViewSet(viewsets.GenericViewSet):
 
     serializer_class = PostSerializer
 
-    def create_or_get_text(self, text_string):
-        try: 
-            text_obj = Text.objects.get(value = text_string)
-        except:
-            text_obj = Text.objects.create(value = text_string)
-        return text_obj
 
     def list(self, request):
         """
@@ -347,66 +501,44 @@ class PostViewSet(viewsets.GenericViewSet):
         if content is None:
             return Response({"error": "There was no content, refer to template for reference."}, status = 400)
        
-        # Perform the creation algorithm. 
-        # TODO: lock database.
 
-        # Get the object that the parent_content_type and parent_id fields point to
-        # TODO: Allow 'sentence' parent_content_type, Also allow in serialization validation
-        ct_parent = ContentType.objects.get(model = post_serializer.data['parent_content_type'])
-        parent = ct_parent.get_object_for_this_type(pk = post_serializer.data['parent_id'])
-
-
-        # If the post is made on a blog content type and the blog is RESTRICTED, perform 
-        # special authorization checks:
+        # If the post is made on a blog content type and the blog is RESTRICTED, 
+        # perform special authorization checks:
         # A restricted blog means only users on the white list of the blog can post to it
-        if ct_parent.name == "blog":
-            if parent.is_restricted:
+        if post_serializer.data['parent_content_type'] == "blog":
+
+            blog = Blog.objects.get(pk = post_serializer.data['parent_id'])
+
+            if blog.is_restricted:
                 # When a blog is restricted, the creator is allowed 
                 # access to it by default, regardless of whether s/he is on whitelist!
-                if parent.creator != request.user:
-                    wl = WhiteList.objects.filter(blog = parent, user = request.user)
+                if blog.creator != request.user:
+                    wl = WhiteList.objects.filter(blog = blog, user = request.user)
                     if len(wl) < 1:
                         return Response({"status": "This blog is restricted to members in the white list."}, status = 401)
 
 
-        # Create a new post
-        new_post = Post.objects.create(title = post_serializer.data['title'], author = request.user)
-        new_post.parent_object = parent
+        title = post_serializer.data['title']
+        author = request.user
+        parent_content_type = post_serializer.data['parent_content_type']
+        parent_id = post_serializer.data['parent_id']
 
-        new_post.save() # Save after editing the parent field, modified field will change again
-
-        # TODO: Make these transactions atomic
-        # Increase number children for parent. 
-        # This will decrease unneccessary queries to sentences that have no posts
-        parent.number_children = parent.number_children + 1
-        parent.save()
-
-
-        # Create a brand new set for the post. It is time stamped on creation
-        new_set = SentenceSet.objects.create(parent = new_post)
-
-        for par_index, par_value, node_index, node in for_each_node_in_content(content):
-            # For each sentence, create or get text. Cannot have duplicate texts.
-            text_obj = self.create_or_get_text(node.text)
-
-            # Forge a binary relation between the created text and the new set
-            # Remember to increment the indices by 1 since in the loop the indices start at 0
-            new_sentence = Sentence.objects.create(sentence_set = new_set, 
-                                                   text = text_obj,
-                                                   ordering = node_index + 1,
-                                                   paragraph = par_index + 1,
-                                                   mode = node.mode
-                                                   )
+        # Create post
+        creation_result = create_post(title = title, 
+                                        author = author, 
+                                        parent_content_type = parent_content_type, 
+                                        parent_id = parent_id, 
+                                        content = content)
 
         return_json = {}
 
         return_json['sentences'] = []
-        sentences = Sentence.objects.filter(sentence_set = new_set)
-        for sentence in sentences:
+        #sentences = Sentence.objects.filter(sentence_set = creation_result['sentence_set'])
+        for sentence in creation_result['sentences']:
             return_json['sentences'].append( serialize_sentence(sentence) )
-        return_json['number_sentences'] = len(sentences)
+        return_json['number_sentences'] = len(creation_result['sentences'])
 
-        return_json['number_paragraphs'] = par_index + 1
+        return_json['number_paragraphs'] = creation_result['number_paragraphs']
 
         return Response(return_json, status = 201)
 
@@ -420,32 +552,6 @@ class PostViewSet(viewsets.GenericViewSet):
         Preconditions:
         User is logged in. 
 
-        Patch request will create a new SentenceSet (version) of the post if 
-        the content is different.
-
-        Tokenize input for sentences.
-        For each sentence in the new pack, 
-        decide whether it has a similarity pairing with an old sentence.
-
-        Case 1:
-        No pairing
-        A sentence has shown up which cannot be found in the old set. 
-        Create new text and new sentence.
-
-        (Note)
-        If the comparison was reversed (compare old set to new set), then
-        information about deleted sentences would be found. I have decided to
-        do the comparison the other way...
-
-        Case 2:
-        A pairing exists
-        The new sentence is either moved, unchanged, or edited.
-        - If it has not been edited, there is no need to create new text.
-        Just create a new sentence.
-        - The new sentence is likely an edit of the previous sentence.
-        Create new text and new sentence, but set its previous_version pointer to
-        point to the old sentence. The previous_version pointer will allow readers
-        to see previous comments made on the same sentence throughout its chain of edits.
         """
         try:
             pk = int(pk)
@@ -465,66 +571,11 @@ class PostViewSet(viewsets.GenericViewSet):
         if (content is None) or ( len(content) < 1 ):
             return Response(self.CONTENT_TO_SHORT_JSON, status = 400)
 
-        # Get sentences of the lastest version
-        try:
-            latest_sentence_set = SentenceSet.objects.filter(parent = post)[0]
-        except Exception as e:
-            return Response({"error": str(e)}, status = 500)
-
-        # To compare the new sentences to old sentence models
-        old_sentence_models = Sentence.objects.filter(sentence_set = latest_sentence_set)
-
-        # Create a new version of the post
-        new_set = SentenceSet.objects.create(parent = post)
-
-        # Count the number of merged sentences. 
-        # This is incremented for every match found as we iterate over the new_sentences
-        similarity_counter = 0
-
-        # Loop through new sentences, create new sentences
-        # Set the previous_version pointer if there is a match
-        for par_index, par_value, node_index, node in for_each_node_in_content(content):
-
-            # Gets the match to the new string
-            # A match is a (ratio, Sentence)
-            match = get_closest_sentence_model_to_text(node.text, old_sentence_models, cutoff = 0.4)
-
-            self.note("Node: %s" % (node,))
-            self.note("Closest Match: " + str( match ))
-            if match:
-                self.note("Match: (%s, %s): %s, %s" % (match[0], match[1], match[1].text, match[1].text.value))
-            
-            # Create new Text for each node 
-            # Then create new Sentence for each node
-            text = self.create_or_get_text( node.text )
-
-            if match is None:
-                # If there is no match, don't set the previous_version pointer
-                self.note("no match")
-                self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
-                Sentence.objects.create(sentence_set = new_set, 
-                                        text = text, 
-                                        ordering = node_index + 1,
-                                        paragraph = par_index + 1,
-                                        mode = node.mode)
-            else:                 
-                # There was a match! 
-                # Set the previous_version pointer so that the new sentence has a reference
-                # to the old sentence
-                similarity_counter += 1
-
-                self.note("match")
-                self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
-                Sentence.objects.create(sentence_set = new_set, 
-                                        text = text, 
-                                        ordering = node_index + 1, 
-                                        paragraph = par_index + 1,
-                                        mode = node.mode,
-                                        previous_version = match[1])
+        patch_result = patch_post(post, content)
 
         return_json = {}
-        return_json['number_sentences'] = node_index + 1
-        return_json['number_merged'] = similarity_counter
+        return_json['number_sentences'] = patch_result['number_sentences']
+        return_json['number_merged'] = patch_result['number_merged']
         return_json['number_versions'] = len( SentenceSet.objects.filter(parent = post) )
         return_json['post'] = post.pk
 
@@ -569,10 +620,21 @@ class PostViewSet(viewsets.GenericViewSet):
             sentences = Sentence.objects.filter(sentence_set = current_version)
 
             for sentence in sentences:
-                return_json['sentences'].append( serialize_sentence(sentence) )
+                
+                serialized_sentence = serialize_sentence(sentence)
 
-            # Response 
+                if sentence.number_children > 0:
+                    serialized_sentence['posts'] = []
+                    sentence_posts = Post.objects.filter(parent_content_type = ContentType.objects.get(model='sentence'), parent_id = sentence.pk)
+                    for sentence_post in sentence_posts:
+                        post_serialized = PostSerializer(sentence_post, context = {'request': request})
+                        serialized_sentence['posts'].append( post_serialized.data )
+
+
+                return_json['sentences'].append( serialized_sentence )
+
             return Response(return_json, status = 200)
+
         except Post.DoesNotExist as dne:
             return Response(self.NOT_FOUND_JSON, status = 404)
 

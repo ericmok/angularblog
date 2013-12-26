@@ -37,6 +37,7 @@
   	<div class="container" style="border-left: solid 1px #DDD; border-right: solid 1px #DDD; min-height: 800px">
       <div>
           {{#if server.auth.isSignedIn }}
+          {{ server.auth.user }}
           Signed in
           {{/if}}
 
@@ -144,21 +145,26 @@
   </script>
 
   <script type="text/x-handlebars" data-template-name="components/my-post">
-    <h4 class="post-title">{{post.title}}</h4>
-    <div class="post-author">
-      post:
-      {{ post.id }}
-      Comment by {{post.author}}
-    </div>
-    <div class="post-body" id="postBody">
+    <div class="my-post">
+      {{#link-to 'post' post.id}}<h4 class="post-title">{{post.title}}</h4>{{/link-to}}
+      <div class="post-author">
+        post:
+        {{ post.id }}
+        Comment by {{post.author}}
+      </div>
+      <div class="post-body" id="postBody">
 
-      {{#each sentence_model in post.sentences}}
-        {{ post-sentence model=sentence_model action="show" onTest="test" }}
-      {{/each}}
+        {{#each sentence_model in post.sentences}}
+          {{ post-sentence model=sentence_model action="show" onTest="test" }}
+        {{/each}}
+      </div>
     </div>
   </script>
 
   <script type="text/x-handlebars" data-template-name="components/post-sentence">
+    {{#each mp in model.posts}}
+      <span style="color: #FDD">{{mp.title}}, {{mp.sentences}}</span>
+    {{/each}}
     {{model.text}}
   </script>
 

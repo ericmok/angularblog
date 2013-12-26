@@ -31,18 +31,32 @@ App.Router.map(function() {
         this.resource("blogs", {path: "/blogs"});
         this.resource("blog", {path: "/:blog_id"});
         this.resource("post", { path: "/post/:post_id" });
+        this.resource("reply", { path: "/post/:post_id/:reply_id" });
     });
 });
 
 
 App.IndexRoute = Ember.Route.extend({
-
+    model: function(param) {
+        return {
+            server: window.server
+        }
+    },
+    setupController: function(controller, model) {
+        console.log("IndexRoute > setupController");
+        console.log(controller);
+        controller.set("model", model);
+    }
 });
-
 
 App.IndexController = Ember.ObjectController.extend({
-
+    actions: {
+        log: function(msg) {
+            console.log(msg);
+        }
+    }
 });
+
 
 App.FrontpageRoute = Ember.Route.extend({
     model: function() {

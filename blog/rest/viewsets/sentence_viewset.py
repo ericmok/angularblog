@@ -17,6 +17,7 @@ import json
 from blog.rest.viewsets.common import PaginationError, build_collection_json_from_query, post_view, build_paginated_simple_json
 
 from blog.models import Sentence
+from blog.rest.serializers import serialize_sentence
 
 class SentenceViewSet(viewsets.GenericViewSet):
 
@@ -28,21 +29,9 @@ class SentenceViewSet(viewsets.GenericViewSet):
             pagination = 16
         sentences = Sentence.objects.all()[:pagination]
 
-        def sentence_collection_serializer(sentence):
-            serialized_json = {}
-            serialized_json['id'] = sentence.pk
-            serialized_json['text'] = sentence.text.value
-            serialized_json['post'] = sentence.sentence_set.parent.id
-            serialized_json['ordering'] = sentence.ordering
-            serialized_json['href'] = '/blog/api/sentences%s' % (sentence.pk,)
-            if sentence.previous_version is not None:
-                serialized_json['previous_version'] = sentence.previous_version.pk
-            else:
-                serialized_json['previous_version'] = None
-            return serialized_json
 
         #return_json = build_collection_json_from_query(request, sentences, sentence_collection_serializer)
-        return_json = build_paginated_simple_json(request, sentences, sentence_collection_serializer, 'sentences')
+        return_json = build_paginated_simple_json(request, sentences, serialize_sentence, results = 'results')
 
         return Response(return_json, status = 200)
 
@@ -59,13 +48,7 @@ class SentenceViewSet(viewsets.GenericViewSet):
         # sentence_set
         # text 
         # ordering
-        return_json = {'id': sentence.pk, \
-                       'text': sentence.text.value, \
-                       'post': sentence.sentence_set.parent.id, \
-                       'ordering': sentence.ordering}
-
-        if sentence.previous_version is not None:
-            return_json['previous_version'] = sentence.previous_version.pk
+        return_json = serialize_sentence(sentence)
 
         return Response(return_json, status = 200)
 

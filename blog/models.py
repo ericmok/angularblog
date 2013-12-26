@@ -97,6 +97,9 @@ class Post(models.Model):
     # Posts can be deleted
     is_active = models.NullBooleanField(null = True, blank = True, default = True)
 
+    # TODO: 
+    blog = models.ForeignKey('Blog')
+
     number_children = models.IntegerField(default = 0)
     
     class Meta:
