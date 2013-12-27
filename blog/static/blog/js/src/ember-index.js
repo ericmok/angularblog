@@ -46,15 +46,11 @@ App.IndexRoute = Ember.Route.extend({
         console.log("IndexRoute > setupController");
         console.log(controller);
         controller.set("model", model);
+        controller.set("server", model);
     }
 });
 
 App.IndexController = Ember.ObjectController.extend({
-    actions: {
-        log: function(msg) {
-            console.log(msg);
-        }
-    }
 });
 
 
@@ -78,7 +74,6 @@ App.BlogsRoute = Ember.Route.extend({
         AppCache.current.blogs = model;
         controller.set("model", model.results);
         controller.set("blogs", model.results);
-        controller.set("server", window.server);
     }
 });
 
@@ -180,10 +175,6 @@ App.BlogController = Ember.ArrayController.extend({
 });
 
 
-App.PostView = Ember.View.extend({
-
-});
-
 //
 // TODO: Convert all these components to views
 // Views can handle 
@@ -231,67 +222,35 @@ App.PostRoute = Ember.Route.extend({
             }
         });
 
-        var modelTemp = null;
-
-        var promise = Ember.$.ajax("/blog/api/posts/" + param.post_id).then(function(json) {
-            json.urlSegment = json.urlSegment || {};
-            json.urlSegment.post_id = param.post_id;
-            modelTemp = json;
-            return json;
-        }).then(function(json) {
-            console.log("PostRoute > model");
-            console.log(json);            
-            return Ember.$.ajax("/blog/api/" + json.parent_content_type + "s" + "/" + json.parent_id)
-        }).then(function(json) {
-            modelTemp.parentModel = json;
-            return modelTemp;
-        });
-
-        return promise;
+        return Ember.$.ajax("/blog/api/posts/" + param.post_id);
     },
     setupController: function(controller, model) {
         console.log("PostRoute > setupController");
-
-        AppCache.models.push(model);
-        AppCache.current.post = model;
-
         controller.set("model", model);
-        controller.set("post", model);
-        controller.set("server", window.server);
-        controller.set("comments", []);
+    },
 
-        if (model.parentModel.content_type == "sentence") {
-            model.parentModel.isSentence = true;
+});
+
+
+App.PostController = Ember.ObjectController.extend({
+    
+    actions: {
+        asdf: function() {
+            console.log("asdf");
+            //AppCache.current.pages.push(Math.random());
+            //var clone = [];
+            //for (var i = 0; i < AppCache.current.pages.length - 1; i ++) {
+            //    clone.push( AppCache.current.pages[i] );
+            //} 
+            //this.set("pages", clone);
+            
+           // this.set("pages", AppCache.current.pages);
+            //AppCache.current.pages.arrayContentDidChange(AppCache.current.pages.length - 1, 0, 1);
+            //this.set("refresh", Math.random());
         }
     }
 });
 
-
-
-App.PostController = Ember.ObjectController.extend({
-    actions: {
-        loadSentence: function(id) {
-            console.log("LOAD: " + id);
-            Ember.$.ajax("/blog/api/sentences/" + id).then(function(json) {
-
-            });
-        },
-        show: function(param) {
-            console.log("LOG");
-            console.log(param);
-            var _self = this;
-            Ember.$.ajax("/blog/api/sentences/" + param.id + "/posts").then(function(json) {
-                var temp = [];
-
-                for (var i = 0; i < json.results.length; i++) {
-                    Ember.$.ajax("/blog/api/posts/" + json.results[i].id).then(function(json) {
-                        //var comments = _self.get("comments");
-                        temp.push(json);
-                        _self.set("comments", temp);
-                    });
-                }
-            });
-        }
-
-    }
+App.asdf = Ember.View.create({
+    templateName: "asdf"
 });

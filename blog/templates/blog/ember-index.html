@@ -14,6 +14,8 @@
     <link href='http://fonts.googleapis.com/css?family=Average+Sans' rel='stylesheet' type='text/css'>
 
     <link href="{{ STATIC_URL }}blog/css/ember-index.css" type="text/css" rel="stylesheet" />
+  
+    <script src="{{ STATIC_URL }}blog/libs/d3.v3.js"></script>
 
     <!-- <link href="{{ STATIC_URL }}blog/css/blog.css" type="text/css" rel="stylesheet" /> -->
 	</head>
@@ -81,12 +83,8 @@
     </div>
   </script>
 
-  <script type="text/x-handlebars" data-template-name="simple-post-view">
-    POST VIEW
-  </script>
-
   <script type="text/x-handlebars" data-template-name="blog">
-    <div class="container">
+    <div>
       <div class="row">
         <h1 class="blog-title">{{urlSegment.blog_id}}</h1>
         <h2 class="blog-desc"></h2>
@@ -115,57 +113,30 @@
     </div>
   </script>
   
+
+  <script type="text/x-handlebars" data-template-name="asdf">
+    <div style="border: solid 1px black; width: 300px; height: 400px; position: absolute; ">
+      asdf
+    </div>
+  </script>
+
+
+  <script type="text/x-handlebars" data-template-name="board">
+    BOARD <br/>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="components/test-component">
+    <div style="border: solid 1px black; width: 300px; height: 500px;">
+    </div>
+  </script>
+
   <script type="text/x-handlebars" data-template-name="post">
-    <div class="container">
-      <div class="row">
-        <h4 class="breadcrumb"> 
-        {{#if parentModel.isSentence}}
-          {{parentModel.text}}
-        {{else}}
-          {{parentModel.title}}
-        {{/if}}
-        </h4>
-      </div>
-      <div class="col-xs-7">
-        {{my-post post=post action="show" }}
-      </div>  
-      <div class="col-xs-5">
-        
-        {{#each comment in comments}}
-          
-          <!--
-          {{#each s in comment.sentences }}
-            {{post-sentence model=s}}
-          {{/each}}
-          -->
-          {{my-post post=comment action="show"}}
-        {{/each}}
-      </div>    
-    </div>
-  </script>
-
-  <script type="text/x-handlebars" data-template-name="components/my-post">
-    <div class="my-post">
-      {{#link-to 'post' post.id}}<h4 class="post-title">{{post.title}}</h4>{{/link-to}}
-      <div class="post-author">
-        post:
-        {{ post.id }}
-        Comment by {{post.author}}
-      </div>
-      <div class="post-body" id="postBody">
-
-        {{#each sentence_model in post.sentences}}
-          {{ post-sentence model=sentence_model action="show" onTest="test" }}
-        {{/each}}
-      </div>
-    </div>
-  </script>
-
-  <script type="text/x-handlebars" data-template-name="components/post-sentence">
-    {{#each mp in model.posts}}
-      <span style="color: #FDD">{{mp.title}}, {{mp.sentences}}</span>
+    {{#each page in pages}}
+      {{test-component}}
     {{/each}}
-    {{model.text}}
+
+    {{ refresh }}
+    <button {{action "asdf"}}>Button</button>
   </script>
 
   {% endverbatim %}

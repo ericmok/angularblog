@@ -61,7 +61,14 @@ try:
 		for fixture in post_fixtures:
 			print("Fixture")
 			print(fixture)
-			p = Post.objects.create(title = fixture[0], author = fixture[1], parent_content_type = fixture[2], parent_id = fixture[3], is_active = fixture[4])
+			if fixture[2] == ct_blog:
+				blog = ct_blog.get_object_for_this_type(pk = fixture[3])
+			if fixture[2] == ct_post:
+				blog = ct_post.get_object_for_this_type(pk = fixture[3]).blog
+			elif fixture[2] == ct_sent:
+				blog = ct_sent.get_object_for_this_type(pk = fixture[3]).sentence_set.parent.blog
+
+			p = Post.objects.create(title = fixture[0], author = fixture[1], parent_content_type = fixture[2], parent_id = fixture[3], is_active = fixture[4], blog = blog)
 			
 			parent = fixture[2].get_object_for_this_type(pk = fixture[3])
 			parent.number_children = parent.number_children + 1

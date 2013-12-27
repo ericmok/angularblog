@@ -244,20 +244,23 @@ def create_post(title, author, parent_content_type, parent_id, content):
     """
 
     # Django's generic foreign key doesn't use a string field
-    parent_content_type = ContentType.objects.get(model = parent_content_type)
+    parent_ct_object = ContentType.objects.get(model = parent_content_type)
+    parent_model = parent_ct_object.get_object_for_this_type(pk = parent_id)
+
+    if parent_content_type == 'blog':
+        blog = parent_model
+    elif parent_content_type == 'post':
+        blog = parent_model.blog
+    elif parent_content_type == 'sentence':
+        blog = parent_model.sentence_set.parent.blog
 
     # Create a new post
-    new_post = Post.objects.create(title = title, author = author, parent_content_type = parent_content_type, parent_id = parent_id)
-    
-    #new_post.parent_object = parent
-    #new_post.save() # Save after editing the parent field, modified field will change again
+    new_post = Post.objects.create(title = title, author = author, parent_content_type = parent_ct_object, parent_id = parent_id, blog = blog)
 
-    # TODO: Make these transactions atomic
-    # Increase number children for parent. 
+    # Increase number children for parent_model. 
     # This will decrease unneccessary queries to sentences that have no posts
-    parent = parent_content_type.get_object_for_this_type(pk = parent_id)
-    parent.number_children = parent.number_children + 1
-    parent.save()
+    parent_model.number_children = parent_model.number_children + 1
+    parent_model.save()
 
     # Create a brand new set for the post. It is time stamped on creation
     new_set = SentenceSet.objects.create(parent = new_post)
