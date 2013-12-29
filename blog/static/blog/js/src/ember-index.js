@@ -7,6 +7,15 @@ var AppCache = {
     current: {}
 };
 
+
+Ember.$.ajaxSetup({
+    beforeSend: function(xhr) {
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Accept", "application/json, text/javascript");
+    }
+});
+
+
 App.ApplicationAdapter = DS.RESTAdapter.extend({
     namespace: 'blog/api',
     find: function(store, type, id) {
@@ -131,7 +140,6 @@ App.BlogRoute = Ember.Route.extend({
         controller.set("next", (model.next!=null)?true:false);
         controller.set("prev", (model.prev!=null)?true:false);
         controller.set("currentPage", 1);
-        controller.set("server", window.server);
     }
 })
 
@@ -215,42 +223,79 @@ App.PostRoute = Ember.Route.extend({
         console.log(param);
 
 
-        Ember.$.ajaxSetup({
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader("Content-Type", "application/json");
-                xhr.setRequestHeader("Accept", "application/json, text/javascript");
-            }
-        });
-
         return Ember.$.ajax("/blog/api/posts/" + param.post_id);
     },
     setupController: function(controller, model) {
         console.log("PostRoute > setupController");
         controller.set("model", model);
+        controller.set("slave", []);
+        controller.set("magic", false);
     },
-
+    renderTemplate: function() {
+        this.render("board");
+    }
 });
 
 
 App.PostController = Ember.ObjectController.extend({
-    
+    master: 1,
     actions: {
-        asdf: function() {
-            console.log("asdf");
-            //AppCache.current.pages.push(Math.random());
-            //var clone = [];
-            //for (var i = 0; i < AppCache.current.pages.length - 1; i ++) {
-            //    clone.push( AppCache.current.pages[i] );
-            //} 
-            //this.set("pages", clone);
+        viewSentence: function(param) {
+            var _self = this;
+            console.log("asdf", param);
             
-           // this.set("pages", AppCache.current.pages);
-            //AppCache.current.pages.arrayContentDidChange(AppCache.current.pages.length - 1, 0, 1);
-            //this.set("refresh", Math.random());
+            Ember.$.ajax("/blog/api/sentences/" + param + "/comments").then(function(json) {
+                console.log("THEN");
+                var slave = _self.get("slave");
+
+                slave.arrayContentWillChange();
+                var last = slave.length;
+
+                for (var i = 0; i < json.results.length; i++) {
+                    slave.push( json.results[i] );
+                }
+
+                slave.arrayContentDidChange(last, 0, json.results.length);
+            });
         }
     }
 });
 
+App.postModel = Ember.View.extend({});
+
+
 App.asdf = Ember.View.create({
     templateName: "asdf"
+});
+
+
+
+App.PostRepresentationComponent = Ember.Component.extend({
+    actions: {
+        viewSentence: function(param) {
+            this.sendAction("viewSentence", param);
+        }
+    }
+});
+
+App.SentenceSegmentComponent = Ember.Component.extend({
+    tagName: "span",
+    classNames: ["post-body sentence"],
+    classNameBindings: ["isHovering"],
+    isHovering: false,
+    mouseEnter: function(jqEv) {
+        this.set("isHovering", true);
+    },
+    click: function(jqEv) {
+        console.log("CLICKED");
+        this.set("isHovering", true);
+        this.sendAction("viewSentence", this.get("model").id);
+    },
+    mouseLeave: function(jqEv) {
+        this.set("isHovering", false);
+    }
+});
+
+App.SlaveView = Ember.View.extend({
+    templateName: "slave"
 });

@@ -3,7 +3,8 @@ from blog.rest.serializers import *
 from blog.models import *
 from django.conf import settings
 from rest_framework.response import Response
-
+from rest_framework.decorators import action
+import urlparse
 
 class PaginationError(Exception):
     pass
@@ -250,7 +251,46 @@ def build_collection_json_from_query(request, query_set, per_model_serializer_ca
     return return_json
 
 
-def post_view(model_name, request, pk):
+def post_view(this, request, model_name, pk):
+    try:
+        pk = int(pk)
+        post = Post.objects.get(pk = pk)
+    except ValueError:
+        return Response({"detail": "Not found"}, status = 404)
+
+    parent_ct = ContentType.objects.get(model = model_name)
+
+    post_posts = Post.objects.filter(parent_content_type = parent_ct, parent_id = pk).order_by('-created')
+
+    # Raises 404 on any errors regarding page numbers!
+    page = this.paginate_queryset(post_posts)
+    serialized = PostPaginationSerializer(page, context = {'request': request})
+    return_json = serialized.data
+
+    return_json['href'] = request.build_absolute_uri('')
+
+    return Response( return_json, status = 200 )
+
+
+def get_comments_on_sentences_of_sentence_set(ss):
+    """
+    In the future, we may want to expand functionality related to post versioning
+    """
+    comments = []
+
+    sentences = Sentence.objects.filter(sentence_set = ss)
+
+    sentence_ct = ContentType.objects.get(model = 'sentence')
+
+    for sentence in sentences:
+        sentence_comments = Post.objects.filter(parent_content_type = sentence_ct, parent_id = sentence.pk)
+
+        for comment in sentence_comments:
+            comments.append( comment )
+
+    return comments
+
+def pagination_example():
     try:
         pk = int(pk)
     except:
@@ -259,15 +299,14 @@ def post_view(model_name, request, pk):
     query = Post.objects.filter(parent_content_type = ContentType.objects.get(model = model_name), parent_id = pk).order_by('-created')
 
     try:
-        #return_json = build_collection_json_from_query(request, query, lambda m: {"id": m.id, "title": m.title, "href": '/blog/api/posts/%s' % (m.id,)})
-        return_json = build_paginated_simple_json(request, query, 
-                        lambda m: 
-                            {"id": m.id, 
-                            "title": m.title, 
-                            "brief": m.get_brief(),
-                            "created": m.created,
-                            "href": '/blog/api/posts/%s' % (m.id,)})
+        def serialize_post(m):
+            return {"id": m.id, 
+                    "title": m.title, 
+                    "brief": m.get_brief(),
+                    "created": m.created,
+                    "href": '/blog/api/posts/%s' % (m.id,) }
+        return_json = build_paginated_simple_json(request, query, serialize_post)
     except PaginationError:
         return Response({"detail": "Not found"}, status = 404)
 
-    return Response( return_json, status = 200 )
+    return return_json

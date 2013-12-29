@@ -53,5 +53,5 @@ class SentenceViewSet(viewsets.GenericViewSet):
         return Response(return_json, status = 200)
 
     @action(methods=['GET'])
-    def posts(self, request, pk = None):
-        return post_view("sentence", request, pk)
+    def comments(self, request, pk = None):
+        return post_view(self, request, "sentence", pk)

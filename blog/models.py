@@ -112,7 +112,7 @@ class Post(models.Model):
         """
         ss = SentenceSet.objects.filter(parent = self).order_by('-created')
         if len(ss) > 0:
-            sen = Sentence.objects.filter(sentence_set = ss[0]).order_by('ordering')[:3]
+            sen = Sentence.objects.filter(sentence_set = ss[0], paragraph = 1).order_by('ordering')[:]
             if len(sen) > 0:
                 ret = []
                 for s in sen:
@@ -164,7 +164,7 @@ class Sentence(models.Model):
 
     # Intra-post sectioning and ordering via the paragraph mechanism
     # Can create a paragraph of texts / code / etc.
-    paragraph = models.IntegerField()
+    paragraph = models.ForeignKey('Paragraph', related_name='sentences')
 
     # Modifier for use cases of the sentence
     # Could be 'h' for header, 'c' for code, 't' for text, for example
@@ -194,3 +194,15 @@ class Text(models.Model):
 
     class Meta:
         unique_together = ('value',)
+
+class Paragraph(models.Model):
+    """
+    An after thought...
+    """
+    sentence_set = models.ForeignKey('SentenceSet', related_name = 'paragraphs')
+    index = models.IntegerField()
+
+    number_sentences = models.IntegerField(default = 0)
+
+    number_comments = models.IntegerField(default = 0)
+    

@@ -86,5 +86,5 @@ class BlogViewSet(viewsets.GenericViewSet,
         return Response(blog_serializer.data, status = 200)
 
     @action(methods=['GET'])
-    def posts(self, request, pk = None):
-        return post_view("blog", request, pk)
+    def comments(self, request, pk = None):
+        return post_view(self, request, "blog", pk)

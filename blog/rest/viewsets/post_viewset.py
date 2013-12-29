@@ -25,6 +25,7 @@ import nltk
 import difflib
 
 import collections
+from django.db.models import F
 
 # For parsing post content. Blocks contain nodes containing text
 Block = collections.namedtuple('Block', ['mode', 'text'])
@@ -49,6 +50,8 @@ def tokenize_into_sentences(content):
 
 def split_content_into_blocks(content):
     """
+    Note: If there is no content. There is no block returned!
+
     Split into blocks. 
     Priority of splits:
       1) Code block
@@ -133,7 +136,7 @@ def split_block_into_nodes(block):
     parsed = []
 
     if block.mode == BLOCK_MODE_TEXT:
-        
+        # A text block actually may contain non-text chunks called nodes.
         # 'Multiple sentences.@[Some Markdown]@More text? Blah'
         nodes = re.split(CODE_NODE_REGEX, block.text)
 
@@ -144,6 +147,7 @@ def split_block_into_nodes(block):
             else:
                 parsed.append( Node(NODE_MODE_TEXT, node) )
     else:
+        # This case appears when the block is not a text block
         # !!!For Lazyness I just made the block mode into node mode!!!
         parsed.append( Node(block.mode, block.text) )
 
@@ -172,7 +176,19 @@ def expand_nodes_that_have_sentences(nodes):
     return sentences
 
 
+def get_nodes_of_block(block):
+    # TODO: This function will have those 2 lines as long as I have no refactored the above functions!
+    #
+    # Use NLTK to tokenize each node into sentences
+    nodes = split_block_into_nodes(block)
+    sentenced_nodes = expand_nodes_that_have_sentences(nodes)
+    return sentenced_nodes
+
+
 def for_each_node_in_content(content):
+    # No longer use this since I've included paragraph model, which requires
+    # that a new paragraph object be created for each iteration of paragraphs
+    #
     # Split content into paragraphs (blocks)
     # for each block, split into nodes of the same paragraph
     # If the node is just text, then tokenize into sentences
@@ -187,13 +203,11 @@ def for_each_node_in_content(content):
     # [ "Sent1. Sent2. Sent3." ,  "Sent4. Sent5. Sent6." ]
     for par_index, par_value in enumerate( paragraphs ):
 
-        # Use NLTK to tokenize each node into sentences
-        nodes = split_block_into_nodes( par_value )
-        sentenced_nodes = expand_nodes_that_have_sentences(nodes)
-        
+        sentences_in_block = get_nodes_of_block(par_value)
+
         # For each sentence in the paragraph, make a new sentence
         # Each sentence is affected by the outer par_index counter
-        for node_index, node in enumerate(sentenced_nodes):
+        for node_index, node in enumerate(sentences_in_block):
             yield (par_index, par_value, node_index, node)
 
 
@@ -237,14 +251,24 @@ def create_or_get_text(text_string):
 
 def create_post(title, author, parent_content_type, parent_id, content):
     """
+    Preconditions: content is not empty, the content types exist
+
     Perform the post creation algorithm by creating the associated django models 
     and ensuring their integrity. 
+
+    TODO: Allow parent_content_type of "paragraph"
+    which sets the parent_content_type object to sentence 
+
+    TODO: Consolidate content type retrieval code and content type query code
 
     @returns a dictionary of results
     """
 
     # Django's generic foreign key doesn't use a string field
-    parent_ct_object = ContentType.objects.get(model = parent_content_type)
+    # Pargraphs refer to Sentences
+    parent_model_name = parent_content_type
+
+    parent_ct_object = ContentType.objects.get(model = parent_model_name)
     parent_model = parent_ct_object.get_object_for_this_type(pk = parent_id)
 
     if parent_content_type == 'blog':
@@ -259,7 +283,7 @@ def create_post(title, author, parent_content_type, parent_id, content):
 
     # Increase number children for parent_model. 
     # This will decrease unneccessary queries to sentences that have no posts
-    parent_model.number_children = parent_model.number_children + 1
+    parent_model.number_children = F('number_children') + 1
     parent_model.save()
 
     # Create a brand new set for the post. It is time stamped on creation
@@ -268,24 +292,38 @@ def create_post(title, author, parent_content_type, parent_id, content):
     # For caching so don't have to re-query the result
     new_sentences = []
 
-    for par_index, par_value, node_index, node in for_each_node_in_content(content):
-        # For each sentence, create or get text. Cannot have duplicate texts.
-        text_obj = create_or_get_text(node.text)
+    # This counter is outside the loop because it shouldn't be reset for each paragraph!
+    sentence_counter = 0
 
-        # Forge a binary relation between the created text and the new set
+    paragraphs = split_content_into_blocks(content)
+
+    for par_index, par_value in enumerate(paragraphs):
+        nodes = get_nodes_of_block(par_value)
+
+        # TODO: Link the new sentence to this object
         # Remember to increment the indices by 1 since in the loop the indices start at 0
-        new_sentence = Sentence.objects.create(sentence_set = new_set, 
-                                               text = text_obj,
-                                               ordering = node_index + 1,
-                                               paragraph = par_index + 1,
-                                               mode = node.mode
-                                               )
-        # Cache the new sentence
-        new_sentences.append(new_sentence)
+        new_paragraph = Paragraph.objects.create(sentence_set = new_set, 
+                                                    index = par_index + 1,
+                                                    number_sentences = len(nodes))
+
+        for node in nodes:
+            # Each sentence has a unique counter for the entire post, not just each paragraph
+            sentence_counter += 1 # Notice that this counter starts counting at 1, not 0!
+
+            # For each sentence, create or get text. Cannot have duplicate texts.
+            text_obj = create_or_get_text(node.text)
+
+            # Forge a binary relation between the created text and the new set
+            new_sentence = Sentence.objects.create(sentence_set = new_set, 
+                                                   text = text_obj, ordering = sentence_counter,
+                                                   paragraph = new_paragraph, mode = node.mode)
+
+            # Cache the new sentence
+            new_sentences.append(new_sentence)
 
     return {
         'sentence_set': new_set,
-        'number_sentences': node_index + 1,
+        'number_sentences': len( new_sentences ),
         'number_paragraphs': par_index + 1,
         'sentences': new_sentences
     }
@@ -340,50 +378,81 @@ def patch_post(post, content):
 
     # Loop through new sentences, create new sentences
     # Set the previous_version pointer if there is a match
-    for par_index, par_value, node_index, node in for_each_node_in_content(content):
+    sentence_counter = 0
 
-        # Gets the match to the new string
-        # A match is a (ratio, Sentence)
-        match = get_closest_sentence_model_to_text(node.text, old_sentence_models, cutoff = 0.4)
+    paragraphs = split_content_into_blocks(content)
 
-        #self.note("Node: %s" % (node,))
-        #self.note("Closest Match: " + str( match ))
-        #if match:
-        #    self.note("Match: (%s, %s): %s, %s" % (match[0], match[1], match[1].text, match[1].text.value))
-        
-        # Create new Text for each node 
-        # Then create new Sentence for each node
-        text = create_or_get_text( node.text )
+    for par_index, par_value in enumerate( paragraphs ):
 
-        if match is None:
-            # If there is no match, don't set the previous_version pointer
-            #self.note("no match")
-            #self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
-            Sentence.objects.create(sentence_set = new_set, 
-                                    text = text, 
-                                    ordering = node_index + 1,
-                                    paragraph = par_index + 1,
-                                    mode = node.mode)
-        else:                 
-            # There was a match! 
-            # Set the previous_version pointer so that the new sentence has a reference
-            # to the old sentence
-            similarity_counter += 1
+        nodes = get_nodes_of_block(par_value)
 
-            #self.note("match")
-            #self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
-            Sentence.objects.create(sentence_set = new_set, 
-                                    text = text, 
-                                    ordering = node_index + 1, 
-                                    paragraph = par_index + 1,
-                                    mode = node.mode,
-                                    previous_version = match[1])
+        # The number of sentences of the new paragraph will have to be set in the next loop
+        new_paragraph = Paragraph.objects.create(sentence_set = new_set, index = par_index + 1,
+                                                    number_sentences = len(nodes))
+
+        for node in nodes:
+            sentence_counter += 1
+
+            # Gets the match to the new string
+            # A match is a (ratio, Sentence)
+            match = get_closest_sentence_model_to_text(node.text, old_sentence_models, cutoff = 0.4)
+
+            #self.note("Node: %s" % (node,))
+            #self.note("Closest Match: " + str( match ))
+            #if match:
+            #    self.note("Match: (%s, %s): %s, %s" % (match[0], match[1], match[1].text, match[1].text.value))
+            
+            # Create new Text for each node 
+            # Then create new Sentence for each node
+            text = create_or_get_text( node.text )
+
+            if match is None:
+                # If there is no match, don't set the previous_version pointer
+                #self.note("no match")
+                #self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
+                Sentence.objects.create(sentence_set = new_set, 
+                                        text = text, 
+                                        ordering = sentence_counter,
+                                        paragraph = new_paragraph,
+                                        mode = node.mode)
+            else:                 
+                # There was a match! 
+                # Set the previous_version pointer so that the new sentence has a reference
+                # to the old sentence
+                similarity_counter += 1
+
+                #self.note("match")
+                #self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
+                Sentence.objects.create(sentence_set = new_set, 
+                                        text = text, 
+                                        ordering = sentence_counter, 
+                                        paragraph = new_paragraph,
+                                        mode = node.mode,
+                                        previous_version = match[1])
 
     return {
         'number_merged': similarity_counter,
-        'number_sentences': node_index + 1,
+        'number_sentences': sentence_counter,
         'number_paragraphs': par_index + 1
     }
+
+
+def get_posts_for_every_sentence():
+    # Load posts made on each sentence of that post
+    sentence_posts = []
+
+    # Expectation: SentenceSet is orderedy by date
+    ss = SentenceSet.objects.filter(parent = post)[0] 
+    sentences_of_post = Sentence.objects.filter(sentence_set = ss)
+
+    for sentence in sentences_of_post:
+        
+        # Find any posts for the sentence. This is to be side loaded.
+        sentence_ct = ContentType.objects.filter(model = 'sentence')
+        query = Post.objects.filter(parent_content_type = sentence_ct, parent_id = sentence.pk)[:page_size]
+        sentence_posts.append(query)
+    return sentence_posts
+
 
 class PostViewSet(viewsets.GenericViewSet):
     
@@ -398,8 +467,10 @@ class PostViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         """
-        Removed: Filter posts its parent_object, be it blog, post, or sentence as determined by input pk
-        Pagination is a little icky
+        Removed: Filter posts by its parent_object, be it blog, post, or sentence as determined by input pk
+        Pagination is a little icky: ?blog=1?page=2
+
+        TODO: Add this back, since we now know about urlparse
         """
         # blog_pk = request.GET.get('blog', None)
         # post_pk = request.GET.get('post', None)
@@ -421,12 +492,13 @@ class PostViewSet(viewsets.GenericViewSet):
         
         posts = Post.objects.all()
 
+        # Handles cases like 404 and invalid page numbers!
         page = self.paginate_queryset(posts)
         if page is not None:
             #serializer = self.get_pagination_serializer(page)
-            serializer = PostPaginationSerializer(page)
+            serializer = PostPaginationSerializer(page, context = {'request': request})
         else:
-            serializer = self.get_serializer(posts, many=True)
+            serializer = self.get_serializer(posts, many=True, context = {'request': request})
 
         serializer.data['href'] = request.build_absolute_uri('')
         serializer.data['template'] = {
@@ -626,12 +698,12 @@ class PostViewSet(viewsets.GenericViewSet):
                 
                 serialized_sentence = serialize_sentence(sentence)
 
-                if sentence.number_children > 0:
-                    serialized_sentence['posts'] = []
-                    sentence_posts = Post.objects.filter(parent_content_type = ContentType.objects.get(model='sentence'), parent_id = sentence.pk)
-                    for sentence_post in sentence_posts:
-                        post_serialized = PostSerializer(sentence_post, context = {'request': request})
-                        serialized_sentence['posts'].append( post_serialized.data )
+                #if sentence.number_children > 0:
+                #    serialized_sentence['posts'] = []
+                #    sentence_posts = Post.objects.filter(parent_content_type = ContentType.objects.get(model='sentence'), parent_id = sentence.pk)
+                #    for sentence_post in sentence_posts:
+                #        post_serialized = PostSerializer(sentence_post, context = {'request': request})
+                #        serialized_sentence['posts'].append( post_serialized.data )
 
 
                 return_json['sentences'].append( serialized_sentence )
@@ -654,5 +726,28 @@ class PostViewSet(viewsets.GenericViewSet):
         return Response({"status": "Marked inactive!"}, status = 202)
 
     @action(methods=['GET'])
-    def posts(self, request, pk = None):
-        return post_view("post", request, pk)
+    def comments(self, request, pk = None):
+        return post_view(self, request, "post", pk)
+
+
+    @action(methods=['GET'])
+    def sentence_comments(self, request, pk = None):
+        try:
+            pk = int(pk)
+        except ValueError:
+            raise Http404("Post doesn't exist")
+
+        post = Post.objects.get(pk = pk)
+
+        # expect SentenceSet to be ordered by date
+        sentence_set = SentenceSet.objects.filter(parent = post)[0]
+        sentences = Sentence.objects.filter(sentence_set = sentence_set).values('pk')
+
+        sentence_ct = ContentType.objects.get(model = 'sentence')
+
+        comments = Post.objects.filter(parent_content_type = sentence_ct, parent_id__in = sentences)
+
+        page = self.paginate_queryset(comments)
+        serialized = PostPaginationSerializer(page, context = {'request': request})
+
+        return Response(serialized.data, status = 200)

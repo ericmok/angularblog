@@ -3,57 +3,55 @@
 	<head>
 		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
 
-    <link href='http://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
   
-    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,500' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,500' rel='stylesheet' type='text/css'>
 
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,400,300,600,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,400,300,600,700' rel='stylesheet' type='text/css'>
 
 
-    <link href='http://fonts.googleapis.com/css?family=Average+Sans' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Average+Sans' rel='stylesheet' type='text/css'>
 
-    <link href="{{ STATIC_URL }}blog/css/ember-index.css" type="text/css" rel="stylesheet" />
+        <link href="{{ STATIC_URL }}blog/css/ember-index.css" type="text/css" rel="stylesheet" />
   
-    <script src="{{ STATIC_URL }}blog/libs/d3.v3.js"></script>
+        <script src="{{ STATIC_URL }}blog/libs/d3.v3.js"></script>
 
-    <!-- <link href="{{ STATIC_URL }}blog/css/blog.css" type="text/css" rel="stylesheet" /> -->
+        <!-- <link href="{{ STATIC_URL }}blog/css/blog.css" type="text/css" rel="stylesheet" /> -->
 	</head>
-  <script>
-    window.server = {
-      auth: {
-        isSignedIn: {% if request.user.is_authenticated %}true{% else %}false{% endif %},
-        user: "{{ request.user }}",
-        links: {
-          signIn: "{% url 'blog.views.register.sign_out' %}",
-          signOut: "{% url 'blog.views.register.sign_in' %}"
+    <script>
+        window.server = {
+            auth: {
+            isSignedIn: {% if request.user.is_authenticated %}true{% else %}false{% endif %},
+            user: "{{ request.user }}",
+            links: {
+                signIn: "{% url 'blog.views.register.sign_out' %}",
+                signOut: "{% url 'blog.views.register.sign_in' %}"
+            }
         }
-      }
     };
-  </script>
-	<body>
+    </script>
+    <body>
 	
-  {% verbatim %}
+    {% verbatim %}
 
-  <script type="text/x-handlebars" data-template-name="index">
-  	<div class="container" style="border-left: solid 1px #DDD; border-right: solid 1px #DDD; min-height: 800px">
-      <div>
-          {{#if server.auth.isSignedIn }}
-          {{ server.auth.user }}
-          Signed in
-          {{/if}}
+    <script type="text/x-handlebars" data-template-name="index">
+    <div class="container" style="border-left: solid 1px #DDD; border-right: solid 1px #DDD; min-height: 800px">
+        <div>
+            {{#if server.auth.isSignedIn }}
+                {{ server.auth.user }}
+                Signed in
+            {{/if}}
 
-          {{#unless server.auth.isSignedIn }}
-          {{ server.auth.user }}
-          Signed out
-          {{/unless}}
-      </div>
+            {{#unless server.auth.isSignedIn }}
+                {{ server.auth.user }}
+                Signed out
+            {{/unless}}
+        </div>
 
-        <!-- {{input type="text" placeholder="New User?" value=blogName action="createBlog"}} -->
-
-      <div>
+    <div>
         {{ outlet }}
-      </div>
+    </div>
 
 
 	 </div>
@@ -121,30 +119,65 @@
   </script>
 
 
-  <script type="text/x-handlebars" data-template-name="board">
-    BOARD <br/>
-  </script>
+    <script type="text/x-handlebars" data-template-name="board">
+        BOARD <br/>
+        {{magic}}<br/>
+        <div style="float:left">
+            {{post-representation model=model bar="1" viewSentence="viewSentence"}}
+        </div>
+        <div style="float:left">
 
-  <script type="text/x-handlebars" data-template-name="components/test-component">
-    <div style="border: solid 1px black; width: 300px; height: 500px;">
-    </div>
-  </script>
+            <div>
+            {{view App.SlaveView}}
+            </div>
+            
+        </div>
+        <div style="clear: both"></div>
+    </script>
 
-  <script type="text/x-handlebars" data-template-name="post">
-    {{#each page in pages}}
-      {{test-component}}
-    {{/each}}
+    <script type="text/x-handlebars" data-template-name="PostDetail">    
+    </script>
 
-    {{ refresh }}
-    <button {{action "asdf"}}>Button</button>
-  </script>
+    <script type="text/x-handlebars" data-template-name="PostList">    
+    </script>
 
-  {% endverbatim %}
+    <script type="text/x-handlebars" data-template-name="slave">    
+        <div style="border: solid 1px blue; width: 300px;">
+        VIEW {{slave}}<br/>
+            {{slave.length}}
+            {{#each s in slave}}
+                {{s.title}} <br/>
+                {{post-representation model=s bar="2"}}
+            {{/each}}
+            
+        </div>
+    </script>
 
-		<script src="{{ STATIC_URL }}blog/libs/jquery-1.9.1.js"></script>
+    <script type="text/x-handlebars" data-template-name="components/post-representation">
+        <div style="border: solid 1px black; width: 300px;">
+            <h4 class="post-title">{{bar}}, {{ model.title }}</h4>
+
+            <div class="post-body">
+                {{ model.brief }}
+                {{#each sentence in model.sentences}}
+                    {{sentence-segment model=sentence viewSentence="viewSentence"}}
+                {{/each}}
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="components/sentence-segment">
+        {{model.text}}
+    </script>
+
+
+
+    {% endverbatim %}
+
+    	<script src="{{ STATIC_URL }}blog/libs/jquery-1.9.1.js"></script>
 		<script src="{{ STATIC_URL }}blog/libs/handlebars-1.0.0.js"></script>
 		<script src="{{ STATIC_URL }}blog/libs/ember-1.2.0.js"></script>
-    <script src="{{ STATIC_URL }}blog/libs/ember-data.js"></script>
+        <script src="{{ STATIC_URL }}blog/libs/ember-data.js"></script>
 
 		<script src="{{ STATIC_URL }}blog/libs/moment.js"></script>
 		

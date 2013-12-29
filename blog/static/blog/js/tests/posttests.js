@@ -16,6 +16,25 @@ describe("Post Endpoint AJAX", function() {
 			}, 1000);
 		});
 
+		describe("/comments endpoint", function() {
+			it("can get comments on post", function() {
+				testAjax(function(cb) {
+					Helpers.jsonRequest( Helpers.POSTS_URL + "/1/comments", "GET", null, cb);
+				}, function(data, xhr) {
+					expect(xhr.status).toEqual(200);
+					expect(data.results).not.toBeNull();
+				});
+			});
+			it("can get comments on a sentence", function() {
+				testAjax(function(cb) {
+					Helpers.jsonRequest( Helpers.POSTS_URL + "/1/sentence_comments", "GET", null, cb);
+				}, function(data, xhr) {
+					expect(xhr.status).toEqual(200);
+					expect(data.results).not.toBeNull();
+				});
+			});
+		});
+
 		describe("Filter by ?blog= parameters", function() {
 			xit("can filter by ?blog= query parameter", function() {
 				
@@ -308,7 +327,7 @@ describe("Post Endpoint AJAX", function() {
 describe("Post Paragraphing", function() {
 	it("can split input into paragraphs", function() {
 		testAjax(function(callback) {
-			var alice = { username: "alice", password: "testtest" };
+			var alice = TestDB.alice;
 			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", alice, function(data, xhr) {
 				var payload = {
 					"title": ["AJAX Post", Math.random()].join(' '), 
@@ -328,7 +347,7 @@ describe("Post Paragraphing", function() {
 
 	it("can treat code blocks as extra paragraphs", function() {
 		testAjax(function(callback) {
-			var alice = { username: "alice", password: "testtest" };
+			var alice = TestDB.alice;
 			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", alice, function(data, xhr) {
 				var payload = {
 					"title": ["AJAX Post", Math.random()].join(' '), 
@@ -348,7 +367,7 @@ describe("Post Paragraphing", function() {
 
 	it("can treat @[ ]@ code blocks as extra sentences", function() {
 		testAjax(function(callback) {
-			var alice = { username: "alice", password: "testtest" };
+			var alice = TestDB.alice;
 			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", alice, function(data, xhr) {
 				var payload = {
 					"title": ["AJAX Post", Math.random()].join(' '), 
