@@ -58,7 +58,7 @@ class Blog(models.Model):
     # Only specific users in the white list can contribute to a blog
     is_restricted = models.BooleanField(default = False)
 
-    number_children = models.IntegerField(default = 0)
+    number_posts = models.IntegerField(default = 0)
 
     class Meta:
         unique_together = ('title',)
@@ -100,7 +100,7 @@ class Post(models.Model):
     # TODO: 
     blog = models.ForeignKey('Blog')
 
-    number_children = models.IntegerField(default = 0)
+    number_posts = models.IntegerField(default = 0)
     
     class Meta:
         ordering = ['-created']
@@ -171,7 +171,7 @@ class Sentence(models.Model):
     mode = models.CharField(max_length = 4, default = 't')
 
     # To save queries
-    number_children = models.IntegerField(default = 0)
+    number_posts = models.IntegerField(default = 0)
 
     class Meta:
         ordering = ['ordering']
@@ -204,5 +204,5 @@ class Paragraph(models.Model):
 
     number_sentences = models.IntegerField(default = 0)
 
-    number_comments = models.IntegerField(default = 0)
+    number_posts = models.IntegerField(default = 0)
     

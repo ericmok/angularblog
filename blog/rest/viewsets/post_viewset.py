@@ -283,7 +283,7 @@ def create_post(title, author, parent_content_type, parent_id, content):
 
     # Increase number children for parent_model. 
     # This will decrease unneccessary queries to sentences that have no posts
-    parent_model.number_children = F('number_children') + 1
+    parent_model.number_posts = F('number_posts') + 1
     parent_model.save()
 
     # Create a brand new set for the post. It is time stamped on creation
