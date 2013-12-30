@@ -169,7 +169,8 @@ def serialize_sentence(sentence):
         "ordering": sentence.ordering,
         "mode": sentence.mode,
         "paragraph": sentence.paragraph.index,
-        "number_replies": sentence.number_children
+        "paragraph_pk": sentence.paragraph.pk,
+        "number_replies": sentence.number_posts
         }
     if (sentence.previous_version is not None):
         return_json['previous_version'] = sentence.previous_version.pk

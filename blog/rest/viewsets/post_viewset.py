@@ -74,7 +74,7 @@ def split_content_into_blocks(content):
 
 
     blocks = []
-    remaining_text = content
+    remaining_text = content.strip() # For content that ends in \n\n\n. You don't want a new block
     temp_string = ''
 
     def search(txt):
@@ -163,12 +163,14 @@ def expand_nodes_that_have_sentences(nodes):
     Some nodes need even further processing. Split text nodes into more text nodes.
     """
     sentences = [] # This gets returned
-
+    print("Expanding nodes: %s" % [nodes])
     for node in nodes:
         if node.mode == NODE_MODE_TEXT:
             # Each 't' node may be made of a couple of sentences.
             tokenized_sents = tokenize_into_sentences(node.text)
+            print("Tokenizing node: %s" % [node.text])
             for token in tokenized_sents:
+                print("Token: %s" % [token])
                 sentences.append( Node(node.mode, token.strip()) )
         else:
             # Each non 't' node (FOR NOW this must be 'c') node gets priviledge to get inputted as-is
@@ -277,9 +279,13 @@ def create_post(title, author, parent_content_type, parent_id, content):
         blog = parent_model.blog
     elif parent_content_type == 'sentence':
         blog = parent_model.sentence_set.parent.blog
+    elif parent_content_type == 'paragraph':
+        blog = parent_model.sentence_set.parent.blog
 
     # Create a new post
-    new_post = Post.objects.create(title = title, author = author, parent_content_type = parent_ct_object, parent_id = parent_id, blog = blog)
+    new_post = Post.objects.create(title = title, author = author, 
+                                    parent_content_type = parent_ct_object, parent_id = parent_id, 
+                                    blog = blog)
 
     # Increase number children for parent_model. 
     # This will decrease unneccessary queries to sentences that have no posts
@@ -305,7 +311,7 @@ def create_post(title, author, parent_content_type, parent_id, content):
         new_paragraph = Paragraph.objects.create(sentence_set = new_set, 
                                                     index = par_index + 1,
                                                     number_sentences = len(nodes))
-
+        print ("NUMBER NODES: ", len(nodes))
         for node in nodes:
             # Each sentence has a unique counter for the entire post, not just each paragraph
             sentence_counter += 1 # Notice that this counter starts counting at 1, not 0!
