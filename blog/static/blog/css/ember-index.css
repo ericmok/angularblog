@@ -60,3 +60,31 @@
 	background: -moz-linear-gradient(right, #EEE, #DDD); /* For Firefox 3.6 to 15 */
 	background: linear-gradient(right, #EEE, #DDD); /* Standard syntax */
 }
+
+.sliding-panel
+{
+	position: absolute;
+	left: 0%;
+	width: 35%;
+	border: solid 1px #DDD;
+	border-radius: 5px;
+	padding: 1.4em;
+	background-color: #EFEFEF;
+	-webkit-transition: all 0.7s;
+	-moz-transition: all 0.7s;
+	-ms-transition: all 0.7s;
+	-o-transition: all 0.7s;
+	transition: all 0.7s;
+}
+
+.slide-left
+{
+	left: -50%;
+}
+
+.slide-right
+{
+	background-color: #FFF;
+	border: none;
+	left: 50%;
+}

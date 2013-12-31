@@ -7,7 +7,8 @@ App.Memory = {
     models: {
         posts: []
     },
-    history: []
+    history: [],
+    currentWindowStack: []
 }
 
 App.Router.reopen({
@@ -75,11 +76,12 @@ App.PostD3Component = Ember.Component.extend({
                                                 return "<h3>" + d.title + "</h3>"; 
                                             });
 
+
         var sentenceSelection = selection.selectAll("span")
                                     .data(function(d) { return d.sentences; },
                                             function(d,i) { return d.id } );
 
-        sentenceSelection.filter( function(d) { return.paragraph; } );
+        //sentenceSelection.filter( function(d) { return.paragraph; } );
 
         sentenceSelection.enter()
                             .append("span")

@@ -39,18 +39,19 @@
             <div class="row">
                 Signed in as {{server.auth.user}}
             </div>
-            <div class="row">
+            <div class="row" style="position: relative; min-height: 1000px; overflow: hidden;">
                 {{outlet}}
             </div>
         </div>
     </script>
 
     <script type="text/x-handlebars" data-template-name="posts">
-        <div>
-            <div class="col-xs-6">
-                STUFF
-            </div>
-        </div>
+        <div class="sliding-panel" id="leftBar">
+            
+            {{post-d3 model=model}}
+        </div>        
+
+        <div style="clear:both"></div>
     </script>
 
     <script type="text/x-handlebars" data-template-name="components/post-d3">
