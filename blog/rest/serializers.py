@@ -1,4 +1,4 @@
-from blog.models import User, Blog, Post, Sentence
+from blog.models import User, Blog, Post, Sentence, SentenceSet
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.pagination import BasePaginationSerializer, NextPageField, PreviousPageField
@@ -90,6 +90,17 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
     #brief = serializers.Field(source = 'get_brief')
 
+    sentences = serializers.SerializerMethodField('get_sentences')
+
+    def get_sentences(self, obj):
+        ss = SentenceSet.objects.filter(parent = obj)[0]
+        sentences = Sentence.objects.filter(sentence_set = ss)
+
+        res = []
+        for sent in sentences:
+            res.append( serialize_sentence(sent) )
+
+        return res
 
     def validate_parent_content_type(self, attrs, source):
         if attrs.get('parent_content_type', None) is None:
@@ -121,7 +132,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         model = Post
         fields = ('content_type', 'id', 'href', 'title', 'author',
                   'created', 'modified',
-                  'parent_content_type', 'parent_id')
+                  'parent_content_type', 'parent_id', 'sentences')
 
         read_only_fields = ('created', 'modified',)
         

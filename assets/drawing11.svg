@@ -14,9 +14,24 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="New document 1">
+   sodipodi:docname="drawing11.svg">
   <defs
-     id="defs4" />
+     id="defs4">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4575">
+      <rect
+         ry="6.7496557"
+         rx="6.5060673"
+         y="-111.45882"
+         x="256.8956"
+         height="772"
+         width="935"
+         id="rect4577"
+         style="fill:none;stroke:#dadada;stroke-opacity:1"
+         clip-path="none" />
+    </clipPath>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,13 +40,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="346.36993"
-     inkscape:cy="378.57177"
+     inkscape:cx="414.6143"
+     inkscape:cy="380.19292"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1918"
-     inkscape:window-height="1028"
+     inkscape:window-height="1055"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1" />
@@ -55,16 +70,16 @@
     <rect
        style="fill:#daf9ff;fill-opacity:1"
        id="rect3105"
-       width="416"
-       height="504"
-       x="499"
-       y="411.36218"
+       width="6"
+       height="650"
+       x="150"
+       y="333.36218"
        clip-path="none" />
     <flowRoot
        xml:space="preserve"
        id="flowRoot2985"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="translate(-480.55624,399.89526)"
+       transform="translate(591.545,321.39402)"
        clip-path="none"><flowRegion
          id="flowRegion2987"><rect
            id="rect2989"
@@ -73,7 +88,16 @@
            x="38.385796"
            y="139.36023" /></flowRegion><flowPara
          id="flowPara2991"
-         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:149.00000095%;font-family:Average Sans;-inkscape-font-specification:Average Sans">The United States government leaks like a sieve. Presidents denounce the constant flow of classified information to the media from unauthorized, anonymous sources. National security professionals decry the consequences. And yet the laws against leaking are almost never enforced. Throughout U.S. history, roughly a dozen criminal cases have been brought against suspected leakers. There is a dramatic disconnect between the way our laws and our leaders condemn leaking in the abstract and the way they condone it in practice. </flowPara></flowRoot>    <rect
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:149.00000095%;font-family:Average Sans;-inkscape-font-specification:Average Sans">The United States government leaks like a sieve. Presidents denounce the constant flow of classified information to the media from unauthorized, anonymous sources. National security professionals decry the consequences. And yet the laws against leaking are almost never enforced. Throughout U.S. history, roughly a dozen criminal cases have been brought against suspected leakers. There is a dramatic disconnect between the way our laws and our leaders condemn leaking in the abstract and the way they condone it in practice. </flowPara></flowRoot>    <rect
+       style="fill:none;stroke:#000000;stroke-opacity:1"
+       id="rect4571"
+       width="935"
+       height="772"
+       x="8.9999771"
+       y="262.36218"
+       rx="6.5060673"
+       ry="6.7496557" />
+    <rect
        ry="6.7496557"
        rx="6.5060673"
        y="262.36215"
@@ -131,7 +155,7 @@
        xml:space="preserve"
        id="flowRoot3015"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="translate(-474.80111,395.81404)"
+       transform="translate(597.3475,379.84382)"
        clip-path="none"><flowRegion
          id="flowRegion3017"><rect
            id="rect3019"
@@ -140,7 +164,16 @@
            x="32.324883"
            y="15.111472" /></flowRegion><flowPara
          id="flowPara3023"
-         style="font-size:28px;font-family:Times;-inkscape-font-specification:Times">The Leaky Leviathan: Why the Government Condemns and Condones Unlawful Disclosures of Information</flowPara></flowRoot>    <rect
+         style="font-size:20px;font-family:Times;-inkscape-font-specification:Times">The Leaky Leviathan: Why the Government Condemns and Condones Unlawful Disclosures of Information</flowPara></flowRoot>    <rect
+       style="fill:none;stroke:#000000;stroke-opacity:1"
+       id="rect4567"
+       width="935"
+       height="772"
+       x="8.9999714"
+       y="262.36218"
+       rx="6.5060673"
+       ry="6.7496557" />
+    <rect
        ry="6.7496557"
        rx="6.5060673"
        y="262.36215"
@@ -173,7 +206,7 @@
        xml:space="preserve"
        id="flowRoot3035"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="translate(-463,289.36217)"
+       transform="translate(-778,269.36217)"
        clip-path="none"><flowRegion
          id="flowRegion3037"><rect
            id="rect3039"
@@ -207,6 +240,25 @@
          id="flowPara4366" /><flowPara
          style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:149.00000095%;font-family:Average Sans;-inkscape-font-specification:Average Sans"
          id="flowPara4368" /></flowRoot>    <rect
+       clip-path="none"
+       style="fill:none;stroke:#dadada;stroke-opacity:1"
+       id="rect4581"
+       width="935"
+       height="772"
+       x="11"
+       y="262.36218"
+       rx="6.5060673"
+       ry="6.7496557" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-opacity:1"
+       id="rect4543"
+       width="935"
+       height="772"
+       x="9"
+       y="262.36218"
+       rx="6.5060673"
+       ry="6.7496557" />
+    <rect
        ry="6.7496557"
        rx="6.5060673"
        y="262.36218"
@@ -219,8 +271,8 @@
        xml:space="preserve"
        id="flowRoot3015-5"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="translate(69.10438,393.821)"
-       clip-path="none"><flowRegion
+       transform="translate(-245.89562,373.821)"
+       clip-path="url(#clipPath4575)"><flowRegion
          id="flowRegion3017-7"><rect
            id="rect3019-7"
            width="536.39093"
@@ -229,6 +281,15 @@
            y="15.111472" /></flowRegion><flowPara
          id="flowPara3023-7"
          style="font-size:28px;font-family:Times;-inkscape-font-specification:Times">Discretion</flowPara></flowRoot>    <rect
+       style="fill:none;stroke:#000000;stroke-opacity:1"
+       id="rect4539"
+       width="935"
+       height="772"
+       x="9.0000019"
+       y="262.36218"
+       rx="6.5060673"
+       ry="6.7496557" />
+    <rect
        ry="6.7496557"
        rx="6.5060673"
        y="262.36218"
@@ -241,7 +302,7 @@
        xml:space="preserve"
        id="flowRoot3070"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="translate(-89,289.36217)"
+       transform="translate(-417,230.36217)"
        clip-path="none"><flowRegion
          id="flowRegion3072"><rect
            id="rect3074"
@@ -250,7 +311,7 @@
            x="609"
            y="227" /></flowRegion><flowPara
          id="flowPara3076"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:149.00000094999998623%;font-family:Josefin Sans;-inkscape-font-specification:Josefin Sans">This Essay analyzes an essay by H. L. A. Hart about discretion that has never before been published, and has often been considered lost. Hart, one of the most significant legal philosophers of the twentieth century, wrote the essay at Harvard Law School in November 1956, shortly after he arrived as a visiting professor. In the essay, Hart argued that discretion is a special mode of reasoned, constrained decisionmaking that occupies a middle ground between arbitrary choice and determinate rule application. Hart believed that discretion, soundly exercised, provides a principled way of coping with legal indeterminacy that is fully consistent with the rule of law. This Essay situates Hart’s paper — Discretion — in historical and intellectual context, interprets its main arguments, and assesses its significance in jurisprudential history.</flowPara></flowRoot>    <rect
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:149.00000094999998623%;font-family:Average Sans;-inkscape-font-specification:Average Sans">This Essay analyzes an essay by H. L. A. Hart about discretion that has never before been published, and has often been considered lost. Hart, one of the most significant legal philosophers of the twentieth century, wrote the essay at Harvard Law School in November 1956, shortly after he arrived as a visiting professor. In the essay, Hart argued that discretion is a special mode of reasoned, constrained decisionmaking that occupies a middle ground between arbitrary choice and determinate rule application. Hart believed that discretion, soundly exercised, provides a principled way of coping with legal indeterminacy that is fully consistent with the rule of law. This Essay situates Hart’s paper — Discretion — in historical and intellectual context, interprets its main arguments, and assesses its significance in jurisprudential history.</flowPara></flowRoot>    <rect
        ry="6.7496557"
        rx="6.5060673"
        y="262.36218"
@@ -258,12 +319,13 @@
        height="772"
        width="935"
        id="rect4221"
-       style="fill:none;stroke:#000000;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-opacity:1"
+       clip-path="none" />
     <flowRoot
        xml:space="preserve"
        id="flowRoot3015-5-5"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="translate(489.37662,438.821)"
+       transform="translate(162.37662,377.821)"
        clip-path="none"><flowRegion
          id="flowRegion3017-7-6"><rect
            id="rect3019-7-8"
@@ -273,31 +335,12 @@
            y="15.111472" /></flowRegion><flowPara
          id="flowPara3023-7-4"
          style="font-size:20px;font-family:Times;-inkscape-font-specification:Times">H. L. A. Hart's Lost Essay: Discretion and the Legal Process School </flowPara></flowRoot>    <rect
-       ry="6.7496557"
-       rx="6.5060673"
-       y="262.36218"
-       x="8.9999723"
-       height="772"
-       width="935"
-       id="rect4217"
-       style="fill:none;stroke:#000000;stroke-opacity:1" />
-    <rect
-       ry="6.7496557"
-       rx="6.5060673"
-       y="262.36218"
-       x="9"
-       height="772"
-       width="935"
-       id="rect4213"
-       style="fill:none;stroke:#000000;stroke-opacity:1" />
-    <rect
-       ry="6.7496557"
-       rx="6.5060673"
-       y="262.36218"
-       x="9"
-       height="772"
-       width="935"
-       id="rect4209"
-       style="fill:none;stroke:#000000;stroke-opacity:1" />
+       style="fill:#daf9ff;fill-opacity:1"
+       id="rect3105-7"
+       width="6"
+       height="650"
+       x="593"
+       y="344.36218"
+       clip-path="none" />
   </g>
 </svg>

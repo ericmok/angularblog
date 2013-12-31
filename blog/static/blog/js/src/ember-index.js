@@ -217,13 +217,22 @@ App.MyPostComponent = Ember.Component.extend({
     
 });
 
+
+
 App.PostRoute = Ember.Route.extend({
+    beforeModel: function(transition) {
+        AppCache.current.asdf.push("test");
+        console.log("APPCACHE");
+        console.log(AppCache.current);
+    },
     model: function(param) {
         console.log("PARAM");
         console.log(param);
 
-
         return Ember.$.ajax("/blog/api/posts/" + param.post_id);
+    },
+    afterModel: function(model) {
+
     },
     setupController: function(controller, model) {
         console.log("PostRoute > setupController");
@@ -237,25 +246,45 @@ App.PostRoute = Ember.Route.extend({
 });
 
 
-App.PostController = Ember.ObjectController.extend({
-    master: 1,
-    actions: {
-        viewSentence: function(param) {
-            var _self = this;
-            console.log("asdf", param);
-            
-            Ember.$.ajax("/blog/api/sentences/" + param + "/comments").then(function(json) {
-                console.log("THEN");
-                var slave = _self.get("slave");
 
-                slave.arrayContentWillChange();
-                var last = slave.length;
+App.PostController = Ember.ObjectController.extend({
+    bars: [],
+    actions: {
+        viewSentence: function(bar, sentenceId) {
+            var _self = this;
+
+            console.log("bars", _self.get("bars").length);
+            console.log("bar", bar);
+            console.log("sentenceId", sentenceId);
+            
+            Ember.$.ajax("/blog/api/sentences/" + sentenceId + "/comments").then(function(json) {
+                console.log("viewSentence");
+
+                var bars = _self.get("bars");
+                bars[bar + 1] = { model: [] }
+
+                bars.arrayContentWillChange();
+                var last = bars.length;
 
                 for (var i = 0; i < json.results.length; i++) {
-                    slave.push( json.results[i] );
+                    bars[bar].model.push( json.results[i] );
                 }
 
-                slave.arrayContentDidChange(last, 0, json.results.length);
+                bars.arrayContentDidChange(0, last, json.results.length);
+
+                console.log("bars", _self.get("bars").length);
+                console.log("bar", bar);
+                console.log("sentenceId", sentenceId);
+                //var slave = _self.get("slave");
+
+                // slave.arrayContentWillChange();
+                // var last = slave.length;
+
+                // for (var i = 0; i < json.results.length; i++) {
+                //     slave.push( json.results[i] );
+                // }
+
+                // slave.arrayContentDidChange(last, 0, json.results.length);
             });
         }
     }
@@ -271,9 +300,10 @@ App.asdf = Ember.View.create({
 
 
 App.PostRepresentationComponent = Ember.Component.extend({
+    bar: 1,
     actions: {
         viewSentence: function(param) {
-            this.sendAction("viewSentence", param);
+            this.sendAction("viewSentence", parseInt( this.get("bar") ) + 1, param);
         }
     }
 });
@@ -289,7 +319,7 @@ App.SentenceSegmentComponent = Ember.Component.extend({
     click: function(jqEv) {
         console.log("CLICKED");
         this.set("isHovering", true);
-        this.sendAction("viewSentence", this.get("model").id);
+        this.sendAction("viewSentence", this.get("level"));
     },
     mouseLeave: function(jqEv) {
         this.set("isHovering", false);
@@ -299,3 +329,9 @@ App.SentenceSegmentComponent = Ember.Component.extend({
 App.SlaveView = Ember.View.extend({
     templateName: "slave"
 });
+
+App.PostListView = Ember.View.extend({
+    level: 0,
+    templateName: 'PostListView'
+});
+

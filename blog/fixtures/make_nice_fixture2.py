@@ -117,7 +117,7 @@ try:
 
 			content = ''
 
-			number_sentences = random.randrange(0,40)
+			number_sentences = random.randrange(0,30)
 			para_split = (number_sentences / 2)
 
 			for counter in range(0, number_sentences):
@@ -131,7 +131,8 @@ try:
 
 			print("Content:",content)
 			create_post(title = fixture[0], author = fixture[1],
-						parent_content_type = fixture[2].model, parent_id = fixture[3], content = content)
+						parent_content_type = fixture[2].model, parent_id = fixture[3], 
+						content = content)
 
 
 except IntegrityError as ie:

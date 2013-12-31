@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html>
 	<head>
+    <script>
+        window.server = {
+            auth: {
+            isSignedIn: {% if request.user.is_authenticated %}true{% else %}false{% endif %},
+            user: "{{ request.user }}",
+            links: { 
+                    signIn: "{% url 'blog.views.register.sign_out' %}",
+                    signOut: "{% url 'blog.views.register.sign_in' %}"
+                }
+            }
+        };
+    </script>
+
 		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
 
         <link href='http://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
@@ -19,18 +32,7 @@
 
         <!-- <link href="{{ STATIC_URL }}blog/css/blog.css" type="text/css" rel="stylesheet" /> -->
 	</head>
-    <script>
-        window.server = {
-            auth: {
-            isSignedIn: {% if request.user.is_authenticated %}true{% else %}false{% endif %},
-            user: "{{ request.user }}",
-            links: {
-                signIn: "{% url 'blog.views.register.sign_out' %}",
-                signOut: "{% url 'blog.views.register.sign_in' %}"
-            }
-        }
-    };
-    </script>
+
     <body>
 	
     {% verbatim %}
@@ -122,14 +124,19 @@
     <script type="text/x-handlebars" data-template-name="board">
         BOARD <br/>
         {{magic}}<br/>
+        {{#link-to "post" 2}}LINK{{/link-to}}
         <div style="float:left">
-            {{post-representation model=model bar="1" viewSentence="viewSentence"}}
+            {{post-representation model=model bar="-1" viewSentence="viewSentence"}}
         </div>
         <div style="float:left">
 
-            <div>
-            {{view App.SlaveView}}
-            </div>
+        <div>
+            For each bar, instantiate a view.
+            {{#each bar in bars}}
+                {{view App.PostListView}}
+            {{/each}}
+                <div style="clear: both"></div>
+        </div>
             
         </div>
         <div style="clear: both"></div>
@@ -138,8 +145,15 @@
     <script type="text/x-handlebars" data-template-name="PostDetail">    
     </script>
 
-    <script type="text/x-handlebars" data-template-name="PostList">    
+    <script type="text/x-handlebars" data-template-name="PostListView">   
+        <div style="border: solid 1px blue; width: 300px; float: left;" {{action viewSentence bar 2}}>
+            List:<br/>
+            {{#each post in posts}}
+                Post:<br/>
+            {{/each}}
+        </div> 
     </script>
+
 
     <script type="text/x-handlebars" data-template-name="slave">    
         <div style="border: solid 1px blue; width: 300px;">
@@ -147,7 +161,7 @@
             {{slave.length}}
             {{#each s in slave}}
                 {{s.title}} <br/>
-                {{post-representation model=s bar="2"}}
+                {{post-representation model=s bar="1"}}
             {{/each}}
             
         </div>

@@ -7,5 +7,5 @@ from blog import forms
 import json
 
 def index(request):
-	return render(request, 'blog/ember-index.html', {'request': request})
+	return render(request, 'blog/ember-index2.html', {'request': request})
 	#return render(request, 'blog/d3-index.html', {'request': request})
