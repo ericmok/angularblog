@@ -46,12 +46,30 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="posts">
-        <div class="sliding-panel" id="leftBar">
-            
-            {{post-d3 model=model}}
-        </div>        
+        <!-- Show 2 lists side by side -->
+        <div class="col-xs-7">
+            {{view App.PostListView side="left"}}
+        </div>
+        <div class="col-xs-5">
+            {{view App.PostListView side="right"}}
+        </div>
+    </script>
 
-        <div style="clear:both"></div>
+    <script type="text/x-handlebars" data-template-name="post-list-view">
+        <!-- Loop through posts -->
+        {{view App.PostView side=view.side}}
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="post-view">
+        <h4>{{model.title}}</h4>
+
+        {{#each sentence in model.sentences}}
+            {{sentence-segment model=sentence side=view.side viewsentence="viewsentence"}}
+        {{/each}}
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="components/sentence-segment">
+        {{ model.text }}
     </script>
 
     <script type="text/x-handlebars" data-template-name="components/post-d3">

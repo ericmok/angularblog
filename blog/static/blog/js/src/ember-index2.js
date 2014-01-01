@@ -52,7 +52,44 @@ App.PostsRoute = Ember.Route.extend({
 });
 
 
+App.PostsController = Ember.Controller.extend({
+    actions: {
+        viewsentence: function(side, sentence) {
+            // This triggers a post listing
+            // However, do we create a new panel to display the listing
+            // or do we reuse an existing listing?
+            // Check this via the side argument
+            console.log("viewsentence");
+            console.log("side", side);
+            console.log("sentence", sentence);
 
+            // If it is the left side, just change the right postlistview
+        }
+    }
+});
+
+App.LeftPostListController = Ember.Controller.extend({
+
+});
+
+App.RightPostListController = Ember.Controller.extend({
+    
+});
+
+App.PostListView = Ember.View.extend({
+    templateName: "post-list-view"
+});
+
+App.PostView = Ember.View.extend({
+    templateName: "post-view"
+})
+
+App.SentenceSegmentComponent = Ember.Component.extend({
+    click: function(ev) {
+        console.log("CLICK", this.get("model").id);
+        this.sendAction("viewsentence", this.get("side"), this.get("model").id);
+    }
+});
 
 App.PostD3Component = Ember.Component.extend({
     tagName: "div",
