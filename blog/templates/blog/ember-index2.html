@@ -40,6 +40,7 @@
                 Signed in as {{server.auth.user}}
             </div>
             <div class="row" style="position: relative; min-height: 1000px; overflow: hidden;">
+                <!-- TODO: Add a front page template for root -->
                 {{outlet}}
             </div>
         </div>
@@ -47,25 +48,53 @@
 
     <script type="text/x-handlebars" data-template-name="posts">
         <!-- Show 2 lists side by side -->
-        <div class="col-xs-7">
-            {{view App.PostListView side="left"}}
-        </div>
-        <div class="col-xs-5">
-            {{view App.PostListView side="right"}}
-        </div>
+        POSTS
+        <div style="clear: both"></div>
+            <div style="position: relative">
+                {{view App.PostDetailView model=model}}
+            </div>
+            <div style="position: relative; left: 50%; border: solid 1px #DDD"> 
+                {{#each list in postLists}}
+                    
+                    {{view App.PostListView model=list.items left=list.left counter=list.counter side=list.counter}}
+                {{/each}}
+            </div>
+        <div style="clear: both"></div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="post-detail-view">
+        <!-- Show a single post -->
+        Number Lists: {{numberLists}}<br/>
+        {{view App.PostView model=view.model side=view.side}}
     </script>
 
     <script type="text/x-handlebars" data-template-name="post-list-view">
         <!-- Loop through posts -->
-        {{view App.PostView side=view.side}}
+        <div {{bindAttr style="view.leftStyle" class="view.childClassName"}}>
+            POST LIST VIEW: {{view.model}} / {{view.counter}} / {{view.left}} 
+            <br/>
+            
+            {{#each post in view.model}}
+                EACH POST <br/> 
+                {{view App.PostView model=post side=view.side}}
+            {{/each}}
+        </div>
     </script>
 
     <script type="text/x-handlebars" data-template-name="post-view">
-        <h4>{{model.title}}</h4>
+        <div>
+            <h4 class="post-title">{{view.model.title}}</h4>
 
-        {{#each sentence in model.sentences}}
-            {{sentence-segment model=sentence side=view.side viewsentence="viewsentence"}}
-        {{/each}}
+            <div class="post-body">
+                {{#each sentence in view.model.sentences}}
+                    {{sentence-segment model=sentence side=view.side viewsentence="viewsentence"}}
+                {{/each}}
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="comment-view">
+        <!-- A comment should be styled differently than a main post -->
     </script>
 
     <script type="text/x-handlebars" data-template-name="components/sentence-segment">

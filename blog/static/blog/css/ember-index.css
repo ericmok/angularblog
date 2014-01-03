@@ -54,18 +54,41 @@
 
 .is-hovering
 {
-	background-color: #DEDEDE;
-	background: -webkit-linear-gradient(left, #EEE, #DDD); /* For Safari */
-	background: -o-linear-gradient(right, #EEE, #DDD); /* For Opera 11.1 to 12.0 */
-	background: -moz-linear-gradient(right, #EEE, #DDD); /* For Firefox 3.6 to 15 */
-	background: linear-gradient(right, #EEE, #DDD); /* Standard syntax */
+	background-color: #AACB88; /* DEDEDE */
+	padding: 2px 0px 2px 0px;
+	background: -webkit-linear-gradient(right, #AACB88, #DDD); /* For Safari */
+	background: -o-linear-gradient(right, #AACB88, #DDD); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(right, #AACB88, #DDD); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(right, #AACB88, #DDD); /* Standard syntax */
+	/*background: -webkit-linear-gradient(right, #EEE, #DDD); /* For Safari */
+	/*background: -o-linear-gradient(right, #EEE, #DDD); /* For Opera 11.1 to 12.0 */
+	/*background: -moz-linear-gradient(right, #EEE, #DDD); /* For Firefox 3.6 to 15 */
+	/*background: linear-gradient(right, #EEE, #DDD); /* Standard syntax */
 }
+
+.post-list-view
+{
+	background-color: #EFEFEF;
+	border-radius: 6px;
+	border: solid 1px #DDD;
+	padding: 1em;
+	width: 38%;
+	-webkit-box-shadow: 0px 0px 3px -1px;
+	-moz-box-shadow: 0px 0px 3px -1px;
+	box-shadow: 0px 0px 3px -1px;
+	-webkit-transition: left 0.7s ease 0.001s;
+	-moz-transition: left 0.7s ease 0.001s;
+	-ms-transition: left 0.7s ease 0.001s;
+	-o-transition: left 0.7s ease 0.001s;
+	transition: left 0.7s ease 0.001s;
+}
+
 
 .sliding-panel
 {
 	position: absolute;
 	left: 0%;
-	width: 35%;
+	width: 80%;
 	border: solid 1px #DDD;
 	border-radius: 5px;
 	padding: 1.4em;
@@ -87,4 +110,66 @@
 	background-color: #FFF;
 	border: none;
 	left: 50%;
+}
+
+.left-panel
+{
+	position: absolute;
+	top: 0px;
+	left: 10px;
+	width: 49%;
+	/*border: solid 1px #DDD;*/
+	border-radius: 5px;
+	padding: 1.4em 1em 1em 0.6em;
+	/*background-color: #EFEFEF;*/
+	-webkit-transform: scale(1);
+	-moz-transform: scale(1);
+	-ms-transform: scale(1);
+	-o-transform: scale(1);
+	transform: scale(1);
+	-webkit-transition: all 0.7s;
+	-moz-transition: all 0.7s;
+	-ms-transition: all 0.7s;
+	-o-transition: all 0.7s;
+	transition: all 0.7s;
+}
+
+
+.left-panel-slide-left 
+{
+	left: -7%;	
+	top: -10%;
+	-webkit-transform: scale(0.6);
+	-moz-transform: scale(0.6);
+	-ms-transform: scale(0.6);
+	-o-transform: scale(0.6);
+	transform: scale(0.6);
+}
+
+.right-panel
+{
+	/*-webkit-box-shadow: 0px 0px 20px 2px #AAA;
+	-moz-box-shadow: 0px 0px 20px 2px #AAA;
+	box-shadow: 0px 0px 20px 2px #AAA;*/
+	position: absolute;
+	left: 43%;
+	width: 33%;
+	border: solid 1px #EFEFEF;
+	border-radius: 5px;
+	padding: 1.4em;
+	background-color: #EFEFEF;
+	-webkit-transition: all 0.7s;
+	-moz-transition: all 0.7s;
+	-ms-transition: all 0.7s;
+	-o-transition: all 0.7s;
+	transition: all 0.7s;
+}
+
+.right-panel-slide-left
+{
+	box-shadow: none;
+	left: 0%;
+	/*background-color: #FFF;
+	border: none;*/
+	width: 37%;
 }

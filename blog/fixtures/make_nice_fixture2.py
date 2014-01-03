@@ -117,7 +117,7 @@ try:
 
 			content = ''
 
-			number_sentences = random.randrange(0,30)
+			number_sentences = random.randrange(10,25)
 			para_split = (number_sentences / 2)
 
 			for counter in range(0, number_sentences):
