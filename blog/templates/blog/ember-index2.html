@@ -51,7 +51,8 @@
         POSTS
         <div style="clear: both"></div>
             <div style="position: relative">
-                {{view App.PostDetailView model=model}}
+            
+                {{view App.PostView post=model}}
             </div>
             <div style="position: relative; left: 50%; border: solid 1px #DDD"> 
                 {{#each list in postLists}}
@@ -65,7 +66,7 @@
     <script type="text/x-handlebars" data-template-name="post-detail-view">
         <!-- Show a single post -->
         Number Lists: {{numberLists}}<br/>
-        {{view App.PostView model=view.model side=view.side}}
+        {{view App.PostView post=view.post side=view.side}}
     </script>
 
     <script type="text/x-handlebars" data-template-name="post-list-view">
@@ -83,11 +84,11 @@
 
     <script type="text/x-handlebars" data-template-name="post-view">
         <div>
-            <h4 class="post-title">{{view.model.title}}</h4>
+            <h4 class="post-title">{{view.post.title}}</h4>
 
             <div class="post-body">
-                {{#each sentence in view.model.sentences}}
-                    {{sentence-segment model=sentence side=view.side viewsentence="viewsentence"}}
+                {{#each sentence in view.post.sentences}}
+                    {{sentence-segment sentence=sentence side=view.side viewsentence="viewsentence"}}
                 {{/each}}
             </div>
         </div>
@@ -95,10 +96,19 @@
 
     <script type="text/x-handlebars" data-template-name="comment-view">
         <!-- A comment should be styled differently than a main post -->
+        <div>
+            <h4 class="comment-title">{{view.post.title}}</h4>
+
+            <div class="comment-body">
+                {{#each sentence in view.post.sentences}}
+                    {{sentence-segment sentence=sentence side=view.side viewsentence="viewsentence"}}
+                {{/each}}
+            </div>
+        </div>
     </script>
 
     <script type="text/x-handlebars" data-template-name="components/sentence-segment">
-        {{ model.text }}
+        {{ sentence.text }}
     </script>
 
     <script type="text/x-handlebars" data-template-name="components/post-d3">

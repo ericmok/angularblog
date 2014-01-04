@@ -37,9 +37,6 @@ App.IndexRoute = Ember.Route.extend({
             server: window.server,
             memory: App.Memory
         }
-    },
-    renderTemplate: function() {
-        this.render();
     }
 });
 
@@ -62,6 +59,10 @@ App.PostsRoute = Ember.Route.extend({
     },
     afterModel: function(model, transition) {
         App.Memory.models.posts.push( model );
+    },
+    setupController: function(controller, model) {
+        controller.set("postListStack", []);
+        controller.set("model", model);
     }
 });
 
@@ -69,6 +70,8 @@ App.PostsRoute = Ember.Route.extend({
 App.PostsController = Ember.Controller.extend(Ember.Evented, {
     numberLists: 0,
     postLists: [],
+    postListStack: [],
+
     actions: {
         viewsentence: function(side, sentence) {
             // This triggers a post listing
@@ -79,8 +82,9 @@ App.PostsController = Ember.Controller.extend(Ember.Evented, {
             console.log("side", side);
             console.log("sentence", sentence);
 
-            // If it is the left side, just change the right postlistview
-            this.trigger("TEST");
+
+            
+            this.trigger("viewSentence");
         },
         spawnList: function(side) {
             // Append to the postLists
@@ -91,14 +95,17 @@ App.PostsController = Ember.Controller.extend(Ember.Evented, {
             var postLists = this.get("postLists");
             var prevLength = postLists.length;
 
+            
             postLists.arrayContentWillChange();
             postLists.push({counter: prevLength, left: prevLength*20, items: ['a','b']});
-
             postLists.arrayContentDidChange(prevLength, 0, 1);
         }
     }
 });
 
+App.PostsView = Ember.View.extend({
+    templateName: "posts"
+})
 
 App.PostDetailView = Ember.View.extend({
     tagName: "div",
@@ -108,29 +115,19 @@ App.PostDetailView = Ember.View.extend({
     classNameBindings: ["left-panel-slide-left"],
 
     didInsertElement: function() {
-        this.get("controller").on("TEST", function() {
-            //this.set("slide-left", true); // DOES NOT WORK!
-            console.log("A sentence was viewed and the left side is reacting");
-        });
+
     },
     click: function() {
         //this.toggleProperty("left-panel-slide-left");
-        this.get("controller").send("spawnList", this.get("side"));
+
     }
 });
 
-App.RightPostListView = Ember.View.extend({
-    side: "right",
-    templateName: "post-list-view",
-    classNames: ["right-panel"],
-    classNameBindings: ["right-panel-slide-left"],
+/**
+List views will adjust its computedLeftStyle on instantiation to create
+a sliding effect. 
 
-    click: function() {
-
-        this.toggleProperty("right-panel-slide-left");
-    }
-});
-
+*/
 App.PostListView = Ember.View.extend({
     templateName: "post-list-view",
     childClassName: "post-list-view",
@@ -140,15 +137,18 @@ App.PostListView = Ember.View.extend({
     slideDelay: 50,
     didInsertElement: function() {
         console.log("DID INSERT ELEMENT");
-        this.set("computedLeftStyle", this.get("counter") * this.get("width") - this.get("initialOffset"));
+        this.set("computedLeftStyle", this.computeLeftStyleUsingCounter() - this.get("initialOffset"));
 
         var _self = this;
 
         Ember.run.later(function() {
             console.log("RUN LATER");
             console.log(_self.get("counter"));
-            _self.set("computedLeftStyle", _self.get("counter") * _self.get("width"));
+            _self.set("computedLeftStyle", _self.computeLeftStyleUsingCounter());
         }, this.get("slideDelay"));
+    },
+    computeLeftStyleUsingCounter: function() {
+        return this.get("counter") * this.get("width");
     },
     leftStyle: function() {
         console.log("CHANGED LEFTSTYLE");
@@ -160,15 +160,15 @@ App.PostListView = Ember.View.extend({
 
 App.PostView = Ember.View.extend({
     templateName: "post-view",
-    classNames: ["post"]
+    classNames: ["post", "left-panel"]
 })
 
 App.SentenceSegmentComponent = Ember.Component.extend({
     tagName: "span",
     classNameBindings: ['is-hovering'],
     click: function(ev) {
-        console.log("CLICK", this.get("model").id);
-        this.sendAction("viewsentence", this.get("side"), this.get("model").id);
+        console.log("CLICK", this.get("sentence").id);
+        this.sendAction("viewsentence", this.get("side"), this.get("sentence").id);
     },
     mouseEnter: function(ev) {
         this.set("is-hovering", true);
@@ -176,6 +176,12 @@ App.SentenceSegmentComponent = Ember.Component.extend({
     mouseLeave: function(ev) {
         this.set("is-hovering", false);
     }
+});
+
+
+App.CommentView = Ember.View.extend({
+    templateName: "comment-view",
+    classNames: ["comment"]
 });
 
 App.PostD3Component = Ember.Component.extend({
