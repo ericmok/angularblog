@@ -93,6 +93,15 @@ describe("Posts Cont'd", function() {
 });
 
 describe("Sentence Endpoint", function() {
+	it("can handle large numbers", function() {
+		// This is for sentences of posts on a sentence
+		testAjax(function(callback) {
+			Helpers.jsonRequest( Helpers.SENTENCES_URL + "/160", "GET", null, callback);	
+		}, function(data, xhr) {
+			expect(xhr.status).toEqual(200);
+			expect(data.results.length).toBeGreaterThan(1);
+		});	
+	});
 	it("can receive GET request as array", function() {
 		testAjax(function(callback) {
 			Helpers.jsonRequest( Helpers.SENTENCES_URL, "GET", null, callback);	

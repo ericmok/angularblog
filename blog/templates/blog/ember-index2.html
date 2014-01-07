@@ -24,7 +24,6 @@
 
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,400,300,600,700' rel='stylesheet' type='text/css'>
 
-
     <link href='http://fonts.googleapis.com/css?family=Average+Sans' rel='stylesheet' type='text/css'>
 
     <link href="{{ STATIC_URL }}blog/css/ember-index.css" type="text/css" rel="stylesheet" />
@@ -39,7 +38,7 @@
             <div class="row">
                 Signed in as {{server.auth.user}}
             </div>
-            <div class="row" style="position: relative; min-height: 1000px; overflow: hidden;">
+            <div class="row" style="position: relative;">
                 <!-- TODO: Add a front page template for root -->
                 {{outlet}}
             </div>
@@ -48,47 +47,64 @@
 
     <script type="text/x-handlebars" data-template-name="posts">
         <!-- Show 2 lists side by side -->
-        POSTS
+        <div style="border-radius: 6px; background-color: #DBF2FF; padding: 1.4em;">
+            <h3 style="font-family: Raleway; line-height: 1; margin: 0em 0em 0.3em 0em; padding: 0px">
+                {{parent.title}}
+            </h3>
+            {{model.main.parent_content_type}} / {{model.main.parent_id}} 
+        </div>
         <div style="clear: both"></div>
-            <div style="position: relative">
+    
+        <div class="col-xs-6">
+            <div class="row">
+                {{view App.PostView post=model.main}}
+            </div>
             
-                {{view App.PostView post=model}}
+            <div class="row">
+
+                <div>
+                    {{comments.results.length}} Comments
+                </div>
+                {{view App.PostListView  model=model.comments.results depth=list.depth}}
+            
             </div>
-            <div style="position: relative; left: 50%; border: solid 1px #DDD"> 
-                {{#each list in postLists}}
-                    
-                    {{view App.PostListView model=list.items left=list.left counter=list.counter side=list.counter}}
-                {{/each}}
+        </div>
+
+        <!--
+        <div style="position: relative; left: 55%; border: solid 1px #EEE"> 
+        -->
+
+
+        <div class="col-xs-5" style="padding-left: 3em">
+            <div>
+                {{sidebar.results.length}} Comments
             </div>
+            {{#each sidebarComment in sidebar.results}}
+                {{view App.CommentView model=sidebarComment}}
+            {{/each}}
+        </div>
         <div style="clear: both"></div>
+        
     </script>
 
-    <script type="text/x-handlebars" data-template-name="post-detail-view">
-        <!-- Show a single post -->
-        Number Lists: {{numberLists}}<br/>
-        {{view App.PostView post=view.post side=view.side}}
-    </script>
 
     <script type="text/x-handlebars" data-template-name="post-list-view">
         <!-- Loop through posts -->
-        <div {{bindAttr style="view.leftStyle" class="view.childClassName"}}>
-            POST LIST VIEW: {{view.model}} / {{view.counter}} / {{view.left}} 
-            <br/>
+        <div {{bind-attr style="view.leftStyle" class="view.childClassName"}}>
             
             {{#each post in view.model}}
-                EACH POST <br/> 
-                {{view App.PostView model=post side=view.side}}
+                {{view App.CommentView model=post depth=view.depth}}
             {{/each}}
         </div>
     </script>
 
     <script type="text/x-handlebars" data-template-name="post-view">
         <div>
-            <h4 class="post-title">{{view.post.title}}</h4>
-
+            <h1 class="post-title">{{view.post.title}}</h1>
+            <div class="post-author">By {{view.post.author}} at {{view.post.created}}</div>
             <div class="post-body">
                 {{#each sentence in view.post.sentences}}
-                    {{sentence-segment sentence=sentence side=view.side viewsentence="viewsentence"}}
+                    {{sentence-segment sentence=sentence depth=view.depth viewsentence="viewsentence"}}
                 {{/each}}
             </div>
         </div>
@@ -96,12 +112,14 @@
 
     <script type="text/x-handlebars" data-template-name="comment-view">
         <!-- A comment should be styled differently than a main post -->
+
         <div>
-            <h4 class="comment-title">{{view.post.title}}</h4>
+            <h3 class="comment-title">{{view.model.title}}</h3>
+            <div class="comment-author">By {{view.model.author}} at {{view.model.created}}</div>
 
             <div class="comment-body">
-                {{#each sentence in view.post.sentences}}
-                    {{sentence-segment sentence=sentence side=view.side viewsentence="viewsentence"}}
+                {{#each sentence in view.model.sentences}}
+                    {{sentence-segment sentence=sentence depth=view.depth viewsentence="viewsentence"}}
                 {{/each}}
             </div>
         </div>

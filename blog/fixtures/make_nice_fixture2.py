@@ -108,7 +108,11 @@ try:
 		for fixture in post_fixtures:
 			print("Fixture")
 			print(fixture)
+
+			max_sentences = 11
+
 			if fixture[2] == ct_blog:
+				max_sentences = 25
 				blog = ct_blog.get_object_for_this_type(pk = fixture[3])
 			if fixture[2] == ct_post:
 				blog = ct_post.get_object_for_this_type(pk = fixture[3]).blog
@@ -117,7 +121,7 @@ try:
 
 			content = ''
 
-			number_sentences = random.randrange(10,25)
+			number_sentences = random.randrange(7, max_sentences)
 			para_split = (number_sentences / 2)
 
 			for counter in range(0, number_sentences):

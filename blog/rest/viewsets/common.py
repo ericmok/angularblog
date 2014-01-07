@@ -254,7 +254,7 @@ def build_collection_json_from_query(request, query_set, per_model_serializer_ca
 def post_view(this, request, model_name, pk):
     try:
         pk = int(pk)
-        post = Post.objects.get(pk = pk)
+        #post = Post.objects.get(pk = pk)
     except ValueError:
         return Response({"detail": "Not found"}, status = 404)
 
