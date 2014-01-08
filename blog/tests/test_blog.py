@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from blog.rest.sessions import *
 from blog.models import *
 
+import warnings
 import pdb
 
 ROOT_URL = 'http://localhost:8000/blog'
@@ -89,9 +90,7 @@ class BlogPostEndpoint(TestCase):
 		TODO: For some reason, this works only if content_type arg is lower case
 		"""
 		response = self.client.post(AUTH_URL, data=TEST_USER_ALICE_JSON, content_type='application/json')
-
 		token = json.loads(response.content)['token']
-
 
 		payload = json.dumps({"title": "My Blog"})
 		blog_creation_response = self.client.post(BLOGS_URL, data=payload, 
@@ -99,4 +98,58 @@ class BlogPostEndpoint(TestCase):
 													HTTP_X_AUTHORIZATION=token)
 		self.assertNotEqual(blog_creation_response.status_code, 403)
 
-	
+
+class BlogCreationTests(TestCase):
+	fixtures = ['nice_fixture3.json']
+
+	def setUp(self):
+		self.client = Client()
+		response = self.client.post(AUTH_URL, data=TEST_USER_ALICE_JSON, content_type='application/json')
+		self.token = json.loads(response.content)['token']	
+
+	def test_can_create_blog_with_title_description(self):
+		"""
+		Test if given only a title and description payload, we can create blog
+		"""
+		# Non JSON payload
+		payload = {"title": "A super original blog", "description": "Some description"}
+		response = self.client.post(BLOGS_URL, data=payload, 
+										HTTP_X_AUTHORIZATION=self.token)
+		self.assertEqual(response.status_code, 201)
+
+	def test_can_create_blog_with_title_description_is_restricted(self):
+		payload = {"title": "A brand new blog", "description": "Some desc", "is_restricted": True}			
+
+		response = self.client.post(BLOGS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		self.assertEqual(response.status_code, 201)
+
+	def test_cannot_create_blog_with_punctuation(self):
+		payload = {"title": "This is it!", "description": "Some desc", "is_restricted": True}
+
+		response = self.client.post(BLOGS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		self.assertEqual(response.status_code, 400)
+
+	def test_refuses_to_make_duplicate_blog_title_creator_with_POST_request(self):		
+		payload = {"title": "A brand new blog", "description": "Some desc", "is_restricted": True}			
+
+		response = self.client.post(BLOGS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		self.assertEqual(response.status_code, 201)
+
+		payload = {"title": "A brand new blog", "description": "Some desc", "is_restricted": True}			
+
+		response = self.client.post(BLOGS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		warnings.warn("\nDuplicate Blog Test: The response should be 409 but serializer validation takes over")
+		self.assertEqual(response.status_code, 400)
+
+	def test_refuses_to_make_duplicate_blog_title_author_case_insensitive_with_POST_request(self):		
+		payload = {"title": "A brand new BLOG", "description": "Some desc", "is_restricted": True}			
+
+		response = self.client.post(BLOGS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		self.assertEqual(response.status_code, 201)
+
+		payload = {"title": "A brand new bloG", "description": "Some desc", "is_restricted": True}			
+
+		response = self.client.post(BLOGS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		self.assertNotEqual(response.status_code, 200)
+		self.assertNotEqual(response.status_code, 201)
+		self.assertNotEqual(response.status_code, 304)

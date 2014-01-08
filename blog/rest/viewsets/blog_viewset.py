@@ -60,7 +60,10 @@ class BlogViewSet(viewsets.GenericViewSet,
     def create(self, request):
         if request.user is None:
             return Response({"detail": "Authorization required"}, status = 401)
+        
         blog_serializer = BlogSerializer(data = request.DATA)
+
+        # Serializer tests if title contains punctuation or is empty
         if blog_serializer.is_valid():
             try:
 
