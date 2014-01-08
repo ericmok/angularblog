@@ -95,6 +95,8 @@ class GettingAuthToken(TestCase):
 			print("Content: %s" % [response.content])
 			raise ae
 
+			
+
 	def test_each_token_is_different(self):	
 		first_response = self.client.post(AUTH_URL, TEST_USER_ALICE)
 		second_response = self.client.post(AUTH_URL, TEST_USER_ALICE)

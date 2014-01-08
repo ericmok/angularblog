@@ -63,6 +63,14 @@ class BlogViewSet(viewsets.GenericViewSet,
         blog_serializer = BlogSerializer(data = request.DATA)
         if blog_serializer.is_valid():
             try:
+
+                # Duplication check 
+                # TODO: Test this code
+                duplicate_title_check = re.sub('[\-\_]', ' ', blog_serializer.object.title)
+                duplicate_title_check = duplicate_title_check.lower()
+                if len( Blog.objects.filter(title__iexact = duplicate_title_check) ) > 0:
+                    raise IntegrityError
+
                 new_blog = Blog.objects.create(title = blog_serializer.object.title, creator = request.user)
                 return Response({"status": "Created: %s" % (blog_serializer.object.title,)}, status = 201)
             except IntegrityError:
