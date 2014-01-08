@@ -95,7 +95,18 @@ class GettingAuthToken(TestCase):
 			print("Content: %s" % [response.content])
 			raise ae
 
-			
+		# Can only use content_type header lower cased!
+		# response = self.client.post(AUTH_URL, TEST_USER_ALICE, CONTENT_TYPE='application/json')
+		
+		# try:
+		# 	self.assertEqual(response.status_code, 200)
+		# 	self.assertIsNot( json.loads( response.content )['token'], None )
+
+		# except Exception as ae:
+		# 	print(ae)
+		# 	print("Content: %s" % [response.content])
+		# 	raise ae
+
 
 	def test_each_token_is_different(self):	
 		first_response = self.client.post(AUTH_URL, TEST_USER_ALICE)
