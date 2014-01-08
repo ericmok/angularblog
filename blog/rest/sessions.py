@@ -86,8 +86,9 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         token = get_token_from_auth_header(request)
 
         if token is None:
-            msg = 'Token header missing. No credentials provided.'
-            raise exceptions.AuthenticationFailed(msg)
+            #msg = 'Token header missing. No credentials provided.'
+            #raise exceptions.AuthenticationFailed(msg)
+            return None
 
         return self.authenticate_credentials(token)
 

@@ -234,6 +234,9 @@ class LoginPageSelenium(LiveServerTestCase):
 		pass
 
 	def test_can_log_on_with_credentials(self):
+		"""
+		Just tests whether a redirect is made as a result of form being filled out.
+		"""
 		self.driver.get(self.live_server_url + SIGNIN_URL_FRAG)
 		el_username = self.driver.find_element_by_name("username")
 		el_password = self.driver.find_element_by_name("password")
@@ -243,4 +246,4 @@ class LoginPageSelenium(LiveServerTestCase):
 
 		el_password.send_keys(Keys.RETURN)
 	
-		
+		self.assertEqual(re.search("login", self.driver.title), None)
