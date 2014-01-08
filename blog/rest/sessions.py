@@ -14,8 +14,83 @@ from rest_framework import exceptions, status
 import json
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
+import re # For content_type checking
+
+
+
+def get_authorization_header(request):
+    """
+    Taken from rest_framework
+
+    Return request's 'Authorization:' header, as a bytestring.
+
+    Hide some test client ickyness where the header can be unicode.
+    """
+    auth = request.META.get('HTTP_X_AUTHORIZATION', 
+    		request.META.get('HTTP_AUTHORIZATION', None))
+    
+    if auth is None:
+    	return None
+
+    if type(auth) == type(''):
+        # Work around django test client oddness
+        auth = auth.encode('iso-8859-1')
+    return auth
+
+def content_type_is_json(request):
+	content_type = request.META.get('CONTENT-TYPE', 
+			request.META.get('CONTENT_TYPE',
+			request.META.get('content-type',
+			request.META.get('Content-Type',
+			request.META.get('Content-type', None) ) ) ) )
+	if content_type is None:
+		return False
+
+	if re.search('application/json', content_type) is not None:
+		return True
+	else:
+		return False
+
+def client_accepts_json(request):
+	# Since we use regex to parse accept, get empty string rather than None
+	#print("META")
+	#print(request.META)
+	accept = request.META.get('HTTP_ACCEPT', '')
+	if re.search('json', accept) is not None:
+		return True
+	else:
+		return content_type_is_json(request) 
+
+
+def get_token_from_auth_header(request):
+	token = get_authorization_header(request)
+
+	if token is not None:
+		# Token def0abc6d0efa60...
+		# Make it lenient. If only the token key is presented, just take that as the key
+		words = token.split()
+		if ( len(words) < 2 ) and ( len(words) > 0 ):
+			token = words[0]
+		elif len(words) == 2:
+			token = words[1]
+		else: 
+			token = None
+		return token
+	else:
+		return None
+
+
 
 class ExpiringTokenAuthentication(TokenAuthentication):
+    def authenticate(self, request):    	
+        token = get_token_from_auth_header(request)
+
+        if token is None:
+            msg = 'Token header missing. No credentials provided.'
+            raise exceptions.AuthenticationFailed(msg)
+
+        return self.authenticate_credentials(token)
+
     def authenticate_credentials(self, key):
         try:
             token = self.model.objects.get(key=key)
@@ -43,26 +118,30 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 		"""
 		# Cookie session handling
 		if request.user.is_authenticated():
-			if request.META.get('CONTENT_TYPE', None) == 'application/json':
+			if client_accepts_json(request):
 				return Response({"user": 'TODO: Serialize User'})
 			else:
 				return HttpResponse("You are logged in")
 
 		# Token session handling
-		elif request.META.get('HTTP_X_AUTHORIZATION', None) is not None:
-			if request.META.get('CONTENT_TYPE', None) == 'application/json':
-				try:
-					Token.objects.get(key = request.META['HTTP_X_AUTHORIZATION'])
+		# It has basic content-negotiation functionality...
+		elif get_authorization_header(request) is not None:			
+			try:
+				Token.objects.get(key = get_token_from_auth_header(request))
+				if client_accepts_json(request):
 					return Response({"status": True, "active_token_sessions": len(Token.objects.all())}, status = 200)
-				except:
+				else: 
+					return HttpResponse("You are logged in")
+			except:
+				if client_accepts_json(request):
 					return Response({"status": False,  "active_token_sessions": len(Token.objects.all())}, status = 404)
-			else:
-				return HttpResponse("You are logged in")
+				else:
+					return HttpResponse("You are not logged in", status = 404)
 
 		# Non authenticated cookie session nor has token
 		else: 
-			if request.META.get('CONTENT_TYPE', None) == 'application/json':
-				return Response({}, status = 404)
+			if client_accepts_json(request):
+				return Response({"status": False, "active_token_sessions": len(Token.objects.all())}, status = 404)
 			else:
 				return HttpResponse("You are not logged in", status = 404)
 
@@ -94,15 +173,15 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 		"""
 		Delete tokens to log out. Should pass in the token, not the user/pass combo.
 		"""
-		if request.META.get("HTTP_X_AUTHORIZATION", None) is not None:
+		if get_authorization_header(request) is not None:
 			try: 
-				existing_token = Token.objects.get(key = request.META["HTTP_X_AUTHORIZATION"])
+				existing_token = Token.objects.get(key = get_token_from_auth_header(request))
 				existing_token.delete()
 			except Token.DoesNotExist as dne:
-				return Response({"status": "That session is not active"}, status = 404)
-			return Response({"status": "Session has been signed off"}, status = 200)	
+				return Response({"status": "That session is not active", "active_token_sessions": len(Token.objects.all())}, status = 404)
+			return Response({"status": "Session has been signed off", "active_token_sessions": len(Token.objects.all())}, status = 200)	
 		else: 
-			return Response({"error": "X-Authorization header not included"})
+			return Response({"error": "X-Authorization header not included", "active_token_sessions": len(Token.objects.all())})
 
 
 

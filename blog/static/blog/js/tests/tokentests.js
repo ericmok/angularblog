@@ -38,7 +38,7 @@ describe("Token Tests", function() {
 			});
 		});
 
-		it("can get number active sessions with bad token", function() {
+		it("can get number active sessions with on GET request", function() {
 
 			testAjax(function(callback) {
 				Helpers.jsonRequest( AuthModule.TOKENS_URL, "GET", null, callback, { "X-Authorization": "asdf" });
@@ -200,7 +200,7 @@ describe("Token Tests", function() {
 });
 
 describe("Log in page", function() {
-		it("receive template on GET request to /login", function() {
+		it("receive template on GET request to SIGNIN_URL", function() {
 			var response = null;
 			var responseXHR = null;
 

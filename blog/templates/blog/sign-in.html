@@ -8,12 +8,11 @@
 
 	<div id="csrfmiddlewaretoken">
 		{% csrf_token %}
-		{% csrf_token %}
-		{% csrf_token %}
 	</div>
 
 	<div>
-		<h3>Login</h3>
+
+		<h2>Login</h2>
 		<div>
 			<form method="POST" action="{% url 'blog.views.register.sign_in' %}">
 				{% csrf_token %}
