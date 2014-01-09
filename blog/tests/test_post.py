@@ -266,6 +266,26 @@ class CreatingPost(TestCase):
 		self.assertEqual(jres['number_sentences'], 5)
 
 
+class CreatingPostOnParagraph(TestCase):
+	fixtures = ['nice_fixture3.json']
+
+	def setUp(self):
+		self.client = Client()
+		response = self.client.post(AUTH_URL, data=TEST_USER_ALICE_JSON, content_type='application/json')
+		self.token = json.loads(response.content)['token']
+
+	def test_create_post_on_paragraph(self):
+		payload = {
+			"title": "Test Title",
+			"parent_content_type": "paragraph",
+			"parent_id": 1,
+			"content": "A post on a paragraph. This is it."
+		}		
+		response = self.client.post(POSTS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		jres = json.loads(response.content)
+		self.assertEqual(jres['number_paragraphs'], 1)
+		self.assertEqual(jres['number_sentences'], 2)	
+
 
 class PatchRequests(TestCase):
 	fixtures = ['nice_fixture3.json']
