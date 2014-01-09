@@ -93,6 +93,11 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     sentences = serializers.SerializerMethodField('get_sentences')
 
     def get_sentences(self, obj):
+        # TODO?
+        # When creating a post, the serializer is used for validation
+        if obj.pk is None:
+            return "Post hasn't been instantiated yet."
+
         ss = SentenceSet.objects.filter(parent = obj)[0]
         sentences = Sentence.objects.filter(sentence_set = ss)
 
@@ -109,9 +114,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         choices = ['blog', 'post', 'sentence', 'paragraph']
         if attrs['parent_content_type'] not in choices:
         #if (attrs['parent_content_type'] == u'blog') or (attrs['parent_content_type'] == u'post') or (attrs['parent_content_type'] == u'sentence'):
-            print("RAISE")
             raise serializers.ValidationError("Parent Content Type not valid choice.")
-        print("NOT RAISE")
         return attrs
     
     #def validate_author(self, attrs, source):
@@ -141,6 +144,27 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ('created', 'modified',)
         
         #depth = 1
+
+
+# def post_collection_serializer(p):
+#     serialized_json = {}
+#     serialized_json['id'] = p.id
+#     serialized_json['href'] = '/blog/api/posts/%s' % (p.id,)
+#     serialized_json['title'] = p.title
+#     serialized_json['author'] = p.author.pk
+#     serialized_json['created'] = p.created
+
+#     serialized_json['parent_content_type'] = p.parent_content_type.name
+#     serialized_json['parent_id'] = p.parent_id
+#     return serialized_json
+
+# return_json = build_collection_json_from_query(request, posts, post_collection_serializer)
+# return_json['collection']['template']['data'] = [
+#     {"title": "(String) Title of your post"},
+#     {"parent_content_type": "(String) Name of the content type. Accepts 'blog', 'post', 'sentence'"},
+#     {"parent_id": "(Number) Id of the parent object"}
+# ]
+# return Response(return_json, status = 200 )
 
 
 class PostPaginationSerializer(BasePaginationSerializer):
@@ -222,3 +246,5 @@ def replace_query_param(url, key, val):
     query_dict[key] = val
     query = query_dict.urlencode()
     return urlparse.urlunsplit((scheme, netloc, path, query, fragment))
+
+

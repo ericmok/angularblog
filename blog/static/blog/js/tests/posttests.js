@@ -179,6 +179,32 @@ describe("Post Endpoint AJAX", function() {
 			expect(xhr.status).toEqual(400);
 			expect(data.error).not.toBeNull();
 		}, 2000);
+
+		testAjax(function(callback) {
+			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", {username: "eric", password: "wt25yq186vke1dcd"}, function(data, xhr) {
+				var payload = { title: ["AJAX Post", Math.random()].join(' '), 
+								parent_content_type: "post", 
+								parent_id: 1,
+								content: ""}
+				Helpers.jsonRequest( Helpers.POSTS_URL, "POST", payload, callback, {'X-Authorization': 'Token ' + data.token} );
+			});			
+		}, function(data, xhr) { 
+			expect(xhr.status).toEqual(400);
+			expect(data.error).not.toBeNull();
+		}, 2000);
+
+		testAjax(function(callback) {
+			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", {username: "eric", password: "wt25yq186vke1dcd"}, function(data, xhr) {
+				var payload = { title: ["AJAX Post", Math.random()].join(' '), 
+								parent_content_type: "post", 
+								parent_id: 1,
+								content: null}
+				Helpers.jsonRequest( Helpers.POSTS_URL, "POST", payload, callback, {'X-Authorization': 'Token ' + data.token} );
+			});			
+		}, function(data, xhr) { 
+			expect(xhr.status).toEqual(400);
+			expect(data.error).not.toBeNull();
+		}, 2000);
 	});
 
 	it("can GET post and receive fields", function() {
@@ -223,7 +249,7 @@ describe("Post Endpoint AJAX", function() {
 
 
 	xit("can handle creating post with malformed sentence payload", function() {
-
+		// Handled in the empty content test
 		testAjax(function(callback) {
 			Helpers.jsonRequest( AuthModule.TOKENS_URL, "POST", {username: "eric", password: "wt25yq186vke1dcd"}, function(data, xhr) {
 				var payload = {

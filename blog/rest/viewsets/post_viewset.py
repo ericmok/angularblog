@@ -36,7 +36,8 @@ Node = collections.namedtuple('Node', ['mode', 'text'])
 BLOCK_MODE_TEXT = 't'
 BLOCK_MODE_CODE = 'c'
 NODE_MODE_TEXT = 't'
-NODE_MODE_CODE = 'c'
+NODE_MODE_CODE = 'c' 
+# Might create link nodes, citation nodes...etc
 
 # TODO: WRITE TESTS FOR THESE GLOBALS, 
 # I've tested them already but could use the redundancy.
@@ -251,6 +252,28 @@ def create_or_get_text(text_string):
     return text_obj
 
 
+def content_is_not_empty(content):
+    if content is None:
+        return False
+
+    def alpha_validator(content):
+        return (re.search('[a-zA-Z]', content) is not None)
+
+    def period_validator(content):
+        return (re.search('\.', content) is not None)
+
+    def none_or_null_validator(content):
+        return ( (re.search('^None$', content) is None) and (re.search('^null$', content) is None) )
+
+    def length_not_zero(content):
+        return len(content) > 1
+
+    if alpha_validator(content) and period_validator(content) and none_or_null_validator(content) and length_not_zero(content):
+        return True
+    else:
+        return False
+
+
 def create_post(title, author, parent_content_type, parent_id, content):
     """
     Preconditions: content is not empty, the content types exist
@@ -301,15 +324,20 @@ def create_post(title, author, parent_content_type, parent_id, content):
     # This counter is outside the loop because it shouldn't be reset for each paragraph!
     sentence_counter = 0
 
+    # The case with no paragraphs
+    paragraph_counter = 0 
+
     paragraphs = split_content_into_blocks(content)
 
     for par_index, par_value in enumerate(paragraphs):
+
+        # Remember to increment the indices by 1 since in the loop the indices start at 0
+        paragraph_counter = par_index + 1
+
         nodes = get_nodes_of_block(par_value)
 
-        # TODO: Link the new sentence to this object
-        # Remember to increment the indices by 1 since in the loop the indices start at 0
         new_paragraph = Paragraph.objects.create(sentence_set = new_set, 
-                                                    index = par_index + 1,
+                                                    index = paragraph_counter,
                                                     number_sentences = len(nodes))
         print ("NUMBER NODES: ", len(nodes))
         for node in nodes:
@@ -330,7 +358,7 @@ def create_post(title, author, parent_content_type, parent_id, content):
     return {
         'sentence_set': new_set,
         'number_sentences': len( new_sentences ),
-        'number_paragraphs': par_index + 1,
+        'number_paragraphs': paragraph_counter,
         'sentences': new_sentences
     }
 
@@ -522,27 +550,6 @@ class PostViewSet(viewsets.GenericViewSet):
         return Response(serializer.data)
 
 
-        # def post_collection_serializer(p):
-        #     serialized_json = {}
-        #     serialized_json['id'] = p.id
-        #     serialized_json['href'] = '/blog/api/posts/%s' % (p.id,)
-        #     serialized_json['title'] = p.title
-        #     serialized_json['author'] = p.author.pk
-        #     serialized_json['created'] = p.created
-
-        #     serialized_json['parent_content_type'] = p.parent_content_type.name
-        #     serialized_json['parent_id'] = p.parent_id
-        #     return serialized_json
-
-        # return_json = build_collection_json_from_query(request, posts, post_collection_serializer)
-        # return_json['collection']['template']['data'] = [
-        #     {"title": "(String) Title of your post"},
-        #     {"parent_content_type": "(String) Name of the content type. Accepts 'blog', 'post', 'sentence'"},
-        #     {"parent_id": "(Number) Id of the parent object"}
-        # ]
-        # return Response(return_json, status = 200 )
-
-
     def create(self, request):
         """
         Preconditions:
@@ -566,22 +573,17 @@ class PostViewSet(viewsets.GenericViewSet):
         If there is content, parse it (ie. an essay) into sentences via NLTK punkt.
         Create sentences for each sentence
         """
-        #content_type = request.META.get('CONTENT_TYPE', None) 
-        #if content_type == 'application/json' or content_type == 'text/javascript':
-        #    data = 
 
         # Parse user input
         post_serializer = PostSerializer(data = request.DATA, context={'request': request})
 
-        
         if not post_serializer.is_valid():
             # The user input was invalid
             return Response(post_serializer.errors, status = 400)
 
-
         # Serializer doesn't check for empty content since its IO is dynamic 
         content = request.DATA.get('content', None)
-        if content is None:
+        if not content_is_not_empty(content):
             return Response({"error": "There was no content, refer to template for reference."}, status = 400)
        
        
@@ -650,6 +652,10 @@ class PostViewSet(viewsets.GenericViewSet):
 
         # Check the integrity of the content
         content = request.DATA.get('content', None)
+        print("CONTENT:")
+        print(content)
+        print(len(content))
+        print("\n\n")
         if (content is None) or ( len(content) < 1 ):
             return Response(self.CONTENT_TO_SHORT_JSON, status = 400)
 
