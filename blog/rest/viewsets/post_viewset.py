@@ -573,16 +573,18 @@ class PostViewSet(viewsets.GenericViewSet):
         # Parse user input
         post_serializer = PostSerializer(data = request.DATA, context={'request': request})
 
+        
         if not post_serializer.is_valid():
             # The user input was invalid
             return Response(post_serializer.errors, status = 400)
+
 
         # Serializer doesn't check for empty content since its IO is dynamic 
         content = request.DATA.get('content', None)
         if content is None:
             return Response({"error": "There was no content, refer to template for reference."}, status = 400)
        
-
+       
         # If the post is made on a blog content type and the blog is RESTRICTED, 
         # perform special authorization checks:
         # A restricted blog means only users on the white list of the blog can post to it
@@ -597,8 +599,7 @@ class PostViewSet(viewsets.GenericViewSet):
                     wl = WhiteList.objects.filter(blog = blog, user = request.user)
                     if len(wl) < 1:
                         return Response({"status": "This blog is restricted to members in the white list."}, status = 401)
-
-
+        
         title = post_serializer.data['title']
         author = request.user
         parent_content_type = post_serializer.data['parent_content_type']

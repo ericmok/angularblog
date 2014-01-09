@@ -106,8 +106,12 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         if attrs.get('parent_content_type', None) is None:
             return attrs
 
-        if attrs['parent_content_type'] != 'sentence' and attrs['parent_content_type'] != 'post' and attrs['parent_content_type'] != 'blog':
+        choices = ['blog', 'post', 'sentence', 'paragraph']
+        if attrs['parent_content_type'] not in choices:
+        #if (attrs['parent_content_type'] == u'blog') or (attrs['parent_content_type'] == u'post') or (attrs['parent_content_type'] == u'sentence'):
+            print("RAISE")
             raise serializers.ValidationError("Parent Content Type not valid choice.")
+        print("NOT RAISE")
         return attrs
     
     #def validate_author(self, attrs, source):
