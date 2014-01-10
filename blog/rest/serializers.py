@@ -1,9 +1,10 @@
-from blog.models import User, Blog, Post, Sentence, SentenceSet
+from blog.models import User, Blog, Post, Paragraph, Sentence, SentenceSet
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.pagination import BasePaginationSerializer, NextPageField, PreviousPageField
 import re
 from django.http import QueryDict
+import json
 
 class BasicUserSerializer(serializers.ModelSerializer):
     href = serializers.HyperlinkedIdentityField(view_name = 'user-detail', lookup_field = 'username')
@@ -89,14 +90,50 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     content_type = serializers.Field(source = 'content_type')
 
     #brief = serializers.Field(source = 'get_brief')
+    versions = serializers.SerializerMethodField('get_versions')
+    content = serializers.SerializerMethodField('get_content')
 
-    sentences = serializers.SerializerMethodField('get_sentences')
+    def get_versions(self,obj):
+        if obj.pk is None:
+            # Post hasn't been instantiated yet.
+            return None
+
+        versions = SentenceSet.objects.filter(parent = obj)
+        
+        return_json = []
+        
+        for v in versions:
+            return_json.append({"id": v.pk, "created": v.created})
+
+        return return_json
+
+    def get_content(self, obj):
+        if obj.pk is None:
+            # Post hasn't been instantiated yet.
+            return None
+
+        return_json = {}
+        return_json['paragraphs'] = self.get_paragraphs(obj)        
+
+        return return_json
+
+    def get_paragraphs(self, obj):
+        if obj.pk is None:
+            # Post hasn't been instantiated yet.
+            return None
+        ss = SentenceSet.objects.filter(parent = obj)[0]
+        paras = Paragraph.objects.filter(sentence_set = ss).order_by('index')
+        res = []
+        for p in paras:
+            res.append( serialize_paragraph(p) )
+        return res
 
     def get_sentences(self, obj):
         # TODO?
         # When creating a post, the serializer is used for validation
         if obj.pk is None:
-            return "Post hasn't been instantiated yet."
+            # Post hasn't been instantiated yet.
+            return None
 
         ss = SentenceSet.objects.filter(parent = obj)[0]
         sentences = Sentence.objects.filter(sentence_set = ss)
@@ -139,7 +176,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         model = Post
         fields = ('content_type', 'id', 'href', 'title', 'author',
                   'created', 'modified',
-                  'parent_content_type', 'parent_id', 'sentences')
+                  'parent_content_type', 'parent_id', 'versions', 'content')
 
         read_only_fields = ('created', 'modified',)
         
@@ -199,6 +236,23 @@ class UserPaginationSerializer(BasePaginationSerializer):
     class Meta:
         object_serializer_class = BasicUserSerializer
 
+
+def serialize_paragraph(paragraph):
+    return_json = {
+        "id": paragraph.pk,
+        "index": paragraph.index,
+        "ordering": paragraph.index,
+        "number_sentences": paragraph.number_sentences,
+        "number_posts": paragraph.number_posts
+    }
+
+    return_json['sentences'] = []
+
+    sentences = paragraph.sentences.order_by('ordering')
+    for s in sentences:
+        return_json['sentences'].append( serialize_sentence(s) )
+
+    return return_json
 
 
 def serialize_sentence(sentence):
