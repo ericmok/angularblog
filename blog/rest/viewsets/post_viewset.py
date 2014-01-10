@@ -274,6 +274,23 @@ def content_is_not_empty(content):
         return False
 
 
+def get_parent_blog_of_model(model_name, model_id):
+    """
+    Raises exceptions if model not found
+    """
+    if model_name == 'blog':
+        return Blog.objects.get(pk = model_id)
+
+    ct = ContentType.objects.get(name=model_name)
+    obj = ct.get_object_for_this_type(pk = model_id)
+
+    if model_name == 'post':
+        return obj.blog
+
+    if model_name in ['sentence', 'paragraph']:
+        return obj.sentence_set.parent.blog
+
+
 def create_post(title, author, parent_content_type, parent_id, content):
     """
     Preconditions: content is not empty, the content types exist
@@ -471,7 +488,11 @@ def patch_post(post, content):
     }
 
 
-def get_posts_for_every_sentence():
+def get_posts_for_every_sentence(post):
+    """
+    Not used?
+    Sideload mechanism: Gets an array of posts for each sentence of a post
+    """
     # Load posts made on each sentence of that post
     sentence_posts = []
 
@@ -486,6 +507,8 @@ def get_posts_for_every_sentence():
         query = Post.objects.filter(parent_content_type = sentence_ct, parent_id = sentence.pk)[:page_size]
         sentence_posts.append(query)
     return sentence_posts
+
+
 
 
 class PostViewSet(viewsets.GenericViewSet):
@@ -590,18 +613,19 @@ class PostViewSet(viewsets.GenericViewSet):
         # If the post is made on a blog content type and the blog is RESTRICTED, 
         # perform special authorization checks:
         # A restricted blog means only users on the white list of the blog can post to it
-        if post_serializer.data['parent_content_type'] == "blog":
+        parent_ct_name = post_serializer.data['parent_content_type']
 
-            blog = Blog.objects.get(pk = post_serializer.data['parent_id'])
+        # The content type is already validated by the is_valid call on the serializer
+        blog = get_parent_blog_of_model(post_serializer.data['parent_content_type'], post_serializer.data['parent_id'])
+        if blog.is_restricted:
+            # When a blog is restricted, the creator is allowed 
+            # access to it by default, regardless of whether s/he is on whitelist!
+            if blog.creator != request.user:
+                wl = WhiteList.objects.filter(blog = blog, user = request.user)
+                if len(wl) < 1:
+                    return Response({"status": "This blog is restricted to members in the white list."}, status = 401)
 
-            if blog.is_restricted:
-                # When a blog is restricted, the creator is allowed 
-                # access to it by default, regardless of whether s/he is on whitelist!
-                if blog.creator != request.user:
-                    wl = WhiteList.objects.filter(blog = blog, user = request.user)
-                    if len(wl) < 1:
-                        return Response({"status": "This blog is restricted to members in the white list."}, status = 401)
-        
+
         title = post_serializer.data['title']
         author = request.user
         parent_content_type = post_serializer.data['parent_content_type']

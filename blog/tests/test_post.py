@@ -40,6 +40,7 @@ TEST_USER_ALICE_JSON = json.dumps(TEST_USER_ALICE)
 TEST_USER_BOBBY_JSON = json.dumps(TEST_USER_BOBBY)
 
 class PostViewsetUtils(TestCase):
+	fixtures = ['nice_fixture3.json']
 
 	def test_validate_content_has_sentences(self):
 		from blog.rest.viewsets.post_viewset import content_is_not_empty
@@ -49,6 +50,14 @@ class PostViewsetUtils(TestCase):
 		self.assertEqual( content_is_not_empty('2364'), False )
 		self.assertEqual( content_is_not_empty('asdf'), False )
 		self.assertEqual( content_is_not_empty('asdf.'), True )
+
+	def test_get_parent_blog_of_model(self):
+		from blog.rest.viewsets.post_viewset import get_parent_blog_of_model
+		self.assertTrue(get_parent_blog_of_model('blog', 1).is_restricted)
+		self.assertTrue(get_parent_blog_of_model('post', 1).is_restricted)
+		self.assertTrue(get_parent_blog_of_model('sentence', 1).is_restricted)
+		self.assertFalse(get_parent_blog_of_model('blog', 2).is_restricted)
+
 
 class PostEndPoint(TestCase):
 	fixtures = ['nice_fixture3.json']
@@ -285,6 +294,50 @@ class CreatingPostOnParagraph(TestCase):
 		jres = json.loads(response.content)
 		self.assertEqual(jres['number_paragraphs'], 1)
 		self.assertEqual(jres['number_sentences'], 2)	
+
+
+class PostingOnBlogRestrictions(TestCase):
+	fixtures = ['nice_fixture3.json']
+
+	def setUp(self):
+		self.client = Client()
+		response = self.client.post(AUTH_URL, data=TEST_USER_ALICE_JSON, content_type='application/json')
+		self.token = json.loads(response.content)['token']	
+
+	def test_bobby_cannot_create_a_post_on_alice_restricted_blog(self):
+		payload = {
+			"title": "Test Title",
+			"parent_content_type": "blog",
+			"parent_id": 1,
+			"content": "A post on a paragraph. This is it."
+		}
+		auth_response = self.client.post(AUTH_URL, data=TEST_USER_BOBBY_JSON, content_type='application/json')
+		token = json.loads(auth_response.content)['token']
+		response = self.client.post(POSTS_URL, data=payload, HTTP_X_AUTHORIZATION=token)
+		self.assertEqual(response.status_code, 401)
+
+	def test_bobby_cannot_create_a_post_on_alice_restricted_blog(self):
+		payload = {
+			"title": "Test Title",
+			"parent_content_type": "post",
+			"parent_id": 1,
+			"content": "A post on a paragraph. This is it."
+		}
+		auth_response = self.client.post(AUTH_URL, data=TEST_USER_BOBBY_JSON, content_type='application/json')
+		token = json.loads(auth_response.content)['token']
+		response = self.client.post(POSTS_URL, data=payload, HTTP_X_AUTHORIZATION=token)
+		self.assertEqual(response.status_code, 401)
+
+
+	def test_alice_can_create_a_post_on_the_restricted_blog(self):
+		payload = {
+			"title": "TestTitle",
+			"parent_content_type": "blog",
+			"parent_id": 1,
+			"content": "A post on a paragraph. This is it."
+		}
+		response = self.client.post(POSTS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		self.assertEqual(response.status_code, 201)
 
 
 class PatchRequests(TestCase):
