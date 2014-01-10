@@ -19,6 +19,9 @@ router.register(r'users', viewsets.UserViewSet, base_name = 'user')
 router.register(r'blogs', viewsets.BlogViewSet, base_name = 'blog')
 
 router.register(r'posts', viewsets.PostViewSet, base_name = 'post')
+
+router.register(r'paragraphs', viewsets.ParagraphViewSet, base_name = 'paragraph')
+
 router.register(r'sentences', viewsets.SentenceViewSet, base_name = 'sentence')
 
 #router.register(r'whitelists', viewsets.WhiteListViewSet, base_name = 'whitelist')
