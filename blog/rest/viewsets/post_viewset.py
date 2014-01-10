@@ -652,11 +652,9 @@ class PostViewSet(viewsets.GenericViewSet):
 
         # Check the integrity of the content
         content = request.DATA.get('content', None)
-        print("CONTENT:")
-        print(content)
-        print(len(content))
-        print("\n\n")
-        if (content is None) or ( len(content) < 1 ):
+
+        #if (content is None) or ( len(content) < 1 ):
+        if not content_is_not_empty(content):
             return Response(self.CONTENT_TO_SHORT_JSON, status = 400)
 
         patch_result = patch_post(post, content)
