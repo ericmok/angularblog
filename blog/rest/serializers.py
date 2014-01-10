@@ -47,6 +47,8 @@ class BlogSerializer(serializers.ModelSerializer):
 
   creator = serializers.SlugRelatedField(slug_field = 'username')
 
+  content_type = serializers.Field(source = 'content_type')
+
   def validate_title(self, attrs, source):
     title = attrs.get('title', None)
     if title is None:
@@ -59,7 +61,7 @@ class BlogSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Blog
-    fields = ('id', 'href', 'title', 'created', 'is_restricted')
+    fields = ('id', 'href', 'content_type', 'title', 'created', 'is_restricted')
     #read_only_fields = ('creator',)
 
 
