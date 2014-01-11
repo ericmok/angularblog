@@ -117,7 +117,7 @@ try:
 			if fixture[2] == ct_post:
 				blog = ct_post.get_object_for_this_type(pk = fixture[3]).blog
 			elif fixture[2] == ct_sent:
-				blog = ct_sent.get_object_for_this_type(pk = fixture[3]).sentence_set.parent.blog
+				blog = ct_sent.get_object_for_this_type(pk = fixture[3]).edition.parent.blog
 
 			content = ''
 

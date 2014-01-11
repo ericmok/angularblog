@@ -1,4 +1,4 @@
-from blog.models import User, Blog, Post, Paragraph, Sentence, SentenceSet
+from blog.models import User, Blog, Post, Paragraph, Sentence, Edition
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.pagination import BasePaginationSerializer, NextPageField, PreviousPageField
@@ -100,7 +100,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
             # Post hasn't been instantiated yet.
             return None
 
-        versions = SentenceSet.objects.filter(parent = obj)
+        versions = Edition.objects.filter(parent = obj)
         
         return_json = []
         
@@ -123,8 +123,8 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         if obj.pk is None:
             # Post hasn't been instantiated yet.
             return None
-        ss = SentenceSet.objects.filter(parent = obj)[0]
-        paras = Paragraph.objects.filter(sentence_set = ss).order_by('index')
+        edition = Edition.objects.filter(parent = obj)[0]
+        paras = Paragraph.objects.filter(edition = edition).order_by('ordering')
         res = []
         for p in paras:
             res.append( serialize_paragraph(p) )
@@ -137,8 +137,8 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
             # Post hasn't been instantiated yet.
             return None
 
-        ss = SentenceSet.objects.filter(parent = obj)[0]
-        sentences = Sentence.objects.filter(sentence_set = ss)
+        edition = Edition.objects.filter(parent = obj)[0]
+        sentences = Sentence.objects.filter(edition = edition)
 
         res = []
         for sent in sentences:
@@ -242,8 +242,7 @@ class UserPaginationSerializer(BasePaginationSerializer):
 def serialize_paragraph(paragraph):
     return_json = {
         "id": paragraph.pk,
-        "index": paragraph.index,
-        "ordering": paragraph.index,
+        "ordering": paragraph.ordering,
         "number_sentences": paragraph.number_sentences,
         "number_posts": paragraph.number_posts
     }
@@ -263,7 +262,7 @@ def serialize_sentence(sentence):
         "text": sentence.text.value, 
         "ordering": sentence.ordering,
         "mode": sentence.mode,
-        "paragraph": sentence.paragraph.index,
+        "paragraph": sentence.paragraph.ordering,
         "paragraph_pk": sentence.paragraph.pk,
         "number_replies": sentence.number_posts
         }

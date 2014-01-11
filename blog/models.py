@@ -110,9 +110,9 @@ class Post(models.Model):
         For convenience, get a brief section of the blog. 
         Maybe should take more popular sentences...
         """
-        ss = SentenceSet.objects.filter(parent = self).order_by('-created')
-        if len(ss) > 0:
-            sen = Sentence.objects.filter(sentence_set = ss[0], paragraph = 1).order_by('ordering')[:]
+        edition = Edition.objects.filter(parent = self).order_by('-created')
+        if len(edition) > 0:
+            sen = Sentence.objects.filter(edition = edition[0], paragraph = 1).order_by('ordering')[:]
             if len(sen) > 0:
                 ret = []
                 for s in sen:
@@ -124,7 +124,7 @@ class Post(models.Model):
     def content_type(self):
         return "post"
 
-class SentenceSet(models.Model):
+class Edition(models.Model):
     """
     An addressing mechanism for storing versions of a post as it is edited throughout
     its life.
@@ -133,20 +133,20 @@ class SentenceSet(models.Model):
     created = models.DateTimeField(auto_now_add = True)
 
     def content_type(self):
-        return "sentenceset"
+        return "Edition"
 
     class Meta:
         ordering = ["-created"]
 
 class Sentence(models.Model):
     """
-    A binary relation between a Sentenceset and Text.
+    A binary relation between a Edition and Text.
     Text can belong to multiple posts yet, in each post,
     each Text might be commented in context of the post.
     You can comment on a Sentence (text given a context) but not the text itself
     which could be wrapped by a proposition.
 
-    Creation date is taken from SentenceSet as sentences are created in batch
+    Creation date is taken from Edition as sentences are created in batch
 
     previous_version points to a version of the sentence for which this sentence
     was derived from as a result of an editorial change.
@@ -155,7 +155,7 @@ class Sentence(models.Model):
     
     # A binary relation
     # Pointer to parent of a set of sentences
-    sentence_set = models.ForeignKey('SentenceSet', related_name = 'sentences')
+    edition = models.ForeignKey('Edition', related_name = 'sentences')
     # And pointer to text
     text = models.ForeignKey('Text')
 
@@ -175,7 +175,7 @@ class Sentence(models.Model):
 
     class Meta:
         ordering = ['ordering']
-        unique_together = ('sentence_set', 'text', 'ordering')
+        unique_together = ('edition', 'text', 'ordering')
 
     def content_type(self):
         return "sentence"
@@ -199,8 +199,8 @@ class Paragraph(models.Model):
     """
     An after thought...
     """
-    sentence_set = models.ForeignKey('SentenceSet', related_name = 'paragraphs')
-    index = models.IntegerField()
+    edition = models.ForeignKey('Edition', related_name = 'paragraphs')
+    ordering = models.IntegerField()
 
     number_sentences = models.IntegerField(default = 0)
 

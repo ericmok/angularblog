@@ -201,7 +201,7 @@ def for_each_node_in_content(content):
     paragraphs = split_content_into_blocks(content)
 
     # Run the sentencer on each paragraph
-    # Each new sentence receives the outer new_set variable as the sentence_set
+    # Each new sentence receives the outer new_edition variable as the edition
     # 
     # [ "Sent1. Sent2. Sent3." ,  "Sent4. Sent5. Sent6." ]
     for par_index, par_value in enumerate( paragraphs ):
@@ -288,7 +288,7 @@ def get_parent_blog_of_model(model_name, model_id):
         return obj.blog
 
     if model_name in ['sentence', 'paragraph']:
-        return obj.sentence_set.parent.blog
+        return obj.edition.parent.blog
 
 
 def create_post(title, author, parent_content_type, parent_id, content):
@@ -318,9 +318,9 @@ def create_post(title, author, parent_content_type, parent_id, content):
     elif parent_content_type == 'post':
         blog = parent_model.blog
     elif parent_content_type == 'sentence':
-        blog = parent_model.sentence_set.parent.blog
+        blog = parent_model.edition.parent.blog
     elif parent_content_type == 'paragraph':
-        blog = parent_model.sentence_set.parent.blog
+        blog = parent_model.edition.parent.blog
 
     # Create a new post
     new_post = Post.objects.create(title = title, author = author, 
@@ -333,7 +333,7 @@ def create_post(title, author, parent_content_type, parent_id, content):
     parent_model.save()
 
     # Create a brand new set for the post. It is time stamped on creation
-    new_set = SentenceSet.objects.create(parent = new_post)
+    new_edition = Edition.objects.create(parent = new_post)
 
     # For caching so don't have to re-query the result
     new_sentences = []
@@ -353,8 +353,8 @@ def create_post(title, author, parent_content_type, parent_id, content):
 
         nodes = get_nodes_of_block(par_value)
 
-        new_paragraph = Paragraph.objects.create(sentence_set = new_set, 
-                                                    index = paragraph_counter,
+        new_paragraph = Paragraph.objects.create(edition = new_edition, 
+                                                    ordering = paragraph_counter,
                                                     number_sentences = len(nodes))
         print ("NUMBER NODES: ", len(nodes))
         for node in nodes:
@@ -365,7 +365,7 @@ def create_post(title, author, parent_content_type, parent_id, content):
             text_obj = create_or_get_text(node.text)
 
             # Forge a binary relation between the created text and the new set
-            new_sentence = Sentence.objects.create(sentence_set = new_set, 
+            new_sentence = Sentence.objects.create(edition = new_edition, 
                                                    text = text_obj, ordering = sentence_counter,
                                                    paragraph = new_paragraph, mode = node.mode)
 
@@ -373,7 +373,7 @@ def create_post(title, author, parent_content_type, parent_id, content):
             new_sentences.append(new_sentence)
 
     return {
-        'sentence_set': new_set,
+        'edition': new_edition,
         'number_sentences': len( new_sentences ),
         'number_paragraphs': paragraph_counter,
         'sentences': new_sentences
@@ -382,7 +382,7 @@ def create_post(title, author, parent_content_type, parent_id, content):
 
 def patch_post(post, content):
     """
-    Patch request will create a new SentenceSet (version) of the post if 
+    Patch request will create a new Edition (version) of the post if 
     the content is different.
 
     Tokenize input for sentences.
@@ -415,13 +415,13 @@ def patch_post(post, content):
     """
     # Get sentences of the lastest version
     # Assumption: That each post has a sentence set    
-    latest_sentence_set = SentenceSet.objects.filter(parent = post)[0]
+    latest_edition = Edition.objects.filter(parent = post)[0]
 
     # To compare the new sentences to old sentence models
-    old_sentence_models = Sentence.objects.filter(sentence_set = latest_sentence_set)
+    old_sentence_models = Sentence.objects.filter(edition = latest_edition)
 
     # Create a new version of the post
-    new_set = SentenceSet.objects.create(parent = post)
+    new_edition = Edition.objects.create(parent = post)
 
     # Count the number of merged sentences. 
     # This is incremented for every match found as we iterate over the new_sentences
@@ -438,7 +438,8 @@ def patch_post(post, content):
         nodes = get_nodes_of_block(par_value)
 
         # The number of sentences of the new paragraph will have to be set in the next loop
-        new_paragraph = Paragraph.objects.create(sentence_set = new_set, index = par_index + 1,
+        new_paragraph = Paragraph.objects.create(edition = new_edition, 
+                                                    ordering = par_index + 1,
                                                     number_sentences = len(nodes))
 
         for node in nodes:
@@ -461,7 +462,7 @@ def patch_post(post, content):
                 # If there is no match, don't set the previous_version pointer
                 #self.note("no match")
                 #self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
-                Sentence.objects.create(sentence_set = new_set, 
+                Sentence.objects.create(edition = new_edition, 
                                         text = text, 
                                         ordering = sentence_counter,
                                         paragraph = new_paragraph,
@@ -474,7 +475,7 @@ def patch_post(post, content):
 
                 #self.note("match")
                 #self.note("mode %s, node_index %s text %s: %s" % (node.mode, node_index, text, text.value))
-                Sentence.objects.create(sentence_set = new_set, 
+                Sentence.objects.create(edition = new_edition, 
                                         text = text, 
                                         ordering = sentence_counter, 
                                         paragraph = new_paragraph,
@@ -496,9 +497,9 @@ def get_posts_for_every_sentence(post):
     # Load posts made on each sentence of that post
     sentence_posts = []
 
-    # Expectation: SentenceSet is orderedy by date
-    ss = SentenceSet.objects.filter(parent = post)[0] 
-    sentences_of_post = Sentence.objects.filter(sentence_set = ss)
+    # Expectation: Edition is orderedy by date
+    edition = Edition.objects.filter(parent = post)[0] 
+    sentences_of_post = Sentence.objects.filter(edition = edition)
 
     for sentence in sentences_of_post:
         
@@ -641,7 +642,7 @@ class PostViewSet(viewsets.GenericViewSet):
         return_json = {}
 
         return_json['sentences'] = []
-        #sentences = Sentence.objects.filter(sentence_set = creation_result['sentence_set'])
+        #sentences = Sentence.objects.filter(edition = creation_result['edition'])
         for sentence in creation_result['sentences']:
             return_json['sentences'].append( serialize_sentence(sentence) )
         return_json['number_sentences'] = len(creation_result['sentences'])
@@ -686,7 +687,7 @@ class PostViewSet(viewsets.GenericViewSet):
         return_json = {}
         return_json['number_sentences'] = patch_result['number_sentences']
         return_json['number_merged'] = patch_result['number_merged']
-        return_json['number_versions'] = len( SentenceSet.objects.filter(parent = post) )
+        return_json['number_versions'] = len( Edition.objects.filter(parent = post) )
         return_json['post'] = post.pk
 
         return Response(return_json, status = 201)
@@ -708,13 +709,13 @@ class PostViewSet(viewsets.GenericViewSet):
             return_json = serialized_post.data
 
             # Show versions available
-            post_versions = SentenceSet.objects.filter(parent = post)
+            post_versions = Edition.objects.filter(parent = post)
 
             # URL option to get versions
             if request.GET.get('version', None) is not None:
                 try: 
                     current_version_id = int( request.GET['version'] )
-                    #current_version = SentenceSet.objects.get(pk = current_version_id)
+                    #current_version = Edition.objects.get(pk = current_version_id)
                     current_version = post_versions[current_version_id]
                 except:
                     return Response(self.NOT_FOUND_JSON, status = 404)
@@ -727,7 +728,7 @@ class PostViewSet(viewsets.GenericViewSet):
             return_json["sentences"] = []
 
             # ordered by ordering
-            sentences = Sentence.objects.filter(sentence_set = current_version)
+            sentences = Sentence.objects.filter(edition = current_version)
 
             for sentence in sentences:
                 
@@ -774,9 +775,9 @@ class PostViewSet(viewsets.GenericViewSet):
 
         post = Post.objects.get(pk = pk)
 
-        # expect SentenceSet to be ordered by date
-        sentence_set = SentenceSet.objects.filter(parent = post)[0]
-        sentences = Sentence.objects.filter(sentence_set = sentence_set).values('pk')
+        # expect Edition to be ordered by date
+        edition = Edition.objects.filter(parent = post)[0]
+        sentences = Sentence.objects.filter(edition = edition).values('pk')
 
         sentence_ct = ContentType.objects.get(model = 'sentence')
 

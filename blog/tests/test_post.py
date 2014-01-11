@@ -380,8 +380,8 @@ class PatchRequests(TestCase):
 	def test_can_merge_with_old_sentences_in_post(self):
 		post = Post.objects.get(parent_content_type=ContentType.objects.get(name="blog"),
 								parent_id = 1)
-		ss = SentenceSet.objects.filter(parent = post)
-		sentences = Sentence.objects.filter(sentence_set = ss)
+		ed = Edition.objects.filter(parent = post)
+		sentences = Sentence.objects.filter(edition = ed)
 
 		test_content = ' '.join( [sentences[0].text.value, sentences[1].text.value] )
 
