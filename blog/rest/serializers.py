@@ -92,19 +92,19 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     content_type = serializers.Field(source = 'content_type')
 
     #brief = serializers.Field(source = 'get_brief')
-    versions = serializers.SerializerMethodField('get_versions')
+    editions = serializers.SerializerMethodField('get_editions')
     content = serializers.SerializerMethodField('get_content')
 
-    def get_versions(self,obj):
+    def get_editions(self,obj):
         if obj.pk is None:
             # Post hasn't been instantiated yet.
             return None
 
-        versions = Edition.objects.filter(parent = obj)
+        editions = Edition.objects.filter(parent = obj)
         
         return_json = []
         
-        for v in versions:
+        for v in editions:
             return_json.append({"id": v.pk, "created": v.created})
 
         return return_json
@@ -178,7 +178,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         model = Post
         fields = ('content_type', 'id', 'href', 'title', 'author',
                   'created', 'modified',
-                  'parent_content_type', 'parent_id', 'versions', 'content')
+                  'parent_content_type', 'parent_id', 'editions', 'content')
 
         read_only_fields = ('created', 'modified',)
         
