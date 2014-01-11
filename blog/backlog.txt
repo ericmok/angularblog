@@ -1,12 +1,14 @@
 //I will fix post creation problem and by the end I will be able to post on a paragraph.
 
-Post representation could have more explicit paragraphs...
+//Post representation could have more explicit paragraphs...
 
 
 Each collection json return type will have a content_type property
 - I forgot why – you can just get the type form either the URL segment or by the content_type property of the first element in the results.
 
-Endpoint for paragraphs / Endpoint for versions?
+//Endpoint for paragraphs 
+
+Endpoint for versions?
 
 Each item will have upvote, downvote.
 
