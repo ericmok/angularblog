@@ -707,21 +707,8 @@ class PostViewSet(viewsets.GenericViewSet):
             # Encode post as JSON
             serialized_post = PostSerializer(post, context={'request':request})
             return_json = serialized_post.data
-
-            # Show versions available
-            post_editions = Edition.objects.filter(parent = post)
-
-            # URL option to get versions
-            if request.GET.get('edition', None) is not None:
-                try: 
-                    current_version_id = int( request.GET['edition'] )
-                    #current_version = Edition.objects.get(pk = current_version_id)
-                    current_version = post_editions[current_version_id]
-                except:
-                    return Response(self.NOT_FOUND_JSON, status = 404)
-            else:
-                # If there is no ?edition query string just load the most recent version
-                current_version = post_editions[0]            
+            
+            # URL option to get versions(deleted )
 
             # TODO: the current serializer takes the most recent edition off the bat!
             #return_json['editions'] = len( post_editions )
