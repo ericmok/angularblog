@@ -7,8 +7,17 @@ Each collection json return type will have a content_type property
 - I forgot why – you can just get the type form either the URL segment or by the content_type property of the first element in the results.
 
 //Endpoint for paragraphs 
+//Paragraph index should be renamed to ordering
 
-Endpoint for versions?
+
+Endpoint for editions
+- The problem with the post endpoint is that it only
+displays the most recent edition of a post. Perhaps post serializer can
+take additional args?
+
+
+Uniform error messages, errors module and error number
+
 
 Each item will have upvote, downvote.
 
@@ -21,4 +30,4 @@ Defered Save Objects?
 
 Separation of view, logic, and model
 
-Paragraph index should be renamed to ordering
+?Don't use Content type as string

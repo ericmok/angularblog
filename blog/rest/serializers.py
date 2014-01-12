@@ -5,6 +5,7 @@ from rest_framework.pagination import BasePaginationSerializer, NextPageField, P
 import re
 from django.http import QueryDict
 import json
+from collections import OrderedDict # For prettier json
 
 class BasicUserSerializer(serializers.ModelSerializer):
     href = serializers.HyperlinkedIdentityField(view_name = 'user-detail', lookup_field = 'username')
@@ -77,7 +78,6 @@ class BlogPaginationSerializer(BasePaginationSerializer):
 
     class Meta:
         object_serializer_class = BlogSerializer
-
 
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
@@ -206,6 +206,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 # return Response(return_json, status = 200 )
 
 
+
 class PostPaginationSerializer(BasePaginationSerializer):
     """
     A default implementation of a pagination serializer.
@@ -239,13 +240,25 @@ class UserPaginationSerializer(BasePaginationSerializer):
         object_serializer_class = BasicUserSerializer
 
 
+
+def serialize_edition(edition):
+    return_json = OrderedDict([('id', edition.pk), 
+                               ('created', edition.created),
+                               ('content_type', 'edition'),
+                               ('paragraphs', [])])
+    
+    for p in edition.paragraphs.all():
+        return_json['paragraphs'].append( serialize_paragraph(p) )
+    return return_json
+
+
 def serialize_paragraph(paragraph):
-    return_json = {
-        "id": paragraph.pk,
-        "ordering": paragraph.ordering,
-        "number_sentences": paragraph.number_sentences,
-        "number_posts": paragraph.number_posts
-    }
+    return_json = OrderedDict([('id', paragraph.pk),
+                               ('content_type', 'paragraph'),
+                               ('ordering', paragraph.ordering),
+                               ('number_sentences', paragraph.number_sentences),
+                               ('number_posts', paragraph.number_posts),
+                               ('sentences', [])])
 
     return_json['sentences'] = []
 
@@ -258,13 +271,14 @@ def serialize_paragraph(paragraph):
 
 def serialize_sentence(sentence):
     return_json = {
-        "id": sentence.pk, 
-        "text": sentence.text.value, 
-        "ordering": sentence.ordering,
-        "mode": sentence.mode,
-        "paragraph": sentence.paragraph.ordering,
-        "paragraph_pk": sentence.paragraph.pk,
-        "number_replies": sentence.number_posts
+        'id': sentence.pk, 
+        'text': sentence.text.value, 
+        'ordering': sentence.ordering,
+        'mode': sentence.mode,
+        'content_type': 'sentence',
+        'paragraph': sentence.paragraph.ordering,
+        'paragraph_pk': sentence.paragraph.pk,
+        'number_replies': sentence.number_posts
         }
     if (sentence.previous_version is not None):
         return_json['previous_version'] = sentence.previous_version.pk

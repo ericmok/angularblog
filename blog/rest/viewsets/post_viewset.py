@@ -725,25 +725,6 @@ class PostViewSet(viewsets.GenericViewSet):
 
             # TODO: the current serializer takes the most recent edition off the bat!
             #return_json['editions'] = len( post_editions )
-            
-            return_json["sentences"] = []
-
-            # ordered by ordering
-            sentences = Sentence.objects.filter(edition = current_version)
-
-            for sentence in sentences:
-                
-                serialized_sentence = serialize_sentence(sentence)
-
-                #if sentence.number_children > 0:
-                #    serialized_sentence['posts'] = []
-                #    sentence_posts = Post.objects.filter(parent_content_type = ContentType.objects.get(model='sentence'), parent_id = sentence.pk)
-                #    for sentence_post in sentence_posts:
-                #        post_serialized = PostSerializer(sentence_post, context = {'request': request})
-                #        serialized_sentence['posts'].append( post_serialized.data )
-
-
-                return_json['sentences'].append( serialized_sentence )
 
             return Response(return_json, status = 200)
 

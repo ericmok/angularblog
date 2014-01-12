@@ -20,6 +20,8 @@ router.register(r'blogs', viewsets.BlogViewSet, base_name = 'blog')
 
 router.register(r'posts', viewsets.PostViewSet, base_name = 'post')
 
+router.register(r'editions', viewsets.EditionViewSet, base_name = 'edition')
+
 router.register(r'paragraphs', viewsets.ParagraphViewSet, base_name = 'paragraph')
 
 router.register(r'sentences', viewsets.SentenceViewSet, base_name = 'sentence')
