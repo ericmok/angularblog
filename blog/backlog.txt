@@ -10,10 +10,12 @@ Each collection json return type will have a content_type property
 //Paragraph index should be renamed to ordering
 
 
-Endpoint for editions
-- The problem with the post endpoint is that it only
-displays the most recent edition of a post. Perhaps post serializer can
-take additional args?
+//Endpoint for editions
+//- The problem with the post endpoint is that it only
+//displays the most recent edition of a post. Perhaps post serializer can
+//take additional args?
+
+//Posts and endpoints
 
 
 Uniform error messages, errors module and error number
