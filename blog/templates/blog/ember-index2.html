@@ -51,6 +51,9 @@
             <h3 style="font-family: Raleway; line-height: 1; margin: 0em 0em 0.3em 0em; padding: 0px">
                 {{parent.title}}
             </h3>
+            <div>
+                {{parent-component model=model.main.parent}}
+            </div>
             {{model.main.parent_content_type}} / {{model.main.parent_id}} 
         </div>
         <div style="clear: both"></div>
@@ -60,14 +63,14 @@
                 {{view App.PostView post=model.main}}
             </div>
             
-            <div class="row">
-
+            <div class="row post-comments">
                 <div>
                     {{comments.results.length}} Comments
-                </div>
-                {{view App.PostListView  model=model.comments.results depth=list.depth}}
-            
+                </div>       
+                {{view App.PostListView  model=model.comments.results depth=list.depth}}    
             </div>
+
+            <div style="clear: both"></div>
         </div>
 
         <!--
@@ -75,7 +78,7 @@
         -->
 
 
-        <div class="col-xs-5" style="padding-left: 3em">
+        <div class="col-xs-5 sidebar">
             <div>
                 {{sidebar.results.length}} Comments
             </div>
@@ -90,8 +93,7 @@
 
     <script type="text/x-handlebars" data-template-name="post-list-view">
         <!-- Loop through posts -->
-        <div {{bind-attr style="view.leftStyle" class="view.childClassName"}}>
-            
+        <div>
             {{#each post in view.model}}
                 {{view App.CommentView model=post depth=view.depth}}
             {{/each}}
@@ -103,8 +105,12 @@
             <h1 class="post-title">{{view.post.title}}</h1>
             <div class="post-author">By {{view.post.author}} at {{view.post.created}}</div>
             <div class="post-body">
-                {{#each sentence in view.post.sentences}}
-                    {{sentence-segment sentence=sentence depth=view.depth viewsentence="viewsentence"}}
+                {{#each paragraph in view.post.content.paragraphs}}
+                    <p>
+                    {{#each sentence in paragraph.sentences}}
+                        {{sentence-segment sentence=sentence depth=view.depth viewsentence="viewsentence"}}
+                    {{/each}}
+                    </p>
                 {{/each}}
             </div>
         </div>
@@ -113,15 +119,30 @@
     <script type="text/x-handlebars" data-template-name="comment-view">
         <!-- A comment should be styled differently than a main post -->
 
-        <div>
-            <h3 class="comment-title">{{view.model.title}}</h3>
-            <div class="comment-author">By {{view.model.author}} at {{view.model.created}}</div>
-
-            <div class="comment-body">
-                {{#each sentence in view.model.sentences}}
-                    {{sentence-segment sentence=sentence depth=view.depth viewsentence="viewsentence"}}
-                {{/each}}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {{#link-to 'posts' view.model.id}}
+                    <h4 class="comment-title">{{view.model.title}}</h4>
+                {{/link-to}}
             </div>
+            <div class="panel-body">
+                <div class="comment-author">By {{view.model.author}} at {{view.model.created}}</div>
+                <div class="comment-body">
+                    {{#each paragraph in view.model.content.paragraphs}}
+                        <p>
+                        {{#each sentence in paragraph.sentences}}
+                            {{sentence-segment sentence=sentence depth=view.depth viewsentence="viewsentence"}}
+                        {{/each}}
+                        </p>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="components/parent-component">
+        <div>
+            
         </div>
     </script>
 

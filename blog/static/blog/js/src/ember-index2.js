@@ -239,6 +239,9 @@ App.PostsRoute = Ember.Route.extend({
         //controller.set("postListStack", []);
         controller.set("model", model);
         controller.set("parent", model.parent);
+
+        if (model.parent == 'blog')
+
         controller.set("main", model.main);
         controller.set("sidebar", model.sidebar);
         controller.set("comments", model.comments);
@@ -313,6 +316,28 @@ App.PostsView = Ember.View.extend({
     templateName: "posts"
 })
 
+
+App.ParentViewComponent = Ember.Component.extend({
+    templateName: "parent-component",
+    isBlog: function(model) {
+        if (model.parent_content_type == 'blog') {
+            return true;
+        }
+        return false;
+    },
+    isPost: function(model) {
+        if (model.parent_content_type == 'post') {
+            return true;
+        }
+        return false
+    },
+    isSentence: function(model) {
+        if (model.parent_content_type == 'sentence') {
+            return true;
+        }
+        return false;
+    }
+});
 
 /**
 List views will adjust its computedLeftStyle on instantiation to create

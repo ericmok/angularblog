@@ -188,15 +188,16 @@
 
 .comment
 {
-	
-	padding: 1.5em;
-	margin: 1.4em;
+	padding: 0.4em;
+	/*margin: 1.4em;*/
 	/*background-color: #FFF7F3;*/
 	/*background-color: #ccedf9;*/
 	border-radius: 5px;
 	/*background-color: #a3f6fb;*/
-	background-color: #DBF2FF;
+
+	/*background-color: #DBF2FF;
 	background-color: #fff2ea;
+	*/
 }
 
 .comment-title
@@ -219,8 +220,22 @@
 
 .comment .is-hovering
 {
-	background-color: #EFEFEF !important; /* DEDEDE */
+	background-color: #DDD !important; /* DEDEDE */
 	/*padding: 0px 0px 1px 0px;*/
 	padding: 0px !important;
 	border-radius: 3px;	
+}
+
+.sidebar
+{
+	 margin-left: 3em; 
+	 padding-left: 2.3em; 
+	 border-left: solid 1px #CCC;
+}
+
+.post-comments
+{
+	margin-top: 3em;
+	padding-top: 1em;
+	border-top: solid 1px #CCC;
 }
