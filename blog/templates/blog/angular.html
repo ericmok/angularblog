@@ -14,6 +14,9 @@
 		<script src="http://codeorigin.jquery.com/jquery-2.0.3.min.js"></script>
 		<script src="{{ STATIC_URL }}blog/libs/jasmine.js"></script>
 		<script src="{{ STATIC_URL }}blog/libs/jasmine-html.js"></script>
+
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" />
+	    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.4.0/ui-bootstrap-tpls.min.js"></script>
 		<script>
         	window.server = {
          	   auth: {
@@ -51,73 +54,53 @@
 					$scope.post = json.data;
 				});
 			}]);
-			app.directive("postElement", function() {
+			app.directive("sentence", function() {
 				return {
-					scope: {
-						post: "="
-					},
-					restrict: "E",
-					template: "<div><h3></h3><post-paragraph ng-repeat='p in post.content.paragraphs'>" + 
-								"<span ng-repeat='s in p.sentences'><post-sentence sentence='s'></post-sentence></span>" +
-								"</post-paragraph></div>",
-					replace: true,
-					link: function(scope, element, attrs) {
-						$("h3").html(scope.post.title);
-					}
-				};
-			});
-			app.directive("postParagraph", function() {
-				return {
-					restrict: "E",
-					scope: {
-						paragraph: "="
-					},
-					template: "<p ng-transclude></p>",
-					transclude: true,
-					controller: function($scope) {
-
-					},
+					restrict: "A",
 					link: function(scope, element, attrs) {
 						element.on("mouseover", function(ev) {
-							$(this).css({
-								backgroundColor: "#EEE"
-							});
-						});
-					}
-				}
-			});	
-			app.directive("postSentence", function() {
-				return {
-					restrict: "E",
-					scope: {
-						sentence: "="
-					},
-					link: function(scope, element, attrs) {
-						scope.$watch('sentence', function(newVal) {
-							element.html(newVal.text);
-						});
-
-						element.on("mouseover", function(ev) {
-							$(this).css({
-								backgroundColor: "#9cf89c"
+							element.css({
+								backgroundColor: "#9cF89c",
+								transition: "all 0.7 ease"
 							});
 						}).on("mouseout", function(ev) {
-							$(this).css({
+							element.css({
 								backgroundColor: "#FFF"
 							});
 						});
 					}
 				}
-			});	
+			});
 		</script>
 	</head>
 	<body>
 	{% verbatim %}
 		<div class="container" ng-app="app">
 			<div class="col-md-12" ng-controller="postController">
-				WAT
+				<div carousel  interval="3000">
+					<div slide active="slide.active">
+						SLIDE
+					</div>
+					<div slide active="slide.active">
+						SLIDE
+					</div>
+					<div slide active="slide.active">
+						SLIDE
+					</div>
+				</div>
 				<div class="col-md-6">
-					<post-element post="post"></post-element>
+					
+					<div>
+						<h3 style="font-family: Open Sans;">{{post.title}}</h3>
+						<p ng-repeat="p in post.content.paragraphs" style="font: 16px Times New Roman; line-height: 1.48;">
+							<span sentence ng-repeat="s in p.sentences">
+								{{s.text}}
+							</span>
+						</p>
+					</div>
+				</div>
+				<div class="col-md-6">
+
 				</div>
 			</div>
 		</div>
