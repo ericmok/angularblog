@@ -1,37 +1,123 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" />
 		<style>
 
 		</style>
 	
 		
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.js"></script>
 		
 		<link href="{{ STATIC_URL }}blog/libs/jasmine.css" rel="stylesheet" />
 		
 		<script src="http://codeorigin.jquery.com/jquery-2.0.3.min.js"></script>
 		<script src="{{ STATIC_URL }}blog/libs/jasmine.js"></script>
 		<script src="{{ STATIC_URL }}blog/libs/jasmine-html.js"></script>
-		
 		<script>
-			var app = angular.module('app', []);
-			app.controller('myController', function myController($scope) {
-				$scope.phones = [
-					{name: "Test1"},
-					{name: "Test2"}
-				];
+        	window.server = {
+         	   auth: {
+	            isSignedIn: {% if request.user.is_authenticated %}true{% else %}	false{% endif %},
+            	user: "{{ request.user }}",
+            	links: { 
+                	    signIn: "{% url 'blog.views.register.sign_out' %}",
+	                    signOut: "{% url 'blog.views.register.sign_in' %}"
+                	}
+            	}
+        	};
+    	</script>
+		<script>
+			var app = angular.module("app", []);
+			app.factory('Api', function($http) {
+				return {
+					getPost: function(id) {
+						console.log("Called");
+						if (id) {
+							return $http.get("/blog/api/posts/" + id);
+						}
+						else {
+							return $http.get("/blog/api/posts");
+						}
+					}
+				};
 			});
+			app.controller("postController", ["$scope", "$http", "Api", function($scope, $http, Api) {
+				$scope.post = {};
+
+				//$http.get("/blog/api/posts/1").then(function(json) {
+				//	$scope.post = json.data;
+				//);
+				Api.getPost(1).then(function(json) {
+					$scope.post = json.data;
+				});
+			}]);
+			app.directive("postElement", function() {
+				return {
+					scope: {
+						post: "="
+					},
+					restrict: "E",
+					template: "<div><h3></h3><post-paragraph ng-repeat='p in post.content.paragraphs'>" + 
+								"<span ng-repeat='s in p.sentences'><post-sentence sentence='s'></post-sentence></span>" +
+								"</post-paragraph></div>",
+					replace: true,
+					link: function(scope, element, attrs) {
+						$("h3").html(scope.post.title);
+					}
+				};
+			});
+			app.directive("postParagraph", function() {
+				return {
+					restrict: "E",
+					scope: {
+						paragraph: "="
+					},
+					template: "<p ng-transclude></p>",
+					transclude: true,
+					controller: function($scope) {
+
+					},
+					link: function(scope, element, attrs) {
+						element.on("mouseover", function(ev) {
+							$(this).css({
+								backgroundColor: "#EEE"
+							});
+						});
+					}
+				}
+			});	
+			app.directive("postSentence", function() {
+				return {
+					restrict: "E",
+					scope: {
+						sentence: "="
+					},
+					link: function(scope, element, attrs) {
+						scope.$watch('sentence', function(newVal) {
+							element.html(newVal.text);
+						});
+
+						element.on("mouseover", function(ev) {
+							$(this).css({
+								backgroundColor: "#9cf89c"
+							});
+						}).on("mouseout", function(ev) {
+							$(this).css({
+								backgroundColor: "#FFF"
+							});
+						});
+					}
+				}
+			});	
 		</script>
 	</head>
 	<body>
 	{% verbatim %}
 		<div class="container" ng-app="app">
-			<div ng-controller="myController">
-				{{ phones.length }}
-				<div ng-repeat="i in phones">
-					{{i.name}}
+			<div class="col-md-12" ng-controller="postController">
+				WAT
+				<div class="col-md-6">
+					<post-element post="post"></post-element>
 				</div>
 			</div>
 		</div>
