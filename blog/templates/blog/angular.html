@@ -6,17 +6,23 @@
 
 		</style>
 	
-		
+		<script src="http://codeorigin.jquery.com/jquery-2.0.3.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.js"></script>
 		
 		<link href="{{ STATIC_URL }}blog/libs/jasmine.css" rel="stylesheet" />
 		
-		<script src="http://codeorigin.jquery.com/jquery-2.0.3.min.js"></script>
+
 		<script src="{{ STATIC_URL }}blog/libs/jasmine.js"></script>
 		<script src="{{ STATIC_URL }}blog/libs/jasmine-html.js"></script>
 
 		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" />
 	    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.4.0/ui-bootstrap-tpls.min.js"></script>
+	
+		<link href="{{ STATIC_URL }}blog/css/angularapp.css" rel="stylesheet" />
+
+	    <script src="{{ STATIC_URL }}blog/js/src/angularapp.js"></script>
+	    <script src="{{ STATIC_URL }}blog/js/src/animate.js"></script>
+	    <script src="{{ STATIC_URL }}blog/js/src/carousel.js"></script>
 		<script>
         	window.server = {
          	   auth: {
@@ -29,78 +35,61 @@
             	}
         	};
     	</script>
-		<script>
-			var app = angular.module("app", []);
-			app.factory('Api', function($http) {
-				return {
-					getPost: function(id) {
-						console.log("Called");
-						if (id) {
-							return $http.get("/blog/api/posts/" + id);
-						}
-						else {
-							return $http.get("/blog/api/posts");
-						}
-					}
-				};
-			});
-			app.controller("postController", ["$scope", "$http", "Api", function($scope, $http, Api) {
-				$scope.post = {};
 
-				//$http.get("/blog/api/posts/1").then(function(json) {
-				//	$scope.post = json.data;
-				//);
-				Api.getPost(1).then(function(json) {
-					$scope.post = json.data;
-				});
-			}]);
-			app.directive("sentence", function() {
-				return {
-					restrict: "A",
-					link: function(scope, element, attrs) {
-						element.on("mouseover", function(ev) {
-							element.css({
-								backgroundColor: "#9cF89c",
-								transition: "all 0.7 ease"
-							});
-						}).on("mouseout", function(ev) {
-							element.css({
-								backgroundColor: "#FFF"
-							});
-						});
-					}
-				}
-			});
-		</script>
 	</head>
 	<body>
 	{% verbatim %}
 		<div class="container" ng-app="app">
 			<div class="col-md-12" ng-controller="postController">
-				<div carousel  interval="3000">
-					<div slide active="slide.active">
+				<carousel  interval="1000s">
+					<slide>
 						SLIDE
-					</div>
-					<div slide active="slide.active">
+					</slide>
+					<slide>
 						SLIDE
-					</div>
-					<div slide active="slide.active">
+					</slide>
+					<slide>
 						SLIDE
-					</div>
-				</div>
+					</slide>
+				</carousel>
 				<div class="col-md-6">
 					
 					<div>
-						<h3 style="font-family: Open Sans;">{{post.title}}</h3>
+						<h2 style="font-family: Times New Roman;">{{post.title}}</h2>
 						<p ng-repeat="p in post.content.paragraphs" style="font: 16px Times New Roman; line-height: 1.48;">
-							<span sentence ng-repeat="s in p.sentences">
+							<span sentence class="sentence" ng-repeat="s in p.sentences">
 								{{s.text}}
 							</span>
 						</p>
-					</div>
+					</div> 
 				</div>
 				<div class="col-md-6">
-
+					<div ng-controller="sidebar">
+						<div ng-repeat='c in comments'>
+							COMMENT
+						</div>
+					</div>
+					<div post-slider style="width: 202px; border: solid 1px #DDD; overflow-x: hidden;">
+						<div post-slide ng-animate="sliding">
+							<div>
+								<h2 style="font-family: Times New Roman;">{{post.title}}</h2>
+								<p ng-repeat="p in post.content.paragraphs" style="font: 16px Times New Roman; line-height: 1.48;">
+									<span my-sentence class="sentence" ng-repeat="s in p.sentences">
+										{{s.text}}
+									</span>
+								</p>
+							</div> 
+						</div>
+						<div post-slide>
+							SLIDE2
+						</div>
+						<div post-slide>
+							SLIDE3
+						</div>
+						<div post-slide>
+							SLIDE{{getIndex()}}
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
