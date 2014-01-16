@@ -10,7 +10,9 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.js"></script>
 		
 		<link href="{{ STATIC_URL }}blog/libs/jasmine.css" rel="stylesheet" />
-		
+
+		<link href='http://fonts.googleapis.com/css?family=Raleway:400,300' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Average' rel='stylesheet' type='text/css'>
 
 		<script src="{{ STATIC_URL }}blog/libs/jasmine.js"></script>
 		<script src="{{ STATIC_URL }}blog/libs/jasmine-html.js"></script>
@@ -40,54 +42,36 @@
 	<body>
 	{% verbatim %}
 		<div class="container" ng-app="app">
-			<div class="col-md-12" ng-controller="postController">
-				<carousel  interval="1000s">
-					<slide>
-						SLIDE
-					</slide>
-					<slide>
-						SLIDE
-					</slide>
-					<slide>
-						SLIDE
-					</slide>
-				</carousel>
+			<div class="col-md-12" ng-controller="AppController">
 				<div class="col-md-6">
-					
-					<div>
-						<h2 style="font-family: Times New Roman;">{{post.title}}</h2>
-						<p ng-repeat="p in post.content.paragraphs" style="font: 16px Times New Roman; line-height: 1.48;">
-							<span sentence class="sentence" ng-repeat="s in p.sentences">
-								{{s.text}}
-							</span>
+					<section style="border: solid 1px #0088cc; width: 300px; height: 30px;">
+						<a href="{{model.parent.href}}">
+							<!-- <post-parent post="model.post"></post-parent> -->
+						</a>
+					</section>
+					<div main-post post="model.post">
+						<h2 class="post-title">{{model.post.title}}</h2>
+						<p ng-repeat="p in model.post.content.paragraphs" class="post-paragraph">
+							<span sentence="s" sidebar="model.sidebar" class="sentence" data-depth="0" ng-repeat="s in p.sentences"></span>
 						</p>
 					</div> 
 				</div>
 				<div class="col-md-6">
-					<div ng-controller="sidebar">
-						<div ng-repeat='c in comments'>
-							COMMENT
-						</div>
-					</div>
-					<div post-slider style="width: 202px; border: solid 1px #DDD; overflow-x: hidden;">
-						<div post-slide ng-animate="sliding">
-							<div>
-								<h2 style="font-family: Times New Roman;">{{post.title}}</h2>
-								<p ng-repeat="p in post.content.paragraphs" style="font: 16px Times New Roman; line-height: 1.48;">
-									<span my-sentence class="sentence" ng-repeat="s in p.sentences">
+					<div>
+						LENGTH: [{{model.sidebar.results.length}}]<br/>
+						<div ng-repeat='c in model.sidebar.results'>
+							<article>
+								<section>
+									Post: {{c.id}},{{c.title}} / Parent: {{c.parent_content_type}},{{c.parent_id}}<br/>
+									<post-parent post="c"></post-parent>
+								</section>
+								<h3>{{c.title}}</h3>
+								<p ng-repeat="p in c.content.paragraphs">
+									<span ng-repeat="s in p.sentences">
 										{{s.text}}
 									</span>
 								</p>
-							</div> 
-						</div>
-						<div post-slide>
-							SLIDE2
-						</div>
-						<div post-slide>
-							SLIDE3
-						</div>
-						<div post-slide>
-							SLIDE{{getIndex()}}
+							</article>
 						</div>
 					</div>
 				</div>

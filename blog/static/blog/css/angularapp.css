@@ -1,0 +1,50 @@
+.sentence
+{
+	padding: 2px 0px;
+	-webkit-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	-ms-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	transition: all 0.4s ease;
+}
+
+
+.slide-container
+{
+	position: relative;
+	height: 50px;
+	-webkit-transition: all 0.7s ease;
+	-moz-transition: all 0.7s ease;
+	-ms-transition: all 0.7s ease;
+	-o-transition: all 0.7s ease;
+	transition: all 0.7s ease;
+}
+
+.test-slide
+{
+	border: solid 1px #BBB; 
+	float: left;
+	width: 100px;
+}
+
+.post-title
+{
+	font-family: Average;
+}
+
+.post-paragraph
+{
+	font: 18px Times New Roman, Times; 
+	line-height: 1.46;
+}
+
+.parent
+{
+	padding: 1em 0em;
+}
+
+.parent-title
+{
+	font-family: Raleway;
+/*	font-size: 32px;*/
+}
