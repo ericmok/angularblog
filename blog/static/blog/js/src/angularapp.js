@@ -218,13 +218,6 @@ app.directive("sentence", ["$timeout", "$parse", "Api", function($timeout, $pars
 	}
 }]);
 
-app.directive("bPostParent", function() {
-	return { 
-		controller: function($scope, Api) {
-
-		}
-	}
-})
 
 app.directive("postParent", function($compile, Api) {
 	 var title = angular.element("<span class='parent-title'>{{model.parent.id}}</span>");
