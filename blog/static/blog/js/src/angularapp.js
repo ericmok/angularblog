@@ -39,6 +39,7 @@ app.factory("ModelCache", function() {
 			}
 		},
 		getURL: function(url) {
+			console.log("get urlcache:", urlCache);
 			for (var i = 0; i < urlCache.length; i++) {
 				if (urlCache[i].url == url) {
 					return urlCache[i].value;
@@ -53,6 +54,7 @@ app.factory("ModelCache", function() {
 app.factory('ModelCacheAjax', ["$http", "$q", "ModelCache", function($http, $q, ModelCache) {
 	return {
 		getURL: function(url) {
+			console.log("getURL:", url);
 			var cache = ModelCache.getURL(url);
 			if (cache == null) {
 				return $http.get(url).then(function(json) {
@@ -76,6 +78,7 @@ app.factory('Api', ["$http", "$q", "ModelCacheAjax", function($http, $q, ModelCa
 		main: null,
 		sidebar: {},
 		getPost: function(id) {
+			console.log("getPost id:", id);
 			return ModelCacheAjax.getURL("/blog/api/posts/" + id);
 		},
 		getSentencePosts: function(id) {
@@ -87,13 +90,19 @@ app.factory('Api', ["$http", "$q", "ModelCacheAjax", function($http, $q, ModelCa
 		getParentOfPost: function(model) {
 			console.log("get parent of post:");
 			console.log(model);
+
 			if (model.content_type == "post") {
+
 				console.log("get parent of post is post test pasts");
+
 				if (model.parent_content_type == "blog" || 
 					model.parent_content_type == "post" ||
 					model.parent_content_type == "sentence") {
-					console.log("get parent of post valid parent_ct");
-					return ModelCacheAjax.getURL("/blog/api/" + model.parent_content_type + "s/" + model.id);
+					
+					var url = "/blog/api/" + model.parent_content_type + "s/" + model.parent_id;
+					console.log("fetching url>", url);
+
+					return ModelCacheAjax.getURL(url);
 				}
 			}
 			else {
@@ -127,12 +136,34 @@ app.factory('SentenceSelection', function(Api) {
 app.controller("AppController", ["$rootScope", "$scope", "$http", "$location", "Api", function($rootScope, $scope, $http, $location, Api) {
 	$scope.model = {
 		post: {},
-		sidebar: {}
+		sidePanel: {} // Represents the right panel (in the future, multiple panels)
 	};
-		
-	$scope.updateSidebar = function(value) {
-		$scope.model.sidebar = value;
+
+	$scope.updateSidePanelWithGivenNewSentence = function(sentence) {
+		if (sentence.number_replies > 0) {
+			Api.getSentenceComments(sentence.id).then(function(json) {
+				$scope.model.sidePanel = json;
+			});
+		}
+		else {
+			$scope.model.sidePanel = {
+			};
+		}
 	}
+
+	$scope.$on("viewSentence", function(ev, obj) {
+		console.log("Triggering system worked!");
+		console.log(obj);
+		if (obj.sidebar == 0) {
+			$scope.updateSidePanelWithGivenNewSentence(obj.sentence);
+		}
+		
+		// untrigger selected sentences
+		$scope.$broadcast("SENTENCE_SELECTED", {
+			sentence: obj.sentence, // pass in colors?
+			sidebar: obj.sidebar
+		});
+	});
 
 	$scope.$watch(function() {
 			return $location.hash();
@@ -149,7 +180,7 @@ app.controller("AppController", ["$rootScope", "$scope", "$http", "$location", "
 			
 			});
 			Api.getSentenceComments($location.hash()).then(function(json) {
-				$scope.model.sidebar = json;
+				sidePanel = json;
 			});
 		}
 	);
@@ -167,105 +198,172 @@ app.directive("mainPost", function() {
 	};
 });
 
+
+app.directive("postParent", function($compile, Api) {
+	var blogTemplate = angular.element("<div><h4>{{parent_model.text}}</h4>{{parent_model}}</div>");
+
+	return {
+		restrict: "EA",
+		scope: {
+			model: "="
+		},
+		template: "<div><div class='alert alert-success' ng-bind='parent_model.text'></div></div>",
+		replace: true,
+		controller: function($scope) {
+
+			$scope.updateParentModel = function() {
+				return Api.getParentOfPost($scope.model).then(function(json) {
+					$scope.parent_model = json;
+				});
+			};
+
+			// $scope.$on('COMMENTS_CHANGING', function(ev, data) {
+			// 	console.log("update");
+			// 	$scope.updateParentModel();
+			// });
+
+			$scope.updateParentModel();
+		},
+		link: function(scope, element, attrs) {
+			scope.$watch('model', function(newVal) {
+				console.log("model changed");
+				scope.updateParentModel().then(function(json) {
+					Api.getParentOfPost(scope.model).then(function(json) {
+						scope.parent_model = json;
+						//element.html( Math.random() ); //$compile(blogTemplate)(scope)
+						console.log("parent_model:", scope.parent_model.text);
+					});
+				});
+
+			});
+		}
+	};
+});
+
+app.directive("commentsPanel", function($compile, Api) {
+	var rootElement = angular.element("<div class='comment-panel panel panel-primary' ng-repeat='c in comments.results'></div>");
+	//var postParentElement = angular.element("<post-parent model='c'></post-parent>");
+	var titleElement = angular.element("<div class='panel-heading'><h4 class='panel-title comment-title' ng-bind='c.title'></h4></div>");
+
+	var bodyElement = angular.element("<div class='panel-body'></div>");
+	var paragraphElements = angular.element("<p class='comment-paragraph' ng-repeat='p in c.content.paragraphs'></p>");
+	var sentenceElements = angular.element("<span sentence='s' class='comment-sentence' sidebar='{{getSidebarPosition()}}' ng-repeat='s in p.sentences'></span>");
+
+	return {
+		restrict: "EA",
+		template: "<div></div>",
+		replace: true,
+		scope: {
+			comments: "=",
+			sidebar: "@"
+		},
+		controller: function($scope) {
+			$scope.comments = {};
+
+			$scope.getSidebarPosition = function() {
+				return parseInt($scope.sidebar);
+			}
+
+			// $scope.$watch('comments', function(newVal){
+			// 	$scope.$broadcast('COMMENTS_CHANGING', newVal);
+			// });
+		},
+		link: function(scope, element, attrs) {
+			console.log("Comments panel:", scope.comments);
+
+			paragraphElements.append(sentenceElements);
+
+			bodyElement.append(paragraphElements);
+
+			//rootElement.append(postParentElement);
+			rootElement.append(titleElement);
+			rootElement.append(bodyElement);
+
+			element.html( $compile(rootElement)(scope) );
+
+			// scope.$watch('comments', function(newVal){
+			// 	console.log("Comments changed");
+			// 	//element.html( $compile(rootElement.contents())(scope) );
+			// });
+		}
+	};
+});
+
 app.directive("sentence", ["$timeout", "$parse", "Api", function($timeout, $parse, Api) {
 
 	return {
 		restrict: "A",
-		template: "<span ng-bind='sentence.text'></span>",
+		template: "<span ng-class='{\"sentence-selected\":isSelected}'>{{sentence.text}}</span>",
 		replace: true,
 		scope: {
 			sentence: "=",
-			sidebar: "="
+			sidebar: "@"
 		},
+		controller: function($scope) {
+			$scope.isSelected = false;
+			$scope.mouseOvered = false;
 
+			// Trigger comments panel or other things to react
+			$scope.emitViewSentence = function(obj) {
+				$scope.$emit("viewSentence", obj);
+				$scope.isSelected = true;
+			}
+
+			$scope.$on("SENTENCE_SELECTED", function(ev, obj) {
+				if (obj.sidebar != $scope.sidebar) {
+					return;
+				}
+				if (obj.sentence.id != $scope.sentence.id) {
+					console.log("unselected");
+					$scope.isSelected = false;
+					$scope.$digest();
+				}
+			});
+		},
 		link: function(scope, element, attrs) {
 
 			var self = this;
 
 			scope.timer = null;
 
-			console.log("Link:", scope.sentence);
-			console.log("Link Sidebar:", scope.sidebar);
+			//console.log("Link:", scope.sentence);
+			//console.log("Link Sidebar:", scope.sidebar);
+
+			if (scope.sentence.number_replies > 0) {
+				element.css({
+					//fontWeight: "bold"
+				});
+			}
 
 			element.on("mouseover", function(ev) {
 				scope.timer = $timeout(function() {
-					console.log("TIME!");
-					console.log(scope);	
 					
-					Api.getSentencePosts(scope.sentence.id).then(function(json) {
-						scope.sidebar = json;
+					scope.emitViewSentence({
+						sentence: scope.sentence,
+						sidebar: scope.sidebar
 					});
 
 					scope.timer = null;
-					scope.$digest();
 					// digested automatically by timeout
 				}, 400);
 				scope.$digest();
 
-				element.css({
-					backgroundColor: "#F8E456"
-				});
+				scope.mouseOvered = true;
+				element.addClass('sentence-highlight');
+
 			}).on("mouseout", function(ev) {
 				$timeout.cancel(scope.timer);
 				scope.timer = null;
 				scope.$digest();
 
-				element.css({
-					backgroundColor: "#FFF"
-				});
+				scope.mouseOvered = false;
+				element.removeClass('sentence-highlight');
 			});
 		}
 	}
 }]);
 
 
-app.directive("postParent", function($compile, Api) {
-	 var title = angular.element("<span class='parent-title'>{{model.parent.id}}</span>");
-
-	return {
-		restrict: "EA",
-		scope: {
-			post: "=post"
-		},
-		template: "<span class='parent'></span>",
-		replace: true,
-		controller: function($scope) {
-			$scope.model = {}; // Child scope so we don't overwrite parent
-			$scope.model.parent = {title:"controller set"};
-
-			$scope.loadParent = function(model) {
-				console.log("Load parent");
-				Api.getParentOfPost(model).then(function(json) {
-					console.log("parent result",  json);
-					$scope.model.parent = json;
-					console.log("parent text[", $scope.model.parent.id + "]");
-				});
-			}
-		},
-		link: function(scope, element, attrs) {
-
-			console.log("postParent link");
-
-			var self = this;
-
-			element.html( $compile(title)(scope) );			
-		
-			//scope.$watch('post', function(newVal) {
-			// 	console.log("New val:", newVal);
-			// 	console.log("New val id:", newVal.id);
-			// 	if (newVal !== undefined) {
-			// 		scope.loadParent(newVal);
-
-			// 		console.log("load parent return: [", scope.model.parent.id)
-			// 		element.html( $compile(temp)(scope) );
-			// 		// element.html( "CHANGED" );
-			// 	}
-			// });
-
-
-		}
-	};
-});
 
 app.controller("sidebar", ["$scope", "$http", "Api", "$location", function($scope, $http, Api, $location) {
 	$scope.comments = ['a','b'];

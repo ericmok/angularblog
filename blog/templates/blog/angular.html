@@ -17,9 +17,9 @@
 		<script src="{{ STATIC_URL }}blog/libs/jasmine.js"></script>
 		<script src="{{ STATIC_URL }}blog/libs/jasmine-html.js"></script>
 
-		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" />
+<!-- 		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" />
 	    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.4.0/ui-bootstrap-tpls.min.js"></script>
-	
+	 -->
 		<link href="{{ STATIC_URL }}blog/css/angularapp.css" rel="stylesheet" />
 
 	    <script src="{{ STATIC_URL }}blog/js/src/angularapp.js"></script>
@@ -43,37 +43,23 @@
 	{% verbatim %}
 		<div class="container" ng-app="app">
 			<div class="col-md-12" ng-controller="AppController">
-				<div class="col-md-6">
-					<section style="border: solid 1px #0088cc; width: 300px; height: 30px;">
-						<a href="{{model.parent.href}}">
-							<!-- <post-parent post="model.post"></post-parent> -->
-						</a>
+				<div class="col-md-12">
+					sup
+				</div>
+				<div class="col-md-6 sidebar0">
+					<section class="well well-sm">
+						<!-- <post-parent post="model.post"></post-parent> -->
+						{{model.post.parent_content_type}}
 					</section>
 					<div main-post post="model.post">
 						<h2 class="post-title">{{model.post.title}}</h2>
 						<p ng-repeat="p in model.post.content.paragraphs" class="post-paragraph">
-							<span sentence="s" sidebar="model.sidebar" class="sentence" data-depth="0" ng-repeat="s in p.sentences"></span>
+							<span sentence="s" sidebar="0" class="sentence" data-depth="0" ng-repeat="s in p.sentences"></span>
 						</p>
 					</div> 
 				</div>
 				<div class="col-md-6">
-					<div>
-						LENGTH: [{{model.sidebar.results.length}}]<br/>
-						<div ng-repeat='c in model.sidebar.results'>
-							<article>
-								<section>
-									Post: {{c.id}},{{c.title}} / Parent: {{c.parent_content_type}},{{c.parent_id}}<br/>
-									<post-parent post="c"></post-parent>
-								</section>
-								<h3>{{c.title}}</h3>
-								<p ng-repeat="p in c.content.paragraphs">
-									<span ng-repeat="s in p.sentences">
-										{{s.text}}
-									</span>
-								</p>
-							</article>
-						</div>
-					</div>
+					<comments-panel sidebar="1" comments="model.sidePanel"></comments-panel>
 				</div>
 			</div>
 		</div>
