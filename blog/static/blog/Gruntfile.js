@@ -3,7 +3,11 @@ module.exports = function(grunt) {
 		options: {
 			banner: '/* My app <%= grunt.template.today() %> */'
 		},
-		clean: ['dist/'],
+		clean: {
+			app: ['dist/app/'],
+			stylesheets: ['dist/css/'],
+			tpl: ['dist/tpl/']
+		},
 		jshint: {
 			all: ['src/app/*.js']
 		},
@@ -12,8 +16,16 @@ module.exports = function(grunt) {
 				separator: '\n\n'
 			},
 			dist: {
-				src: ['src/app/*.js'],
-				dest: 'dist/app.js'
+				src: ['src/common/services/*.js', 'src/common/directives/*.js', 'src/app/app.js'],
+				dest: 'dist/js/app.js'
+			}
+		},
+		copy: {
+			tpl: {
+				expand: true,
+				src: 'src/app/*.tpl.html',
+				dest: 'dist/tpl/',
+				flatten: true
 			}
 		},
 		less: {
@@ -21,25 +33,31 @@ module.exports = function(grunt) {
 				files: [{
 					expand: true,
 					src: ['src/less/*.less'],
-					dest: 'dist/',
-					ext: '.less',
+					dest: 'dist/css/',
+					ext: '.css',
 					flatten: true
 				}]
 			}
 		},
 		watch: {
 			app: {
-				files: ['src/app/*.js'],
-				tasks: ['clean', 'concat']
+				files: ['src/common/services/*.js', 'src/common/directives/*.js', 'src/app/*.js'],
+				tasks: ['clean:app', 'concat']
+			},
+			tpl: {
+				files: ['src/app/*.tpl.html'],
+				tasks: ['clean:tpl', 'copy:tpl']
 			},
 			stylesheets: {
 				files: ['src/less/*.less'],
-				tasks: ['less']
+				tasks: ['clean:stylesheets', 'less']
 			}
 		}
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-less');
+
+	grunt.loadNpmTasks('grunt-contrib-copy');
 
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-concat');

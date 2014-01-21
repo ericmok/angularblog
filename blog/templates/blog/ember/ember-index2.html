@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog</title>
+    <script>
+        window.server = {
+            auth: {
+            isSignedIn: {% if request.user.is_authenticated %}true{% else %}false{% endif %},
+            user: "{{ request.user }}",
+            links: { 
+                    signIn: "{% url 'blog.views.register.sign_out' %}",
+                    signOut: "{% url 'blog.views.register.sign_in' %}"
+                }
+            }
+        };
+    </script>
+    
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link href='http://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,500' rel='stylesheet' type='text/css'>
+
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,400,300,600,700' rel='stylesheet' type='text/css'>
+
+    <link href='http://fonts.googleapis.com/css?family=Average+Sans' rel='stylesheet' type='text/css'>
+
+    <link href="{{ STATIC_URL }}blog/css/ember-index.css" type="text/css" rel="stylesheet" />
+
+    <script src="{{ STATIC_URL }}blog/libs/d3.v3.js"></script>
+</head>
+<body>
+    {% verbatim %}
+
+    <script type="text/x-handlebars" data-template-name="index">
+        <div class="container">
+            <header class="row" style="padding: 0.5em 0em 0.5em 0em;">
+                Signed in as {{server.auth.user}}
+            </header>
+            <div class="row" style="position: relative;">
+                <!-- TODO: Add a front page template for root -->
+                {{outlet}}
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="posts">
+        <!-- Show 2 lists side by side -->
+        <div style="border-radius: 6px; background-color: #DBF2FF; padding: 1.4em;">
+            <h3 style="font-family: Raleway; line-height: 1; margin: 0em 0em 0.3em 0em; padding: 0px">
+                {{parent.title}}
+            </h3>
+            <div>
+                {{parent-component model=model.main.parent}}
+            </div>
+            {{model.main.parent_content_type}} / {{model.main.parent_id}} 
+        </div>
+        <div style="clear: both"></div>
+    
+        <div class="col-xs-6">
+            <div class="row">
+                {{view App.PostView post=model.main}}
+            </div>
+            
+            <div class="row post-comments">
+                <div>
+                    {{comments.results.length}} Comments
+                </div>       
+                {{view App.PostListView  model=model.comments.results depth=list.depth}}    
+            </div>
+
+            <div style="clear: both"></div>
+        </div>
+
+        <!--
+        <div style="position: relative; left: 55%; border: solid 1px #EEE"> 
+        -->
+
+
+        <div class="col-xs-5 sidebar">
+            <div>
+                {{sidebar.results.length}} Comments
+            </div>
+            {{#each sidebarComment in sidebar.results}}
+                {{view App.CommentView model=sidebarComment}}
+            {{/each}}
+        </div>
+        <div style="clear: both"></div>
+        
+    </script>
+
+
+    <script type="text/x-handlebars" data-template-name="post-list-view">
+        <!-- Loop through posts -->
+        <div>
+            {{#each post in view.model}}
+                {{view App.CommentView model=post depth=view.depth}}
+            {{/each}}
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="post-view">
+        <div>
+            <h1 class="post-title">{{view.post.title}}</h1>
+            <div class="post-author">By {{view.post.author}} at {{view.post.created}}</div>
+            <div class="post-body">
+                {{#each paragraph in view.post.content.paragraphs}}
+                    <p>
+                    {{#each sentence in paragraph.sentences}}
+                        {{sentence-segment sentence=sentence depth=view.depth viewsentence="viewsentence"}}
+                    {{/each}}
+                    </p>
+                {{/each}}
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="comment-view">
+        <!-- A comment should be styled differently than a main post -->
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {{#link-to 'posts' view.model.id}}
+                    <h4 class="comment-title">{{view.model.title}}</h4>
+                {{/link-to}}
+            </div>
+            <div class="panel-body">
+                <div class="comment-author">By {{view.model.author}} at {{view.model.created}}</div>
+                <div class="comment-body">
+                    {{#each paragraph in view.model.content.paragraphs}}
+                        <p>
+                        {{#each sentence in paragraph.sentences}}
+                            {{sentence-segment sentence=sentence depth=view.depth viewsentence="viewsentence"}}
+                        {{/each}}
+                        </p>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="components/parent-component">
+        <div>
+            
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="components/sentence-segment">
+        {{ sentence.text }}
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="components/post-d3">
+        
+    </script>
+
+    {% endverbatim %}
+    <script src="{{ STATIC_URL }}blog/libs/jquery-1.9.1.js"></script>
+    <script src="{{ STATIC_URL }}blog/libs/handlebars-1.0.0.js"></script>
+    <script src="{{ STATIC_URL }}blog/libs/ember-1.2.0.js"></script>
+    <script src="{{ STATIC_URL }}blog/libs/ember-data.js"></script>
+
+    <script src="{{ STATIC_URL }}blog/libs/moment.js"></script>
+    
+    <script src="{{ STATIC_URL }}blog/js/src/ember-index2.js"></script>
+</body>
+</html>
