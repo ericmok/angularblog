@@ -1,5 +1,5 @@
 // Karma configuration
-// Generated on Tue Jan 21 2014 14:23:42 GMT-0500 (EST)
+// Generated on Thu Oct 17 2013 22:16:39 GMT-0400 (Eastern Daylight Time)
 
 module.exports = function(config) {
   config.set({
@@ -14,10 +14,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'angular.js',
-      'angular-mocks.js',
-      '../dist/js/*.js',
-      'common/services/*.js'
+      //'test.js'
+      'http://localhost:8000/static/blog/libs/jquery-1.9.1.js',
+      'http://localhost:8000/static/blog/libs/json2.js',
+      'http://localhost:8000/static/blog/libs/moment.js',
+      'blogtests.js'
     ],
 
 
@@ -53,11 +54,11 @@ module.exports = function(config) {
     // - Chrome
     // - ChromeCanary
     // - Firefox
-    // - Opera (has to be installed with `npm install karma-opera-launcher`)
-    // - Safari (only Mac; has to be installed with `npm install karma-safari-launcher`)
+    // - Opera
+    // - Safari (only Mac)
     // - PhantomJS
-    // - IE (only Windows; has to be installed with `npm install karma-ie-launcher`)
-    browsers: ['Chrome'],
+    // - IE (only Windows)
+    browsers: ['Firefox'],
 
 
     // If browser does not capture in given timeout [ms], kill it
