@@ -1,4 +1,4 @@
-var app = angular.module("app", ['RestModule', 'ModelRepresentations']);
+var app = angular.module("app", ['RestModule', 'ModelRepresentations', 'RestrictedPanel', 'Security']);
 
 app.config(function($locationProvider) {
 	$locationProvider.html5Mode(true).hashPrefix("#");
@@ -69,7 +69,7 @@ app.controller("AppController", ["$rootScope", "$scope", "$http", "$location", "
 	);
 }]);
 
-app.directive("mainPost", function() { 
+app.directive("mainPost", function(auth) { 
 	return {
 		restrict: "EA",
 		scope: {
@@ -124,7 +124,7 @@ app.directive("postParent", function($compile, Api) {
 	};
 });
 
-app.directive("commentsPanel", function($compile, Api) {
+app.directive("commentsPanel", function($compile, Api, auth) {
 	var rootElement = angular.element("<div class='comment-panel panel panel-primary' ng-repeat='c in comments.results'></div>");
 	//var postParentElement = angular.element("<post-parent model='c'></post-parent>");
 	var titleElement = angular.element("<div class='panel-heading'><h4 class='panel-title comment-title' ng-bind='c.title'></h4></div>");

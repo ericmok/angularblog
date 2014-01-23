@@ -10,15 +10,20 @@
 					</span>
 				</p>
 		    </div>
-		    <div>
-		    	You are user {{user}}
-		    </div>
+		    
+		    <restricted-panel>
+		    	Restricted content
+		    </restricted-panel>
+		    
 		    <form style="padding: 1em; margin: 1em;">
 		    	<div>
+		    		<em>You have to login to comment on this post</em>
+		    	</div>
+		    	<div style="padding: 1em 0em;">
 		    		<input type="text" placeholder="title"/>
 		    	</div>
-		    	<div>
-		    		<textarea placeholder="Enter your comment..."></textarea>
+		    	<div style="padding: 1em 0em;">
+		    		<textarea cols="60" rows="24" placeholder="Enter your comment..."></textarea>
 		    	</div>
 		    	<input type="submit" value="Post" />
 		    </form>

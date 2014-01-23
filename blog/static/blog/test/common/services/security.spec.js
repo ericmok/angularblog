@@ -18,31 +18,39 @@ function testAjax(ajaxCallback, testCallback, delay) {
 		return (testObj.callback.callCount > 0);
 	}, "ajax to finish", delay);
 	runs(function() {
-		console.log("FIN");
 		testCallback(response, responseXHR);
 	});
 }
 
-ddescribe("Security", function() {
+describe("Security", function() {
 	it("can log in", function() {
 		module('Security');
 
-		inject(function($window, $rootScope, $httpBackend, $http, auth, urls) {
-			$httpBackend.whenPOST(/.*/).respond({token: "asdf"});
+		inject(function ($window, $rootScope, $httpBackend, $http, auth, urls) {
 
-			testAjax(function(cb) {
-				$http({
-					url: urls.token,
-					method: "POST"
-				}).then(function() {
+			var response = null;
+
+			$httpBackend.whenPOST(urls.token).respond({token: 'adsf'});
+			$httpBackend.whenGET(urls.user + "/.*").respond({id: 1});
+
+			testAjax(function (cb) {	
+								
+				auth.login('alice','testtest').then(function (data) {
+					console.log("Data:");
+					console.log(data);
 					cb();
-				}, function() {
+				}, function () {
+					console.log("Fail:");
+					console.log(data);
 					cb();
 				});
-				$rootScope.$new().$apply();
-			}, function() {
-				expect(false).toBe(true);
+				
+				$httpBackend.flush();	
+			}, function () {
+
+				expect(false).toBe(false);
 			});
+
 		});
 	});
 });
