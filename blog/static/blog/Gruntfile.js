@@ -6,7 +6,8 @@ module.exports = function(grunt) {
 		clean: {
 			app: ['dist/app/'],
 			stylesheets: ['dist/css/'],
-			tpl: ['dist/tpl/']
+			tpl: ['dist/tpl/'],
+			all: ['dist/']
 		},
 		jshint: {
 			all: ['src/app/*.js']
@@ -64,5 +65,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	
-	grunt.registerTask('default', ['watch']);
+	grunt.registerTask('default', ['clean:all', 'concat:dist', 'copy:tpl', 'less:compile', 'watch']);
 }
