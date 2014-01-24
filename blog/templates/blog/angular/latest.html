@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>	
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-animate.js"></script>
+
+		<link href='http://fonts.googleapis.com/css?family=Raleway:400,300' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Average' rel='stylesheet' type='text/css'>
+
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" />
+
+<!-- 		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" />
+	    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.4.0/ui-bootstrap-tpls.min.js"></script>
+	 -->
+
+		<link href="{{ STATIC_URL }}blog/dist/css/index.css" rel="stylesheet" /> 
+
+	    <script src="{{ STATIC_URL }}blog/dist/js/app.js"></script>
+
+<!-- 	    <script src="{{ STATIC_URL }}blog/dist/js/carousel.js"></script> -->
+		<script>
+        	window.server = {
+         	   auth: {
+	            isSignedIn: {% if request.user.is_authenticated %}true{% else %}	false{% endif %},
+            	user: "{{ request.user }}",
+            	links: { 
+                	    signIn: "{% url 'blog.views.register.sign_out' %}",
+	                    signOut: "{% url 'blog.views.register.sign_in' %}"
+                	}
+            	}
+        	};
+    	</script>
+
+	</head>
+	<body>
+	{% verbatim %}
+		<div class="container" ng-app="app">
+			<nav class="navbar navbar-default" role="navigation">
+				<div class="navbar-brand">eri5 prototype</div>
+			</nav>
+
+			<div>
+				Make a blog
+			</div>
+			
+			<div class="col-md-12" style="height: 4em">
+			</div>
+		</div>
+	{% endverbatim %}
+	</body>
+</html>
