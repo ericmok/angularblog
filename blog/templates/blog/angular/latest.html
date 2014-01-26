@@ -4,6 +4,7 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-animate.js"></script>
+		<script src="{{ STATIC_URL }}blog/bower_components/angular-route/angular-route.js"></script>
 
 		<link href='http://fonts.googleapis.com/css?family=Raleway:400,300' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Average' rel='stylesheet' type='text/css'>
@@ -14,9 +15,10 @@
 	    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.4.0/ui-bootstrap-tpls.min.js"></script>
 	 -->
 
-		<link href="{{ STATIC_URL }}blog/dist/css/index.css" rel="stylesheet" /> 
+		<link href="{{ STATIC_URL }}blog/dist/css/latest.css" rel="stylesheet" /> 
 
-	    <script src="{{ STATIC_URL }}blog/dist/js/app.js"></script>
+		<script src="{{ STATIC_URL }}blog/dist/js/common/common.js"></script>
+	    <script src="{{ STATIC_URL }}blog/dist/js/app/app.js"></script>
 
 <!-- 	    <script src="{{ STATIC_URL }}blog/dist/js/carousel.js"></script> -->
 		<script>
@@ -40,10 +42,54 @@
 				<div class="navbar-brand">eri5 prototype</div>
 			</nav>
 
-			<div>
-				Make a blog
-			</div>
+			<ng-view></ng-view>
 			
+			<div class="col-md-6">
+				<section>
+					<h3>Create a blog</h3>
+					<form>
+						<div class="form-group">
+							<label for="blogTitle">Title:</label><input class="form-control" type="text" name="blogTitle" ng-model="blog.title" />
+						</div>
+						<div class="form-group">
+							<label for="blogDescription">Description:</label>
+							<textarea name="blogDescription" class="form-control" placeholder="Enter description here..." cols="60" rows="12" ng-model="blog.description"></textarea>
+						</div>
+						<button type="submit" class="btn btn-primary">Create Blog</button>
+					</form>
+				</section>
+			</div>
+	
+
+			<div class="col-md-6">
+				<aside>
+					<h3>Tips on creating a blog</h3>
+					<section>
+						<h4>Title</h4>
+						<p>
+							The title should only contain letters, numbers, and spaces.
+						</p>
+					</section>
+					<section>
+						<h4>Description</h4>
+						<p>
+							This will appear at the top. 
+							Users visiting this blog should know what posts to expect. 
+						</p>
+						<p>
+							Examples include "Constitution of the United States." 
+						</p>
+					</section>
+					<section>
+						<h4>Restricted</h4>
+						<p>
+							This is currently pending a spec. 
+							Moderation is currently not available...
+						</p>
+					</section>
+				</aside>
+			</div>
+
 			<div class="col-md-12" style="height: 4em">
 			</div>
 		</div>

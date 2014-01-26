@@ -43,7 +43,8 @@ urlpatterns = patterns('',
     url(r'^/api-tokens/?', 'blog.rest.sessions.obtain_auth_token'),
 
     #url(r'^/?$', blog.views.index.page, name='index'),
-    url(r'^/?$', blog.views.ember.index, name='index'),
+    url(r'^/?$', blog.views.index.index, name='index'),
+    url(r'^/?latest/?$', blog.views.index.latest, name='latest'),
 
     url(r'^/register/?$', blog.views.register.index, name = 'register'),
     url(r'^/sign-in/?$', blog.views.register.sign_in, name = 'sign-in'),

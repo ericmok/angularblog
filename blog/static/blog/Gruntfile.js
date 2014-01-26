@@ -4,7 +4,8 @@ module.exports = function(grunt) {
 			banner: '/* My app <%= grunt.template.today() %> */'
 		},
 		clean: {
-			app: ['dist/app/'],
+			app: ['dist/js/app'],
+			common: ['dist/js/common'],
 			stylesheets: ['dist/css/'],
 			tpl: ['dist/tpl/'],
 			all: ['dist/']
@@ -16,9 +17,13 @@ module.exports = function(grunt) {
 			options: {
 				separator: '\n\n'
 			},
-			dist: {
-				src: ['src/common/services/*.js', 'src/common/directives/*.js', 'src/app/app.js'],
-				dest: 'dist/js/app.js'
+			common: {
+				src: ['src/common/services/*.js', 'src/common/directives/*.js'],
+				dest: 'dist/js/common/common.js'
+			},
+			app: {
+				src: ['src/app/app.js'],
+				dest: 'dist/js/app/app.js'
 			}
 		},
 		copy: {
@@ -41,8 +46,12 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
+			common: {
+				files: ['src/common/services/*.js', 'src/common/directives/*.js'],
+				tasks: ['clean:common', 'concat:common']
+			},
 			app: {
-				files: ['src/common/services/*.js', 'src/common/directives/*.js', 'src/app/*.js'],
+				files: ['src/app/*.js'],
 				tasks: ['clean:app', 'concat']
 			},
 			tpl: {
@@ -65,5 +74,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	
-	grunt.registerTask('default', ['clean:all', 'concat:dist', 'copy:tpl', 'less:compile', 'watch']);
+	grunt.registerTask('default', ['clean:all', 'concat', 'copy:tpl', 'less', 'watch']);
 }

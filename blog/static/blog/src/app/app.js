@@ -1,7 +1,15 @@
-var app = angular.module("app", ['RestModule', 'ModelRepresentations', 'RestrictedPanel', 'Security']);
+var app = angular.module("app", ['ngRoute', 'RestModule', 'ModelRepresentations', 'RestrictedPanel', 'Security']);
 
 app.config(function($locationProvider) {
 	$locationProvider.html5Mode(true).hashPrefix("#");
+});
+
+
+app.config(function($routeProvider) {
+	$routeProvider
+		.when('/latest#test', {
+			templateUrl: 'test.html'
+		});
 });
 
 

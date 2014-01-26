@@ -15,10 +15,9 @@
 	 -->
 
 		<link href="{{ STATIC_URL }}blog/dist/css/index.css" rel="stylesheet" /> 
+	    
+	    <script src="{{ STATIC_URL }}blog/dist/js/common/common.js"></script>
 
-	    <script src="{{ STATIC_URL }}blog/dist/js/app.js"></script>
-
-<!-- 	    <script src="{{ STATIC_URL }}blog/dist/js/carousel.js"></script> -->
 		<script>
         	window.server = {
          	   auth: {
@@ -38,11 +37,19 @@
 		<div class="container" ng-app="app">
 			<nav class="navbar navbar-default" role="navigation">
 				<div class="navbar-brand">eri5 prototype</div>
+				<form class="navbar-form navbar-left">
+					<div class="form-group">
+						<input type="text" class="form-control" placeholder="Login" />
+					</div>
+					<button type="submit" class="btn btn-primary">Login</button>
+				</form>
 			</nav>
 			<div class="jumbotron">
 				<div class="col-lg-7">
-					<h1>Long-Form Posts</h1>
-					<h2>Don't have to be just a wall of text!</h2>
+					<hgroup>
+						<h1>Long-Form Posts</h1>
+						<h2>Don't have to be just a wall of text!</h2>
+					</hgroup>
 					<p>
 						This is a return to rigorous internet commentary
 					</p>
@@ -57,12 +64,14 @@
 			<div class="row">
 				<div class="col-md-4 tableture">
 					<div class="inner">
-						<h3>
-							Be Rigorous
-						</h3>
-						<h5>
-							Mark logical fallacies on sentences
-						</h5>
+						<hgroup>
+							<h3>
+								Be Rigorous
+							</h3>
+							<h5>
+								Mark logical fallacies on sentences
+							</h5>
+						</hgroup>
 						<img src="/static/blog/assets/logical_fallacy1.svg" class="img-responsive col-md-12 col-sm-6" />
 						<p class="col-md-12 col-sm-6 col-xs-12">
 							<b>This feature is pending implementation.</b><br/>
@@ -76,12 +85,14 @@
 				</div>
 				<div class="col-md-4 tableture">
 					<div class="inner">
-						<h3>
-							Attack No Strawmen
-						</h3>
-						<h5>
-							Comment on individual sentences of a post
-						</h5>
+						<hgroup>
+							<h3>
+								Attack No Strawmen
+							</h3>
+							<h5>
+								Comment on individual sentences of a post
+							</h5>
+						</hgroup>
 						<img src="/static/blog/assets/piecewise_commenting1.svg" class="img-responsive col-md-12 col-sm-6" />
 						<p class="col-md-12 col-sm-6 col-xs-12">
 							<b>This is currently under development.</b><br/>
@@ -95,12 +106,14 @@
 				</div>
 				<div class="col-md-4 tableture">
 					<div class="inner">
-						<h3>
-							Re-Revise Mistakes
-						</h3>
-						<h5>
-							Track replies to your post even if you edit
-						</h5>
+						<hgroup>
+							<h3>
+								Re-Revise Mistakes
+							</h3>
+							<h5>
+								Track replies to your post even if you edit
+							</h5>
+						</hgroup>
 						<img src="/static/blog/assets/document_changes1.svg" class="img-responsive col-md-12 col-sm-6" />
 						<p class="col-md-12 col-sm-6 col-xs-12">
 							No more "EDIT" statements. 
@@ -116,17 +129,14 @@
 			<div class="jumbotron">
 				<h1>Why?</h1>
 				<h4>Because 140 characters are not enough</h4>
-				<h3>Because the internet makes <strong><a href="http://en.wikipedia.org/wiki/Direct_democracy">direct democracy</a></strong> plausible and possibly productive</h3>
+				<h3>Because the internet makes <strong><a href="http://en.wikipedia.org/wiki/Direct_democracy">direct democracy</a></strong> plausible</h3>
 
 				<p style="margin-top: 1.3em">
 					The internet lowers the barrier of entry for people who have an opinion to have a public voice. 
-					Unfortunately, rigorous discussion on the internet has proven to be very hard. 
+					Unfortunately, producing rigorous discussion on the internet has proven to be notoriously hard. 
 				</p>
 				<p>
-					The internet is notorious for how counter-productive it can be. 
-				</p>
-				<p>
-					YouTube comments have shown that meaningful commentary on the internet is actually an accomplishment.
+					It is rare to find meaningful commentary on YouTube's comments section.
 
 					<a href="http://articles.latimes.com/2013/apr/22/business/la-fi-tn-reddit-apologizes-boston-bombings-witch-hunt-20130422">Reddit's witch hunt</a> has shown
 					that productive collaboration on the internet with random strangers can fail even when people are well intentioned. 
@@ -136,9 +146,9 @@
 					<a href="http://www.reddit.com/r/IAmA/comments/z1c9z/i_am_barack_obam">When President Obama wrote on Reddit</a>, technical discussions were not pursued in favor of short-form rhetorical posts. Rhetoric decreased the signal-to-noise ratio of his posts, making them less productive in the pursuit of correctness.
 				</p>
 				<p>
-					The internet can empower collaborative criticism and debate and help people to form high-quality opinions.
-					But it is not enough to be rigorous. <a href="http://www.youtube.com/watch?v=wy-LqFDwMuM#t=3124">
-					A place of learning should be a safe place for people to make mistakes</a>
+					The internet can empower collaborative criticism and debate and help people to form high-quality opinions. 
+					But it is not enough to be rigorous. 
+					A place of learning should be a <a href="http://www.youtube.com/watch?v=wy-LqFDwMuM#t=3124">safe place for people to make mistakes</a>
 					so they can be motivated to partake in the collective pursuit of truth.
 				</p>
 				<p>
