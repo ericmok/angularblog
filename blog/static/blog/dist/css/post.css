@@ -1,0 +1,54 @@
+.slide-container {
+  position: relative;
+  height: 50px;
+  -webkit-transition: all 0.7s ease;
+  -moz-transition: all 0.7s ease;
+  -ms-transition: all 0.7s ease;
+  -o-transition: all 0.7s ease;
+  transition: all 0.7s ease;
+}
+.test-slide {
+  border: solid 1px #BBB;
+  float: left;
+  width: 100px;
+}
+.post-title {
+  font-family: Times New Roman, Times;
+}
+.post-paragraph {
+  font: 18px Times New Roman, Times;
+  line-height: 1.48;
+}
+.parent {
+  padding: 1em 0em;
+}
+.parent-title {
+  font-family: Times New Roman, Times;
+  /*	font-size: 32px;*/
+}
+.sidebar0 {
+  /*background-color: #EEE;*/
+}
+.sentence {
+  padding: 3px 1px;
+  border-radius: 2px;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+.sentence-highlight {
+  /*background-color: #F8E456;*/
+  /*background-color: #FAE7A9;*/
+  background-color: #F9EAEC;
+  border-radius: 5px;
+}
+.sentence-selected {
+  /*background-color: #30D8F0; twitter blue*/
+  /*background-color: #FAE7C9;*/
+  background-color: #FAD7A9;
+}
+.sentence-highlight.sentence-selected {
+  background-color: #FAE7B9;
+}

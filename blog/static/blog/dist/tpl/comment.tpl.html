@@ -1,0 +1,32 @@
+
+<div>
+	<!-- <post-parent model='{{comment.results[0]}}'></post-parent> -->
+	<div class='comment-sidebar' ng-repeat='c in comments.results'>
+		<div class="comment panel panel-primary">
+		    <div class='panel-heading'><h4 class='panel-title comment-title' ng-bind='c.title'></h4></div>
+		    <div class='panel-body'>
+				<p class='comment-paragraph' ng-repeat='p in c.content.paragraphs'>
+					<span sentence='s' class='comment-sentence' sidebar='{{getSidebarPosition()}}' ng-repeat='s in p.sentences'>
+					</span>
+				</p>
+		    </div>
+		    
+		    <restricted-panel>
+		    	Restricted content
+		    </restricted-panel>
+		    
+		    <form style="padding: 1em; margin: 1em;">
+		    	<div>
+		    		<em>You have to login to comment on this post</em>
+		    	</div>
+		    	<div style="padding: 1em 0em;">
+		    		<input type="text" placeholder="title"/>
+		    	</div>
+		    	<div style="padding: 1em 0em;">
+		    		<textarea cols="60" rows="24" placeholder="Enter your comment..."></textarea>
+		    	</div>
+		    	<input type="submit" value="Post" />
+		    </form>
+		</div>
+	</div>
+</div>
