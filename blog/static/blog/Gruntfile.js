@@ -4,10 +4,8 @@ module.exports = function(grunt) {
 			banner: '/* My app <%= grunt.template.today() %> */'
 		},
 		clean: {
-			app: ['dist/js/app'],
-			common: ['dist/js/common'],
+			app: ['dist/app/'],
 			stylesheets: ['dist/css/'],
-			tpl: ['dist/tpl/'],
 			all: ['dist/']
 		},
 		jshint: {
@@ -15,23 +13,26 @@ module.exports = function(grunt) {
 		},
 		concat: {
 			options: {
-				separator: '\n\n'
-			},
-			common: {
-				src: ['src/common/services/*.js', 'src/common/directives/*.js'],
-				dest: 'dist/js/common/common.js'
+				separator: '\n\n /* *** */ \n\n'
 			},
 			app: {
-				src: ['src/app/app.js'],
-				dest: 'dist/js/app/app.js'
+				src: ['src/app/main.js', 'src/common/services/*.js', 'src/common/directives/*.js'],
+				dest: 'dist/app/main.js'
+			},
+			pages: {
+				files: [{
+					src: 'src/app/latest/*.js',
+					dest: 'dist/app/latest/latest.js',
+				}]
 			}
 		},
 		copy: {
 			tpl: {
 				expand: true,
-				src: 'src/app/*.tpl.html',
-				dest: 'dist/tpl/',
-				flatten: true
+				cwd: 'src/app/',
+				src: '**/*.tpl.html',
+				dest: 'dist/app/',
+				flatten: false
 			}
 		},
 		less: {
@@ -46,17 +47,9 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
-			common: {
-				files: ['src/common/services/*.js', 'src/common/directives/*.js'],
-				tasks: ['clean:common', 'concat:common']
-			},
 			app: {
-				files: ['src/app/*.js'],
-				tasks: ['clean:app', 'concat']
-			},
-			tpl: {
-				files: ['src/app/*.tpl.html'],
-				tasks: ['clean:tpl', 'copy:tpl']
+				files: ['src/app/main.js', 'src/app/**/*'],
+				tasks: ['clean:app', 'concat', 'copy:tpl']
 			},
 			stylesheets: {
 				files: ['src/less/*.less'],
@@ -73,6 +66,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
-	
+
 	grunt.registerTask('default', ['clean:all', 'concat', 'copy:tpl', 'less', 'watch']);
 }

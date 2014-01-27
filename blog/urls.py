@@ -44,6 +44,8 @@ urlpatterns = patterns('',
 
     #url(r'^/?$', blog.views.index.page, name='index'),
     url(r'^/?$', blog.views.index.index, name='index'),
+
+    url(r'^/?layout/?$', blog.views.index.layout, name='layout'),
     url(r'^/?latest/?$', blog.views.index.latest, name='latest'),
 
     url(r'^/register/?$', blog.views.register.index, name = 'register'),

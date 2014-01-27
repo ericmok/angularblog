@@ -5,3 +5,6 @@ def index(request):
 
 def latest(request):
     return render(request, 'blog/angular/latest.html')
+
+def layout(request):
+	return render(request, 'blog/angular/layout.html')
