@@ -37,3 +37,39 @@
   display: table;
   clear: both;
 }
+.login-form .btn-login {
+  background-color: #d9534f;
+  border: solid 1px #d43f3a;
+  color: #FFF;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.login-form .btn-login:hover {
+  background-color: #d43f3a;
+  border: solid 1px #d33b36;
+  color: #FFF;
+}
+.login-form .user-info {
+  padding: 6px 12px;
+  float: left;
+  width: 50%;
+}
+.login-form .btn-logout {
+  background-color: #5cb85c;
+  border: solid 1px #4cae4c;
+  color: #FFF;
+  float: left;
+  width: 49.00625%;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+.login-form .btn-logout:hover {
+  color: #FFF;
+  background-color: #4cae4c;
+}
