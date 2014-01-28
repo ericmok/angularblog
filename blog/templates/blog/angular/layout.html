@@ -8,6 +8,10 @@
 
 		<link href="{{STATIC_URL}}blog/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+		<link href="{{STATIC_URL}}blog/dist/css/index.css" rel="stylesheet" />
+		<link href="{{STATIC_URL}}blog/dist/css/post.css" rel="stylesheet" />
+		<link href="{{STATIC_URL}}blog/dist/css/latest.css" rel="stylesheet" />
+
 		<script src="{{STATIC_URL}}blog/bower_components/underscore/underscore-min.js"></script>
 
 		<script src="{{STATIC_URL}}blog/bower_components/jquery/jquery.min.js"></script>
@@ -17,13 +21,30 @@
 		<script src="{{STATIC_URL}}blog/bower_components/angular-animate/angular-animate.js"></script>
 		<script src="{{STATIC_URL}}blog/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
 
-		<script src="{{STATIC_URL}}blog/src/app/main.js"></script>
+		<script src="{{STATIC_URL}}blog/dist/app/main.js"></script>
+		<script src="{{STATIC_URL}}blog/dist/app/latest/latest.js"></script>
 	</head>
 	<body ng-app="main">
 	{% verbatim %}
 		<div class="container">
 			<nav class="navbar navbar-default" role="navigation">
 				<div class="navbar-brand">Eric's blog prototype</div>
+				<div class="input-group">
+					<input type="text" class="form-control" />
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							<span class="caret"></span>
+							<span class="sr-only">Dropdown</span>
+						</button>
+						<ul class="dropdown-menu pull-right" role="menu">
+							<li>	
+								<a href="#">
+									Stuff
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
 			</nav>
 				
 			<div ui-view>

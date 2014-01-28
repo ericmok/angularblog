@@ -16,7 +16,7 @@ module.exports = function(grunt) {
 				separator: '\n\n /* *** */ \n\n'
 			},
 			app: {
-				src: ['src/app/main.js', 'src/common/services/*.js', 'src/common/directives/*.js'],
+				src: ['src/app/main.js', 'src/app/common/services/*.js', 'src/app/common/directives/*.js'],
 				dest: 'dist/app/main.js'
 			},
 			pages: {

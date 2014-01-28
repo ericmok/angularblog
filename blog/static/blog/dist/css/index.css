@@ -24,3 +24,16 @@
     margin-top: 1em;
   }
 }
+.login-form input[type=password] {
+  float: left;
+  width: 75%;
+}
+.login-form input[type=submit] {
+  width: 24.00625%;
+  /* 2px / 320px */
+}
+.login-form input[type=submit]:after {
+  content: ' ';
+  display: table;
+  clear: both;
+}

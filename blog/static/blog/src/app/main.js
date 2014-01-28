@@ -1,12 +1,12 @@
-angular.module("main", ['ui.router'])
+angular.module("main", ['ui.router', 'RestModule', 'Security', 'LoginForm'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
-	$urlRouterProvider.otherwise('/state1');
+	$urlRouterProvider.otherwise('/latest');
 
 	$stateProvider
-		.state('state1', {
-			url: '/state1',
-			templateUrl: '/static/blog/src/app/latest/latest.tpl.html'
+		.state('latest', {
+			url: '/latest',
+			templateUrl: '/static/blog/dist/app/latest/latest.tpl.html'
 		});
 });

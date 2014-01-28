@@ -1,5 +1,6 @@
-angular('main')
+angular.module('main')
 
-.controllers('LatestCtrl', function($scope) {
-	
+.controller('LatestPostsCtrl', function($scope, ModelCacheAjax) {
+	$scope.posts = ['a', 'b'];
 });
+

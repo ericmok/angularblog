@@ -67,9 +67,9 @@ def sign_in(request):
                 print("\03394[mLOGGING IN")
                 return content_negotiated_redirect(request, "/blog", {"status": "okay"}, 303)
         else: 
-            return content_negotiated_response(request, "blog/sign-in.html", {"error": "Authentication failed."}, 400)
+            return content_negotiated_response(request, "blog/angular/sign-in.html", {"error": "Authentication failed."}, 400)
     else: 
-        return content_negotiated_response(request, "blog/sign-in.html", {"template": {"data": [{"username": "Your username"}, {"password": "Your password"}]}}, 200)
+        return content_negotiated_response(request, "blog/angular/sign-in.html", {"template": {"data": [{"username": "Your username"}, {"password": "Your password"}]}}, 200)
 
 def sign_out(request):
     logout(request)
