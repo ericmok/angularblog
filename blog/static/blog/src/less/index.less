@@ -1,5 +1,5 @@
-@importantColor: #d9534f;
-@importantBorderColor: #d43f3a; 
+@import "variables.less";
+@import "login-form.less";
 
 .tableture
 {
@@ -36,74 +36,5 @@
 		{
 			margin-top: 1em;
 		}
-	}
-}
-
-.login-form
-{
-	input[type=password] 
-	{
-		float: left;
-		width: 75%;
-	}
-
-	input[type=submit]
-	{
-		width: 24.00625%; /* 2px / 320px */
-	}
-
-	input[type=submit]:after 
-	{
-		content: ' ';
-		display: table;
-		clear: both;
-	}
-
-	.btn-login
-	{
-		background-color: @importantColor;
-		border: solid 1px @importantBorderColor;
-		color: #FFF;
-		-webkit-transition: all 0.2s ease;
-		-moz-transition: all 0.2s ease;
-		-ms-transition: all 0.2s ease;
-		-o-transition: all 0.2s ease;
-		transition: all 0.2s ease;
-	}
-
-	.btn-login:hover
-	{
-		background-color: darken(@importantColor, 5%);
-		border: solid 1px darken(@importantBorderColor, 1%);
-		color: #FFF;
-	}
-
-	.user-info
-	{
-		padding: 6px 12px;
-		float: left;
-		width: 50%;
-	}
-
-	.btn-logout
-	{
-		background-color: #5cb85c;
-		border: solid 1px #4cae4c;
-		color: #FFF;
-
-		float: left;
-		width: 49.00625%;
-
-		-webkit-transition: all 0.3s ease;
-		-moz-transition: all 0.3s ease;
-		-ms-transition: all 0.3s ease;
-		-o-transition: all 0.3s ease;
-		transition: all 0.3s ease;
-	}
-	
-	.btn-logout:hover
-	{	
-		color: #FFF;
-		background-color: darken(#5cb85c, 5%);
 	}
 }
