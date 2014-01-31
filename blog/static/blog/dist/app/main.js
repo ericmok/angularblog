@@ -1,4 +1,5 @@
-angular.module("main", ['ui.router', 'RestModule', 'Security', 'LoginForm'])
+
+angular.module("main", ['ui.router', 'Security', 'LoginForm', 'Urls', 'RestModule', 'UniqueInput'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -8,10 +9,20 @@ angular.module("main", ['ui.router', 'RestModule', 'Security', 'LoginForm'])
 		.state('latest', {
 			url: '/latest',
 			templateUrl: '/static/blog/dist/app/latest/latest.tpl.html'
+		})
+		.state('createblog', {
+			url: '/createblog',
+			templateUrl: '/static/blog/dist/app/createblog/createblog.tpl.html'
+		})
+		.state('blog', {
+			url: '/blog/:blogId',
+			templateUrl: '/static/blog/dist/app/blog/blog.tpl.html'
 		});
 });
 
+
  /* *** */ 
+
 
 angular.module("RestModule", [])
 
@@ -75,6 +86,7 @@ angular.module("RestModule", [])
 	return {
 		main: null,
 		sidebar: {},
+
 		getPost: function(id) {
 			console.log("getPost id:", id);
 			return ModelCacheAjax.getURL("/blog/api/posts/" + id);
@@ -133,14 +145,10 @@ angular.module("RestModule", [])
 });
 
 
+
  /* *** */ 
 
-angular.module('Security', [])
-
-.constant('urls', {
-	token: "http://localhost:8000/blog/api-tokens",
-	user: "http://localhost:8000/blog/api/users"
-})
+angular.module('Security', ['Urls'])
 
 .factory('auth', function($window, $http, urls) {
 
@@ -152,10 +160,11 @@ angular.module('Security', [])
 
 			var self = this;
 
-			console.log("login");
+			console.log("auth.login");
+
 			var promise = $http({
 				method: "POST",
-				url: urls.token,
+				url: urls.tokens,
 				data: {
 					username: username, 
 					password: password
@@ -170,14 +179,14 @@ angular.module('Security', [])
 				$window.sessionStorage.setItem("username", username);
 				self.loginToken = data.token;
 
-				// return $http.get(urls.user + "/" + username).then(fnugction(response) {
+				// return $http.get(urls.users + "/" + username).then(fnugction(response) {
 				// 	self.user = response.data;
 				// 	console.log("logged in");
 				// });
 			});
 
 			promise.error(function(data, status, headers, config) {
-				$window.sessionStorage.setItem("token", null);
+				$window.sessionStorage.removeItem("token");
 				self.loginToken = null;
 				self.username = null;
 			});
@@ -201,7 +210,7 @@ angular.module('Security', [])
 			self.username = null;
 
 			return $http({
-				url: urls.token,
+				url: urls.tokens,
 				method: "DELETE",
 				headers: {
 					"X-Authorization": tempLoginToken,
@@ -233,7 +242,7 @@ angular.module('Security', [])
 
 		createUser: function(username, password) {
 
-			var promise = $http.post(urls.user, {username: username, password: password});
+			var promise = $http.post(urls.users, {username: username, password: password});
 
 			promise.success(function(response) {
 				console.log(response.data);
@@ -253,6 +262,20 @@ angular.module('Security', [])
 	auth.username = $window.sessionStorage.getItem("username");
 });
 
+
+
+ /* *** */ 
+
+angular.module('Urls', [])
+
+.constant('urls', {
+	tokens: "http://localhost:8000/blog/api-tokens",
+	users: "http://localhost:8000/blog/api/users",
+	posts: "/blog/api/posts",
+	blogs: "/blog/api/blogs"
+});
+
+
  /* *** */ 
 
 angular.module('LoginForm', ['Security'])
@@ -260,9 +283,9 @@ angular.module('LoginForm', ['Security'])
 
 .directive('loginForm', function($compile, $timeout, auth) {
 
-	var root = angular.element("<div></div>");
+	var loginRoot = angular.element("<div class='login'></div>");
 
-	var loginFormElement = angular.element('<form class="login-form" ng-submit="login()"></form>');
+	var loginFormElement = angular.element('<form class="inner-form" ng-submit="login()"></form>');
 	var loginHeaderElement = angular.element('');
 
 	var alertElement = angular.element('<div class="alert alert-danger" ng-show="failure" ng-bind="status"></div>');
@@ -270,11 +293,13 @@ angular.module('LoginForm', ['Security'])
 	var usernameElement = angular.element('<input class="form-control" type="text" ng-model="username" name="username" placeholder="username" />');
 
 	var passwordElement = angular.element('<input class="form-control" ng-model="password" type="password" name="password" placeholder="password" />');
-	var loginButtonElement = angular.element('<input type="submit" class="btn btn-login" value="Log In" />');
-	var createAccountElement = angular.element('<button class="btn btn-success" ng-submit="createUser">Create Account</button>');
 
-	var logoutRoot = angular.element('<div></div>');
-	var logoutUserInfoElement = angular.element('<div class="user-info"><p>Username: <b>{{username}}</b></p></div>')
+	var loginButtonElement = angular.element('<input type="submit" class="btn btn-login" value="Log In" ng-class="{loading: busy}" />');
+	var createAccountElement = angular.element('<button class="btn btn-success" ng-submit="createUser">Create Account</button>');
+	var clearElement = angular.element('<div style="clear: both"></div>');
+
+	var logoutRoot = angular.element('<div class="logout"></div>');
+	var logoutUserInfoElement = angular.element('<div class="user-info"><p class="user-info-username">{{username}}</p></div>')
 	var logoutButtonElement = angular.element('<input type="button" ng-click="logout()" class="col-xs-6 btn btn-logout" value="Log Out" />')
 	var logoutClearElement = angular.element('<div style=\'clear:both;\'></div>');
 
@@ -298,7 +323,7 @@ angular.module('LoginForm', ['Security'])
 			$scope.loading = false;
 			
 			$scope.login = function() {
-				
+
 				$scope.loading = true;
 
 				// Throttle
@@ -346,13 +371,31 @@ angular.module('LoginForm', ['Security'])
 			loginFormElement.append(usernameElement);
 			loginFormElement.append(passwordElement);
 			loginFormElement.append(loginButtonElement);
+
+			loginFormElement.append(clearElement);
 			
-			root.append(loginFormElement);
+			loginRoot.append(loginFormElement);
 			
 			// Logout element
 			logoutRoot.append(logoutUserInfoElement);
 			logoutRoot.append(logoutButtonElement);
 			logoutRoot.append(logoutClearElement);
+
+			// Visual feedback that a login prompt was broadcasted
+			scope.flash = function() {
+				element.addClass("flash");
+				usernameElement.focus();
+
+				$timeout(function() {
+					element.removeClass("flash");		
+				}, 800);
+			};
+
+			// Capture login prompt event that may be broadcasted whenever an action requires a login
+			scope.$on('LOGIN_PROMPT', function() {
+				scope.flash();
+				console.log("FLASH");
+			});
 
 			// Depending on state, we show the corresponding element.
 			scope.$watch(function() {
@@ -365,7 +408,7 @@ angular.module('LoginForm', ['Security'])
 				}
 				else {
 					element.empty();
-					element.append($compile(root)(scope));
+					element.append($compile(loginRoot)(scope));
 				}
 			});
 
@@ -373,7 +416,7 @@ angular.module('LoginForm', ['Security'])
 				return scope.loading;
 			}, function(val) {
 				if (val == true) {
-					loginButtonElement.val("Loading..");
+					loginButtonElement.val("Loading");
 				}
 				else {
 					loginButtonElement.val("Log In");	
@@ -469,3 +512,65 @@ angular.module('RestrictedPanel', ['Security', 'LoginForm'])
 		}
 	};
 });
+
+ /* *** */ 
+
+angular.module('UniqueInput', [])
+
+.directive('uniqueSource', function($http, $timeout) {
+	return {
+		require: 'ngModel',
+		restrict: 'A',
+		controller: function($scope) {
+			$scope.delayTimer = null;
+			$scope.DELAY = 800;
+
+			$scope.data = '';
+
+			$scope.validating = false;
+
+			$scope.startValidation = function() {
+				$timeout.cancel($scope.delayTimer);
+
+				$scope.delayTimer = $timeout(function() {
+					$scope.validating = true;
+
+					console.log("ping!", $scope.data);
+
+					if ($scope.data.length < 1) {
+						$scope.delayTimer = null;
+						return;
+					}
+
+					$http.get($scope.source + "/" + $scope.data).success(function(data) { 
+
+						console.log("success", data);
+						$scope.ngModelCtrl.$setValidity('uniqueSource', false);
+						$scope.delayTimer = null;
+						$scope.validating = false;
+
+					}).error(function(data) {
+
+						console.log("fail", data);
+						$scope.ngModelCtrl.$setValidity('uniqueSource', true);
+						$scope.delayTimer = null;
+						$scope.validating = false;
+					});
+				}, $scope.DELAY);
+			};
+		},
+		link: function(scope, element, attrs, ngModelCtrl) {
+			scope.source = attrs.uniqueSource;
+			scope.ngModelCtrl = ngModelCtrl;
+
+			element.on('keyup', function(ev) {
+				scope.data = ngModelCtrl.$viewValue;
+				scope.startValidation();
+			});
+		}
+	};
+})
+
+
+ /* *** */ 
+

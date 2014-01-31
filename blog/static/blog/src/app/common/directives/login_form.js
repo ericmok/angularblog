@@ -3,9 +3,9 @@ angular.module('LoginForm', ['Security'])
 
 .directive('loginForm', function($compile, $timeout, auth) {
 
-	var root = angular.element("<div></div>");
+	var loginRoot = angular.element("<div class='login'></div>");
 
-	var loginFormElement = angular.element('<form class="login-form" ng-submit="login()"></form>');
+	var loginFormElement = angular.element('<form class="inner-form" ng-submit="login()"></form>');
 	var loginHeaderElement = angular.element('');
 
 	var alertElement = angular.element('<div class="alert alert-danger" ng-show="failure" ng-bind="status"></div>');
@@ -13,11 +13,13 @@ angular.module('LoginForm', ['Security'])
 	var usernameElement = angular.element('<input class="form-control" type="text" ng-model="username" name="username" placeholder="username" />');
 
 	var passwordElement = angular.element('<input class="form-control" ng-model="password" type="password" name="password" placeholder="password" />');
-	var loginButtonElement = angular.element('<input type="submit" class="btn btn-login" value="Log In" />');
-	var createAccountElement = angular.element('<button class="btn btn-success" ng-submit="createUser">Create Account</button>');
 
-	var logoutRoot = angular.element('<div></div>');
-	var logoutUserInfoElement = angular.element('<div class="user-info"><p>Username: <b>{{username}}</b></p></div>')
+	var loginButtonElement = angular.element('<input type="submit" class="btn btn-login" value="Log In" ng-class="{loading: busy}" />');
+	var createAccountElement = angular.element('<button class="btn btn-success" ng-submit="createUser">Create Account</button>');
+	var clearElement = angular.element('<div style="clear: both"></div>');
+
+	var logoutRoot = angular.element('<div class="logout"></div>');
+	var logoutUserInfoElement = angular.element('<div class="user-info"><p class="user-info-username">{{username}}</p></div>')
 	var logoutButtonElement = angular.element('<input type="button" ng-click="logout()" class="col-xs-6 btn btn-logout" value="Log Out" />')
 	var logoutClearElement = angular.element('<div style=\'clear:both;\'></div>');
 
@@ -41,7 +43,7 @@ angular.module('LoginForm', ['Security'])
 			$scope.loading = false;
 			
 			$scope.login = function() {
-				
+
 				$scope.loading = true;
 
 				// Throttle
@@ -89,13 +91,31 @@ angular.module('LoginForm', ['Security'])
 			loginFormElement.append(usernameElement);
 			loginFormElement.append(passwordElement);
 			loginFormElement.append(loginButtonElement);
+
+			loginFormElement.append(clearElement);
 			
-			root.append(loginFormElement);
+			loginRoot.append(loginFormElement);
 			
 			// Logout element
 			logoutRoot.append(logoutUserInfoElement);
 			logoutRoot.append(logoutButtonElement);
 			logoutRoot.append(logoutClearElement);
+
+			// Visual feedback that a login prompt was broadcasted
+			scope.flash = function() {
+				element.addClass("flash");
+				usernameElement.focus();
+
+				$timeout(function() {
+					element.removeClass("flash");		
+				}, 800);
+			};
+
+			// Capture login prompt event that may be broadcasted whenever an action requires a login
+			scope.$on('LOGIN_PROMPT', function() {
+				scope.flash();
+				console.log("FLASH");
+			});
 
 			// Depending on state, we show the corresponding element.
 			scope.$watch(function() {
@@ -108,7 +128,7 @@ angular.module('LoginForm', ['Security'])
 				}
 				else {
 					element.empty();
-					element.append($compile(root)(scope));
+					element.append($compile(loginRoot)(scope));
 				}
 			});
 
@@ -116,7 +136,7 @@ angular.module('LoginForm', ['Security'])
 				return scope.loading;
 			}, function(val) {
 				if (val == true) {
-					loginButtonElement.val("Loading..");
+					loginButtonElement.val("Loading");
 				}
 				else {
 					loginButtonElement.val("Log In");	

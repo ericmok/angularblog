@@ -1,4 +1,5 @@
 
+
 <h2>Latest</h2>
 <div class="breadcrumb">
 	<li>
@@ -10,19 +11,54 @@
 </div>
 
 <div ng-controller="LatestPostsCtrl" class="col-md-6">
-	<div ng-repeat="post in posts">
+	
+	<div ng-repeat="post in posts.results">
 		<div class="well well-sm">
-			{{post}}
+			<article>
+				<header>
+					<hgroup>
+						<h4>
+							{{post.title}}
+						</h4>
+						<h6>{{post.author}} on [ {{post.parent_content_type}} / {{post.parent_id}} ]</h6>
+					</hgroup>
+				</header>
+				<p ng-repeat="para in post.content.paragraphs">
+					<span ng-if="para.ordering == 1">
+						<span ng-repeat="sent in para.sentences">
+							{{sent.text}}
+							<span class="badge" ng-if="sent.number_replies > 0">{{sent.number_replies}}</span>
+						</span>
+					</span>
+				</p>
+
+				<footer ng-if="post.content.paragraphs.length > 1" style="text-align: center; font-weight: bolder;">
+					<a>Read More...</a>					
+				</footer>
+			</article>
 		</div>
+	</div>
+
+	<div ng-if="posts.results.length < 1">
+		<h2>There are no posts to display!</h2>
 	</div>
 </div>
 
-<div class="col-md-6">
-	<div>		
-		<login-form></login-form>
 
+
+<div class="col-md-6">
+	<div ng-controller="BlogsCtrl">		
+		<div style="text-align: center;">
+			<div style="display: inline-block;">
+				<login-form></login-form>
+			</div>
+		</div>
 		<div style="margin-top: 3em">
-			<a class="btn btn-primary">Create Blog</a>
+			<a class="btn btn-primary" ng-click="createBlog()">Create Blog</a>
+		</div>
+		
+		<div ng-repeat="blog in blogs.results">
+			<h4>{{blog.title}}</h4>
 		</div>
 	</div>
 </div>

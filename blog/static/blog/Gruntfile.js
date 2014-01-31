@@ -1,3 +1,8 @@
+/*
+Maintenance Procedure:
+For each page in the app, you have to add a mapping to the files config for concat:pages
+*/
+
 module.exports = function(grunt) {
 	grunt.initConfig({
 		options: {
@@ -23,6 +28,9 @@ module.exports = function(grunt) {
 				files: [{
 					src: 'src/app/latest/*.js',
 					dest: 'dist/app/latest/latest.js',
+				}, {
+					src: 'src/app/createblog/*.js',
+					dest: 'dist/app/createblog/createblog.js'
 				}]
 			}
 		},

@@ -1,12 +1,41 @@
+/* #d9534f */
+/* #d43f3a */
 .login-form {
+  text-align: center;
+  padding: 1.3em;
   width: 25em;
+  border: solid 1px #DDD;
+  border-radius: 5px;
+  -webkit-transition: background-color 0.7s ease;
+  -moz-transition: background-color 0.7s ease;
+  -ms-transition: background-color 0.7s ease;
+  -o-transition: background-color 0.7s ease;
+  transition: background-color 0.7s ease;
+}
+.login-form .inner-form {
+  -webkit-transition: all 0.7s ease;
+  -moz-transition: all 0.7s ease;
+  -ms-transition: all 0.7s ease;
+  -o-transition: all 0.7s ease;
+  transition: all 0.7s ease;
+  background-color: #FFF;
+}
+.login-form.flash {
+  background-color: #FFEBAD;
+  border: solid 1px #ffe594;
+}
+.login-form input {
+  box-shadow: inset 0px 1px 7px -4px;
 }
 .login-form input[type=password] {
+  margin-top: 4px;
   float: left;
-  width: 75%;
+  width: 71%;
 }
 .login-form input[type=submit] {
-  width: 24.00625%;
+  margin-top: 4px;
+  float: right;
+  width: 28%;
   /* 2px / 320px */
 }
 .login-form input[type=submit]:after {
@@ -14,9 +43,12 @@
   display: table;
   clear: both;
 }
+.login-form .busy {
+  background-color: #EEE;
+}
 .login-form .btn-login {
-  background-color: #d9534f;
-  border: solid 1px #d84f4b;
+  background-color: #db5b57;
+  border: solid 1px #da5753;
   color: #FFF;
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
@@ -25,14 +57,19 @@
   transition: all 0.2s ease;
 }
 .login-form .btn-login:hover {
-  background-color: #d43f3a;
-  border: solid 1px #d84f4b;
+  background-color: #d74642;
+  border: solid 1px #da5753;
   color: #FFF;
 }
 .login-form .user-info {
-  padding: 6px 12px;
+  padding-top: 6px;
+  text-align: left;
   float: left;
   width: 50%;
+}
+.login-form .user-info > p:before {
+  content: "Username: ";
+  font-weight: bolder;
 }
 .login-form .btn-logout {
   background-color: #5cb85c;

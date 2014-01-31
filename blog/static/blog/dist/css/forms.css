@@ -1,0 +1,6 @@
+input.ng-valid-unique-source {
+  border: solid 1px #51A351 !important;
+}
+input.ng-invalid-unique-source {
+  border: solid 1px #BD362F !important;
+}

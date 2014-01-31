@@ -22,10 +22,10 @@ def handle_post(request):
             user.save()
             return redirect('/blog/', {})
         except IntegrityError as e:
-            return render(request, 'blog/register.html', {'register_form': register_form, 'error': True, 'request': request})
+            return render(request, 'blog/angular/register.html', {'register_form': register_form, 'error': True, 'request': request})
 
     else:
-        return render(request, 'blog/register.html', {'register_form': register_form, 'error': False, 'request': request})
+        return render(request, 'blog/angular/register.html', {'register_form': register_form, 'error': False, 'request': request})
 
 
 def index(request):
@@ -34,7 +34,7 @@ def index(request):
         return handle_post(request)
     
     register_form = forms.RegisterForm()
-    return render(request, 'blog/register.html', {'register_form': register_form, 'error': False, 'request': request})
+    return render(request, 'blog/angular/register.html', {'register_form': register_form, 'error': False, 'request': request})
 
 
 def content_negotiated_response(request, template_name, json_data, status = 200):

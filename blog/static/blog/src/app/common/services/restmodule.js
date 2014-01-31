@@ -1,3 +1,4 @@
+
 angular.module("RestModule", [])
 
 .factory("ModelCache", function() {
@@ -60,6 +61,7 @@ angular.module("RestModule", [])
 	return {
 		main: null,
 		sidebar: {},
+
 		getPost: function(id) {
 			console.log("getPost id:", id);
 			return ModelCacheAjax.getURL("/blog/api/posts/" + id);
@@ -116,3 +118,4 @@ angular.module("RestModule", [])
 		}
 	};
 });
+

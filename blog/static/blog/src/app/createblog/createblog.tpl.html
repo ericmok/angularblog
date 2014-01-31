@@ -1,0 +1,53 @@
+<h3>Create blog</h3>
+
+<div class="col-md-6">
+	<section>
+		<form class="form" ng-controller="CreateBlogCtrl">
+			<div class="form-group">
+				<label for="title">Title:</label>
+				<input type="text" ng-minlength="4" unique-source="/blog/api/blogs" ng-model="blog.title" name="title" class="form-control" />
+				<div ng-show="ngModelController.$error('title')">
+					Title error
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="description">Description:</label>
+				<textarea name="description" class="form-control" placeholder="Enter description here..." cols="60" rows="12" ng-model="blog.description" ng-required></textarea>
+			</div>
+			<button ng-click="createBlog()" class="btn btn-primary">Create Blog</button>
+		</form>
+	</section>
+</div>
+
+
+<div class="col-md-6">
+	<aside>
+		<h3>Tips on creating a blog</h3>
+		<section>
+			<h4>Title</h4>
+			<p>
+				The title should only contain letters, numbers, and spaces.
+			</p>
+		</section>
+		<section>
+			<h4>Description</h4>
+			<p>
+				This will appear at the top. 
+				Users visiting this blog should know what posts to expect. 
+			</p>
+			<p>
+				Examples include "Constitution of the United States." 
+			</p>
+		</section>
+		<section>
+			<h4>Restricted</h4>
+			<p>
+				This is currently pending a spec. 
+				Moderation is currently not available...
+			</p>
+		</section>
+	</aside>
+</div>
+
+<div class="col-md-12" style="height: 4em">
+</div>

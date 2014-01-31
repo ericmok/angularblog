@@ -11,6 +11,8 @@
 		<link href="{{STATIC_URL}}blog/dist/css/index.css" rel="stylesheet" />
 		<link href="{{STATIC_URL}}blog/dist/css/post.css" rel="stylesheet" />
 		<link href="{{STATIC_URL}}blog/dist/css/latest.css" rel="stylesheet" />
+		<link href="{{STATIC_URL}}blog/dist/css/forms.css" rel="stylesheet" />
+
 
 		<script src="{{STATIC_URL}}blog/bower_components/underscore/underscore-min.js"></script>
 
@@ -23,30 +25,15 @@
 
 		<script src="{{STATIC_URL}}blog/dist/app/main.js"></script>
 		<script src="{{STATIC_URL}}blog/dist/app/latest/latest.js"></script>
+		<script src="{{STATIC_URL}}blog/dist/app/createblog/createblog.js"></script>
 	</head>
 	<body ng-app="main">
 	{% verbatim %}
 		<div class="container">
 			<nav class="navbar navbar-default" role="navigation">
 				<div class="navbar-brand">Eric's blog prototype</div>
-				<div class="input-group">
-					<input type="text" class="form-control" />
-					<div class="input-group-btn">
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-							<span class="caret"></span>
-							<span class="sr-only">Dropdown</span>
-						</button>
-						<ul class="dropdown-menu pull-right" role="menu">
-							<li>	
-								<a href="#">
-									Stuff
-								</a>
-							</li>
-						</ul>
-					</div>
-				</div>
 			</nav>
-				
+			
 			<div ui-view>
 			</div>
 			

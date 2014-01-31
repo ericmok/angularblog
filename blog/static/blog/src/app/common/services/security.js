@@ -1,9 +1,4 @@
-angular.module('Security', [])
-
-.constant('urls', {
-	token: "http://localhost:8000/blog/api-tokens",
-	user: "http://localhost:8000/blog/api/users"
-})
+angular.module('Security', ['Urls'])
 
 .factory('auth', function($window, $http, urls) {
 
@@ -15,10 +10,11 @@ angular.module('Security', [])
 
 			var self = this;
 
-			console.log("login");
+			console.log("auth.login");
+
 			var promise = $http({
 				method: "POST",
-				url: urls.token,
+				url: urls.tokens,
 				data: {
 					username: username, 
 					password: password
@@ -33,14 +29,14 @@ angular.module('Security', [])
 				$window.sessionStorage.setItem("username", username);
 				self.loginToken = data.token;
 
-				// return $http.get(urls.user + "/" + username).then(fnugction(response) {
+				// return $http.get(urls.users + "/" + username).then(fnugction(response) {
 				// 	self.user = response.data;
 				// 	console.log("logged in");
 				// });
 			});
 
 			promise.error(function(data, status, headers, config) {
-				$window.sessionStorage.setItem("token", null);
+				$window.sessionStorage.removeItem("token");
 				self.loginToken = null;
 				self.username = null;
 			});
@@ -64,7 +60,7 @@ angular.module('Security', [])
 			self.username = null;
 
 			return $http({
-				url: urls.token,
+				url: urls.tokens,
 				method: "DELETE",
 				headers: {
 					"X-Authorization": tempLoginToken,
@@ -96,7 +92,7 @@ angular.module('Security', [])
 
 		createUser: function(username, password) {
 
-			var promise = $http.post(urls.user, {username: username, password: password});
+			var promise = $http.post(urls.users, {username: username, password: password});
 
 			promise.success(function(response) {
 				console.log(response.data);
@@ -115,3 +111,4 @@ angular.module('Security', [])
 	auth.loginToken = $window.sessionStorage.getItem("token");
 	auth.username = $window.sessionStorage.getItem("username");
 });
+
