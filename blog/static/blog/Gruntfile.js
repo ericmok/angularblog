@@ -31,6 +31,9 @@ module.exports = function(grunt) {
 				}, {
 					src: 'src/app/createblog/*.js',
 					dest: 'dist/app/createblog/createblog.js'
+				}, {
+					src: 'src/app/blog/*.js',
+					dest: 'dist/app/blog/blog.js'
 				}]
 			}
 		},
