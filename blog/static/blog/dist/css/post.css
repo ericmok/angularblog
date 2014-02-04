@@ -12,12 +12,17 @@
   float: left;
   width: 100px;
 }
-.post-title {
+article.post h1,
+article.post h2,
+article.post h3,
+article.post h4,
+article.post h5,
+article.post h6 {
   font-family: Times New Roman, Times;
 }
-.post-paragraph {
+article.post p {
   font: 18px Times New Roman, Times;
-  line-height: 1.48;
+  line-height: 1.618;
 }
 .parent {
   padding: 1em 0em;

@@ -1,0 +1,20 @@
+<div ng-controller="PostCtrl">
+
+	<div ng-repeat="panel in sidebars">
+		<div ng-if="$first">
+			<article class="post">
+				<header>
+					<hgroup>
+						<h1>{{panel.title}}</h1>
+						<h4>{{panel.author}} on [{{panel.parent_content_type}} / {{panel.parent_id}}]</h4>
+					</hgroup>
+				</header>
+				<p ng-repeat="para in panel.content.paragraphs">
+					<span ng-repeat="sen in para.sentences">
+						{{sen.text}}
+					</span>
+				</p>
+			</article>
+		</div>
+	</div>
+</div>

@@ -36,6 +36,20 @@ TEST_USER_BOBBY = {
 TEST_USER_ALICE_JSON = json.dumps(TEST_USER_ALICE)
 TEST_USER_BOBBY_JSON = json.dumps(TEST_USER_BOBBY)
 
+
+class BlogHelprFunctions(TestCase):
+	fixtures = ['nice_fixture3.json']
+
+	def test_can_fetch_slug_or_pk_otherwise_404(self):
+		from blog.rest.viewsets.blog_viewset import fetch_slug_or_pk_otherwise_404
+		self.assertTrue(fetch_slug_or_pk_otherwise_404(1) == Blog.objects.get(pk = 1))
+
+		try: 
+			blog = fetch_slug_or_pk_otherwise_404('1')
+		except:
+			self.assertIsNone(blog)
+
+
 class BlogGetEndpoint(TestCase):
 	fixtures = ['nice_fixture3.json']
 
@@ -153,3 +167,12 @@ class BlogCreationTests(TestCase):
 		self.assertNotEqual(response.status_code, 200)
 		self.assertNotEqual(response.status_code, 201)
 		self.assertNotEqual(response.status_code, 304)
+
+	def test_can_get_posts_made_on_a_blog_with_pk_or_slug_lookup(self):
+		response = self.client.get(BLOGS_URL + '/1/comments')
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue(len(json.loads(response.content)['results']) > 0)
+
+		response = self.client.get(BLOGS_URL + '/law/comments')
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue(len(json.loads(response.content)['results']) > 0)

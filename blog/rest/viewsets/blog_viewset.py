@@ -18,6 +18,27 @@ from blog.rest.viewsets.common import PaginationError, build_collection_json_fro
 from blog.models import *
 import re
 
+
+def fetch_slug_or_pk_otherwise_404(pk):
+    """
+    Gets blog of the given id, which could be the blog title or the id
+    TODO: What if user creates a blog with title that is a number?
+    """
+    try: 
+        try:
+            pk = int(pk)
+            blog = Blog.objects.get(pk = pk)
+        except ValueError:
+            title = re.sub('[\-\_]', ' ', pk)
+            title = title.lower()
+            blog = Blog.objects.get(title__iexact = title)    
+    except Blog.DoesNotExist:
+        raise Http404
+
+    return blog
+
+
+
 class BlogViewSet(viewsets.GenericViewSet, 
                   mixins.CreateModelMixin,
                   mixins.ListModelMixin, 
@@ -82,20 +103,10 @@ class BlogViewSet(viewsets.GenericViewSet,
             return Response(blog_serializer.errors, status = 400)
 
     def retrieve(self, request, pk = None):
-        try: 
-            try:
-                pk = int (pk)
-                blog = Blog.objects.get(pk = pk)
-            except ValueError:
-                title = re.sub('[\-\_]', ' ', pk)
-                title = title.lower()
-                blog = Blog.objects.get(title__iexact = title)
-        except Blog.DoesNotExist:
-            return Response({"detail": "Not found"}, status = 404)
-
+        blog = fetch_slug_or_pk_otherwise_404(pk)
         blog_serializer = BlogSerializer(blog, context = {'request': request})
         return Response(blog_serializer.data, status = 200)
 
     @action(methods=['GET'])
     def comments(self, request, pk = None):
-        return post_view(self, request, "blog", pk)
+        return post_view(self, request, "blog", fetch_slug_or_pk_otherwise_404(pk).pk)

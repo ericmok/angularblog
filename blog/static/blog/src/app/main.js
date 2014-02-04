@@ -17,5 +17,9 @@ angular.module("main", ['ui.router', 'Security', 'LoginForm', 'Urls', 'RestModul
 		.state('blog', {
 			url: '/blog/:blogId',
 			templateUrl: '/static/blog/dist/app/blog/blog.tpl.html'
+		})
+		.state('post', {
+			url: '/post/:postId',
+			templateUrl: '/static/blog/dist/app/post/post.tpl.html'
 		});
 });

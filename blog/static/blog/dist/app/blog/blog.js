@@ -1,15 +1,32 @@
 angular.module('main')
 
-.controller('BlogCtrl', function($scope, $stateParams, $http, urls) {
+.controller('BlogCtrl', function($scope, $stateParams, $http, urls, auth, $rootScope, $state) {
 	
 	console.log($stateParams.blogId);
 	$scope.blogId = $stateParams.blogId;
 	$scope.blog = null;
+	$scope.posts = [];
 
 	$http({
 		url: [urls.blogs, '/', $scope.blogId].join(''),
 		method: 'GET'
 	}).then(function(response) {
-		$scope.blog = angular.toJson( response.data );
+		$scope.blog = response.data;
+
+		$http({
+			url: [urls.blogs, '/', $scope.blogId, '/comments'].join(''),
+			method: 'GET'
+		}).then(function(response) {
+			$scope.posts = response.data;
+		});
 	});
+
+	$scope.makePost = function() {
+		if (!auth.isLoggedIn()) {
+			$rootScope.$broadcast('LOGIN_PROMPT');
+		}
+		else {
+			// Show a make post form or go to page
+		}
+	};
 });
