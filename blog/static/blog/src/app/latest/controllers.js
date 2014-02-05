@@ -1,15 +1,15 @@
 angular.module('main')
 
-.controller('LatestPostsCtrl', function($scope, urls, ModelCacheAjax) {
+.controller('LatestPostsCtrl', function($scope, urls, RequestCache) {
 	console.log("controller");
 	$scope.posts = {results: []};
 
-	ModelCacheAjax.getURL(urls.posts).then(function(response) {
+	RequestCache.getURL(urls.posts).then(function(response) {
 		$scope.posts = response;
 	});
 })
 
-.controller('BlogsCtrl', function($scope, $rootScope, urls, ModelCacheAjax, $state, auth) {
+.controller('BlogsCtrl', function($scope, $rootScope, urls, RequestCache, $state, auth) {
 
 	$scope.blogs = {};
 
@@ -22,7 +22,7 @@ angular.module('main')
 		}
 	}
 
-	ModelCacheAjax.getURL(urls.blogs).then(function(response) {
+	RequestCache.getURL(urls.blogs).then(function(response) {
 		$scope.blogs = response;
 	}, function(response) {
 		$scope.blogs = ['No blogs to display.'];

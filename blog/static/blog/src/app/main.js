@@ -1,5 +1,5 @@
 
-angular.module("main", ['ui.router', 'Security', 'LoginForm', 'Urls', 'RestModule', 'UniqueInput'])
+angular.module("main", ['ui.router', 'Security', 'LoginForm', 'Urls', 'AjaxCaching', 'UniqueInput'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -21,5 +21,9 @@ angular.module("main", ['ui.router', 'Security', 'LoginForm', 'Urls', 'RestModul
 		.state('post', {
 			url: '/post/:postId',
 			templateUrl: '/static/blog/dist/app/post/post.tpl.html'
+		})
+		.state('createpost', {
+			url: '/blog/:blogId/createpost', 
+			templateUrl: '/static/blog/dist/app/createpost/createpost.tpl.html'
 		});
 });

@@ -1,0 +1,44 @@
+<div ng-controller="CreatePostCtrl">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="label label-info">{{blogId}}</div>		
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-8">
+				<h3>Create Post</h3>
+
+				<form class="form">
+					<div style="margin-bottom: 40px; text-align:center">
+						<input type="text" name="title" class="form-control title" placeholder="Title of Post" />
+					</div>
+					
+					<div style="position: relative;">
+						<textarea class="form-control" rows="22" placeholder="Enter your post here..." style="background: transparent;"></textarea>
+					</div>
+					
+				</form>
+
+		</div>
+
+		<div class="col-md-4">
+			<h2>Tips</h2>
+			<p>
+				Your content will be parsed into sentences. 
+				Remember to punctuate your sentences and you will be fine.
+			</p>
+			<p>
+				Use <b class="text-info">[[[</b> <i>block content</i> <b class="text-info">]]]</b> to group text into a single block.
+			</p>
+			<p>
+				Use <b class="text-info">@[</b> <i>inline content</i> <b class="text-info">]@</b> to have your text parsed as a single sentence.
+			</p>
+			<p>
+				Good luck
+			</p>
+			<button class="btn btn-success btn-lg">&lt;&lt; Submit this post</button>
+		</div>
+	</div>
+
+</div>

@@ -37,6 +37,9 @@ module.exports = function(grunt) {
 				}, {
 					src: 'src/app/post/*.js',
 					dest: 'dist/app/post/post.js'
+				}, {
+					src: 'src/app/createpost/*.js',
+					dest: 'dist/app/createpost/createpost.js'
 				}]
 			}
 		},

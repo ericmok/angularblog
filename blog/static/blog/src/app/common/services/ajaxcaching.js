@@ -1,7 +1,7 @@
 
-angular.module("RestModule", [])
+angular.module("AjaxCaching", [])
 
-.factory("ModelCache", function() {
+.factory("UrlCache", function() {
 	var urlCache = [];
 
 	return {
@@ -35,14 +35,14 @@ angular.module("RestModule", [])
 
 })
 
-.factory('ModelCacheAjax', ["$http", "$q", "ModelCache", function($http, $q, ModelCache) {
+.factory('RequestCache', ["$http", "$q", "UrlCache", function($http, $q, UrlCache) {
 	return {
 		getURL: function(url) {
 			console.log("getURL:", url);
-			var cache = ModelCache.getURL(url);
+			var cache = UrlCache.getURL(url);
 			if (cache === null) {
 				return $http.get(url).then(function(json) {
-					ModelCache.setURL(url, json.data);
+					UrlCache.setURL(url, json.data);
 					return json.data;
 				});
 			}
@@ -56,7 +56,7 @@ angular.module("RestModule", [])
 	};
 }])
 
-.factory('Api', ["$http", "$q", "ModelCacheAjax", function($http, $q, ModelCacheAjax) {
+.factory('Api', ["$http", "$q", "RequestCache", function($http, $q, RequestCache) {
 
 	return {
 		main: null,
@@ -64,13 +64,13 @@ angular.module("RestModule", [])
 
 		getPost: function(id) {
 			console.log("getPost id:", id);
-			return ModelCacheAjax.getURL("/blog/api/posts/" + id);
+			return RequestCache.getURL("/blog/api/posts/" + id);
 		},
 		getSentencePosts: function(id) {
-			return ModelCacheAjax.getURL("/blog/api/sentences/" + id + "/comments");
+			return RequestCache.getURL("/blog/api/sentences/" + id + "/comments");
 		},
 		getSentenceComments: function(sentenceId) {
-			return ModelCacheAjax.getURL("/blog/api/sentences/" + sentenceId + "/comments");
+			return RequestCache.getURL("/blog/api/sentences/" + sentenceId + "/comments");
 		},
 		getParentOfPost: function(model) {
 			console.log("get parent of post:");
@@ -87,7 +87,7 @@ angular.module("RestModule", [])
 					var url = "/blog/api/" + model.parent_content_type + "s/" + model.parent_id;
 					console.log("fetching url>", url);
 
-					return ModelCacheAjax.getURL(url);
+					return RequestCache.getURL(url);
 				}
 			}
 

@@ -14,7 +14,6 @@
 		<link href="{{STATIC_URL}}blog/dist/css/latest.css" rel="stylesheet" />
 		<link href="{{STATIC_URL}}blog/dist/css/forms.css" rel="stylesheet" />
 
-
 		<script src="{{STATIC_URL}}blog/bower_components/underscore/underscore-min.js"></script>
 
 		<script src="{{STATIC_URL}}blog/bower_components/jquery/jquery.min.js"></script>
@@ -29,6 +28,7 @@
 		<script src="{{STATIC_URL}}blog/dist/app/createblog/createblog.js"></script>
 		<script src="{{STATIC_URL}}blog/dist/app/blog/blog.js"></script>
 		<script src="{{STATIC_URL}}blog/dist/app/post/post.js"></script>
+		<script src="{{STATIC_URL}}blog/dist/app/createpost/createpost.js"></script>
 	</head>
 	<body ng-app="main">
 	{% verbatim %}
@@ -37,7 +37,7 @@
 				<div class="navbar-brand">Eric's blog prototype</div>
 			</nav>
 			
-			<div ui-view>
+			<div ui-view autoscroll="false">
 			</div>
 			
 			<div class="col-md-12" style="height: 4em"></div>

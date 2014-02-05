@@ -1,6 +1,6 @@
 angular.module('main')
 
-.controller('BlogCtrl', function($scope, $stateParams, $http, urls, auth, $rootScope, $state) {
+.controller('BlogCtrl', function($scope, $stateParams, $http, urls, auth, $rootScope, $state, $location) {
 	
 	console.log($stateParams.blogId);
 	$scope.blogId = $stateParams.blogId;
@@ -27,6 +27,7 @@ angular.module('main')
 		}
 		else {
 			// Show a make post form or go to page
+			$location.path('/blog/' + $scope.blog.title + '/createpost');
 		}
 	};
 });
