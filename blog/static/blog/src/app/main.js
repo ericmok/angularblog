@@ -25,6 +25,10 @@ angular.module("main", [
 			url: '/blog/:blogId',
 			templateUrl: '/static/blog/dist/app/blog/blog.tpl.html'
 		})
+		.state('editblog', {
+			url: '/blog/:blogId/edit',
+			templateUrl: '/static/blog/dist/app/editblog/editblog.tpl.html'
+		})
 		.state('post', {
 			url: '/post/:postId',
 			templateUrl: '/static/blog/dist/app/post/post.tpl.html'

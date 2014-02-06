@@ -18,7 +18,7 @@ angular.module('main')
 	$scope.createPost = function() {	
 		return PostsEndpoint.create('blog', $scope.blog.id, $scope.title, $scope.content).success(function(data) {
 			console.log('Created: ', data);
-			$location.path('#/post/' + data.post.id);
+			$location.path('/post/' + data.post.id);
 		});
 	};
 

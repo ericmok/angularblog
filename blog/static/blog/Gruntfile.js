@@ -35,6 +35,9 @@ module.exports = function(grunt) {
 					src: 'src/app/blog/*.js',
 					dest: 'dist/app/blog/blog.js'
 				}, {
+					src: 'src/app/editblog/*.js',
+					dest: 'dist/app/editblog/editblog.js'
+				}, {
 					src: 'src/app/post/*.js',
 					dest: 'dist/app/post/post.js'
 				}, {
