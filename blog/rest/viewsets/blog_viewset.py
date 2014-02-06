@@ -102,6 +102,14 @@ class BlogViewSet(viewsets.GenericViewSet,
         else:
             return Response(blog_serializer.errors, status = 400)
 
+    def update(self, request, pk = None):
+        blog = fetch_slug_or_pk_otherwise_404(pk)
+        if blog.creator == request.user:    
+            blog.description = request.DATA['description']
+            return Response(BlogSerializer(blog, context={'request':request}).data, 200)
+        else:
+            return Response({'error': 'You need to be the creator of blog to edit description'}, 401)
+
     def retrieve(self, request, pk = None):
         blog = fetch_slug_or_pk_otherwise_404(pk)
         blog_serializer = BlogSerializer(blog, context = {'request': request})

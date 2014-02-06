@@ -176,3 +176,32 @@ class BlogCreationTests(TestCase):
 		response = self.client.get(BLOGS_URL + '/law/comments')
 		self.assertEqual(response.status_code, 200)
 		self.assertTrue(len(json.loads(response.content)['results']) > 0)
+
+	def test_can_update_description_of_blog(self):
+		# Caveat: cannot take application/octet-stream
+		payload = {
+			'description': 'Changed'
+		}
+		payload = json.dumps(payload)
+		response = self.client.put(BLOGS_URL + '/1', content_type = 'application/json', data = payload, HTTP_X_AUTHORIZATION=self.token)
+		
+		self.assertEqual(response.status_code, 200)
+		self.assertIn('description', response.content)
+		self.assertIn('Changed', response.content)
+
+		response = self.client.post(AUTH_URL, data = TEST_USER_BOBBY_JSON, content_type='application/json')
+		bobby_token = json.loads(response.content)['token']	
+
+		response = self.client.put(BLOGS_URL + '/1', content_type = 'application/json', data = payload, HTTP_X_AUTHORIZATION = bobby_token)
+		self.assertEqual(response.status_code, 401)
+
+	def test_cannot_update_title_of_blog(self):
+		payload = {
+			'title': 'Do not change',
+			'description': 'Changed'
+		}
+		payload = json.dumps(payload)
+		response = self.client.put(BLOGS_URL + '/1', content_type = 'application/json', data = payload, HTTP_X_AUTHORIZATION = self.token)
+		
+		self.assertEqual(response.status_code, 200)
+		self.assertNotIn('Do not change', response.content)
