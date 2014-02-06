@@ -103,6 +103,7 @@ class BlogViewSet(viewsets.GenericViewSet,
             return Response(blog_serializer.errors, status = 400)
 
     def update(self, request, pk = None):
+        # TODO: Since this method only updates description, feedback?
         blog = fetch_slug_or_pk_otherwise_404(pk)
         if blog.creator == request.user:    
             blog.description = request.DATA['description']

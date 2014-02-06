@@ -62,7 +62,7 @@ class BlogSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Blog
-    fields = ('id', 'href', 'content_type', 'title', 'description', 'created', 'is_restricted')
+    fields = ('id', 'href', 'content_type', 'title', 'description', 'creator', 'created', 'is_restricted')
     #read_only_fields = ('creator',)
 
 
