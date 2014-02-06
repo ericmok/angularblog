@@ -183,7 +183,7 @@ class BlogCreationTests(TestCase):
 			'description': 'Changed'
 		}
 		payload = json.dumps(payload)
-		response = self.client.put(BLOGS_URL + '/1', content_type = 'application/json', data = payload, HTTP_X_AUTHORIZATION=self.token)
+		response = self.client.patch(BLOGS_URL + '/1', content_type = 'application/json', data = payload, HTTP_X_AUTHORIZATION=self.token)
 		
 		self.assertEqual(response.status_code, 200)
 		self.assertIn('description', response.content)
@@ -192,7 +192,7 @@ class BlogCreationTests(TestCase):
 		response = self.client.post(AUTH_URL, data = TEST_USER_BOBBY_JSON, content_type='application/json')
 		bobby_token = json.loads(response.content)['token']	
 
-		response = self.client.put(BLOGS_URL + '/1', content_type = 'application/json', data = payload, HTTP_X_AUTHORIZATION = bobby_token)
+		response = self.client.patch(BLOGS_URL + '/1', content_type = 'application/json', data = payload, HTTP_X_AUTHORIZATION = bobby_token)
 		self.assertEqual(response.status_code, 401)
 
 	def test_cannot_update_title_of_blog(self):
@@ -201,7 +201,20 @@ class BlogCreationTests(TestCase):
 			'description': 'Changed'
 		}
 		payload = json.dumps(payload)
-		response = self.client.put(BLOGS_URL + '/1', content_type = 'application/json', data = payload, HTTP_X_AUTHORIZATION = self.token)
+		response = self.client.patch(BLOGS_URL + '/1', content_type = 'application/json', data = payload, HTTP_X_AUTHORIZATION = self.token)
 		
 		self.assertEqual(response.status_code, 200)
 		self.assertNotIn('Do not change', response.content)
+
+
+class BlogEndpoint(TestCase):
+	fixtures = ['nice_fixture3.json']
+
+	def setUp(self):
+		self.client = Client()
+		response = self.client.post(AUTH_URL, data=TEST_USER_ALICE_JSON, content_type='application/json')
+		self.token = json.loads(response.content)['token']	
+
+	def test_can_get_creator_field_of_blog(self):
+		response = self.client.get(BLOGS_URL + '/1')
+		self.assertIn('creator', response.content)

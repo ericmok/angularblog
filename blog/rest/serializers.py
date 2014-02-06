@@ -46,9 +46,17 @@ class BlogSerializer(serializers.ModelSerializer):
   href = serializers.HyperlinkedIdentityField(view_name = 'blog-detail')
   white_list = serializers.Field(source = 'get_whitelisted')
 
-  creator = serializers.SlugRelatedField(slug_field = 'username')
-
   content_type = serializers.Field(source = 'content_type')
+
+  creator = serializers.SerializerMethodField('get_creator')
+
+  # The reason for not using this one is because the creator is not configurable
+  # From the client point of view
+  # The creator depends on authorization
+  #creator = serializers.SlugRelatedField(slug_field = 'username')
+
+  def get_creator(self, obj):
+    return obj.creator.username
 
   def validate_title(self, attrs, source):
     title = attrs.get('title', None)

@@ -46,7 +46,7 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 
 			return $http({
 				url: urls.blogs + '/' + id,
-				method: 'PUT',
+				method: 'PATCH',
 				data: payload,
 				headers: {
 					'X-Authorization': auth.loginToken
