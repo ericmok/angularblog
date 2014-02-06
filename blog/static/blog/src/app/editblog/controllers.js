@@ -1,6 +1,6 @@
 angular.module('main')
 
-.controller('EditBlogCtrl', function($scope, $state, $stateParams, BlogsEndpoint) {
+.controller('EditBlogCtrl', function($scope, $state, $stateParams, $location, urls, BlogsEndpoint) {
 	$scope.blog = {
 		title: '',
 		description: ''
@@ -14,10 +14,11 @@ angular.module('main')
 
 	$scope.reloadBlog();
 
-	$scope.editPost = function() {
+	$scope.editBlog = function() {
 		BlogsEndpoint.update($scope.blog.id, {
 								'description': $scope.blog.description
 							});
-		$scope.reloadBlog();
+		//$scope.reloadBlog();
+		$location.path('blog' + '/' + $scope.blog.title);
 	};
 });

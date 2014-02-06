@@ -1,6 +1,6 @@
 angular.module('main')
 
-.controller('BlogCtrl', function($scope, $stateParams, $http, urls, auth, $rootScope, $state, $location, BlogsEndpoint) {
+.controller('BlogCtrl', function($scope, $stateParams, urlConstructor, $http, urls, auth, $rootScope, $state, $location, BlogsEndpoint) {
 	
 	// Warning:	latest.js contains BlogsCtrl
 	
@@ -38,7 +38,7 @@ angular.module('main')
 	};
 
 	$scope.editBlog = function() {
-		$location.path('/blog/' + $scope.blog.title + '/edit');
+		$location.path(urlConstructor.editblog($scope.blog.title));
 	};
 
 	$scope.makePost = function() {
@@ -47,7 +47,7 @@ angular.module('main')
 		}
 		else {
 			// Show a make post form or go to page
-			$location.path('/blog/' + $scope.blog.title + '/createpost');
+			$location.path(urlConstructor.createpost($scope.blog.title));
 		}
 	};
 });
