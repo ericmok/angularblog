@@ -6,7 +6,7 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 	};
 })
 
-.factory('BlogsEndpoint', function($http, $q, urls, RequestCache) {
+.factory('BlogsEndpoint', function($http, $q, urls, auth, RequestCache) {
 	
 	return {
 		cache: [],
@@ -32,6 +32,34 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 		},
 		fetchAll: function(page) {
 			return RequestCache.getURL(urls.blogs);
+		},
+		update: function(id, options) {
+
+			var self = this;
+			var payload = {};
+
+			for (var key in options) {
+				if (options.hasOwnProperty(key)) {
+					payload[key] = options[key];
+				}
+			}
+
+			return $http({
+				url: urls.blogs + '/' + id,
+				method: 'PUT',
+				data: payload,
+				headers: {
+					'X-Authorization': auth.loginToken
+				}
+			}).success(function(data) {
+
+				// invalidate cache
+				Array.prototype.forEach.call(self.cache, function(el) {
+					if (el.title === id || el.id === id) {
+						el = data;
+					}
+				});
+			});
 		}
 	};
 })

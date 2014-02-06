@@ -1,1 +1,19 @@
-<h3>Edit Blog</h3>
+<div ng-controller="EditBlogCtrl">
+	<div class="row">
+		<div class="col-md-6">
+			<h3>Edit Blog</h3>
+
+			<form class="form">
+				<h3>{{blog.title}}</h3>
+				<textarea class="form-control" placeholder="Description" ng-model="blog.description"></textarea>
+				<button class="btn btn-primary" ng-click="editPost()">Edit Post</button>
+			</form>
+		</div>
+		<div class="col-md-6">
+			<p>
+				TODO:
+				Options for wallpaper / brand color etc...
+			</p>
+		</div>
+	</div>
+</div>

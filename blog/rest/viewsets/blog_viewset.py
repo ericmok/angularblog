@@ -107,6 +107,7 @@ class BlogViewSet(viewsets.GenericViewSet,
         blog = fetch_slug_or_pk_otherwise_404(pk)
         if blog.creator == request.user:    
             blog.description = request.DATA['description']
+            blog.save()
             return Response(BlogSerializer(blog, context={'request':request}).data, 200)
         else:
             return Response({'error': 'You need to be the creator of blog to edit description'}, 401)
