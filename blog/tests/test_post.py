@@ -182,6 +182,18 @@ class PostEndPoint(TestCase):
 		response = self.client.post(POSTS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
 		self.assertEqual(response.status_code, 400)
 
+	def test_POST_result_returns_newly_created_post(self):
+		payload = {
+			"title": "Test",
+			"parent_content_type": "blog",
+			"parent_id": 1,
+			"content": "This is a post. Here is  a second sentence."
+		}
+		response = self.client.post(POSTS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		self.assertEqual(response.status_code, 201)
+		self.assertIn('post', response.content)
+		self.assertIn('id', response.content)
+
 	def test_can_GET_post_and_receive_fields(self):
 		# Not complete
 		response = self.client.get(POSTS_URL + "/1")

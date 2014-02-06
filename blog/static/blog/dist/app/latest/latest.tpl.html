@@ -17,10 +17,11 @@
 			<article class="post">
 				<header>
 					<hgroup>
-						<h4>
-							{{post.title}}
-						</h4>
-						<h6>{{post.author}} on [ {{post.parent_content_type}} / {{post.parent_id}} ]</h6>
+						<a href="#/post/{{post.id}}">
+								<h3>
+									{{post.title}}
+								</h3>
+							</a>						<h6>{{post.author}} on [ {{post.parent_content_type}} / {{post.parent_id}} ]</h6>
 					</hgroup>
 				</header>
 				<p ng-repeat="para in post.content.paragraphs">

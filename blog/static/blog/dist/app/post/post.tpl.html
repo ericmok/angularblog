@@ -5,8 +5,11 @@
 			<article class="post">
 				<header>
 					<hgroup>
-						<h1>{{panel.title}}</h1>
-						<h4>{{panel.author}} on [{{panel.parent_content_type}} / {{panel.parent_id}}]</h4>
+						<div>
+							<h1 style="margin-right: 1.4em; vertical-align: middle; display: inline;">{{panel.title}}</h1> 
+							<button style="vertical-align: middle" class="btn btn-info">Revise Post</button>
+						</div>
+						<h4 class="author">{{panel.author}} on [{{panel.parent_content_type}} / {{panel.parent_id}}]</h4>
 					</hgroup>
 				</header>
 				<p ng-repeat="para in panel.content.paragraphs">

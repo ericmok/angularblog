@@ -1,5 +1,12 @@
 
-angular.module("main", ['ui.router', 'Security', 'LoginForm', 'Urls', 'AjaxCaching', 'UniqueInput'])
+angular.module("main", [
+	'ui.router', 
+	'Security', 
+	'LoginForm', 
+	'Urls', 
+	'AjaxCaching', 
+	'Endpoints',
+	'UniqueInput'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 

@@ -24,6 +24,10 @@ article.post p {
   font: 18px Times New Roman, Times;
   line-height: 1.618;
 }
+article.post .author {
+  color: #AAA;
+  margin-bottom: 1em;
+}
 .parent {
   padding: 1em 0em;
 }

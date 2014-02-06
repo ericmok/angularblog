@@ -373,6 +373,7 @@ def create_post(title, author, parent_content_type, parent_id, content):
             new_sentences.append(new_sentence)
 
     return {
+        'post': new_post,
         'edition': new_edition,
         'number_sentences': len( new_sentences ),
         'number_paragraphs': paragraph_counter,
@@ -640,6 +641,8 @@ class PostViewSet(viewsets.GenericViewSet):
                                         content = content)
 
         return_json = {}
+        
+        return_json['post'] = PostSerializer(creation_result['post'], context = {'request': request}).data
 
         return_json['sentences'] = []
         #sentences = Sentence.objects.filter(edition = creation_result['edition'])
