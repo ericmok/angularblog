@@ -2,6 +2,7 @@
 /* #d43f3a */
 .login-form {
   text-align: center;
+  display: inline-block;
   padding: 1.3em;
   width: 25em;
   border: solid 1px #DDD;
@@ -11,6 +12,7 @@
   -ms-transition: background-color 0.7s ease;
   -o-transition: background-color 0.7s ease;
   transition: background-color 0.7s ease;
+  /* Fixes: Placing the login form in different places may change the font */
 }
 .login-form .inner-form {
   -webkit-transition: all 0.7s ease;
@@ -70,6 +72,10 @@
 .login-form .user-info > p:before {
   content: "Username: ";
   font-weight: bolder;
+}
+.login-form .user-info > p {
+  font-family: 'Arial', 'Helvetica' !important;
+  font-size: 14px;
 }
 .login-form .btn-logout {
   background-color: #5cb85c;

@@ -1,6 +1,6 @@
 angular.module('main')
 
-.controller('CreatePostCtrl', function($scope, $state, $stateParams, $location, auth, BlogsEndpoint, PostsEndpoint) {
+.controller('CreatePostCtrl', function($scope, $state, $stateParams, urlConstructor, $location, auth, BlogsEndpoint, PostsEndpoint) {
 	$scope.blogId = $stateParams.blogId;
 	$scope.blog = null;
 
@@ -18,7 +18,8 @@ angular.module('main')
 	$scope.createPost = function() {	
 		return PostsEndpoint.create('blog', $scope.blog.id, $scope.title, $scope.content).success(function(data) {
 			console.log('Created: ', data);
-			$location.path('/post/' + data.post.id);
+			//$location.path('/post/' + data.post.id);
+			$location.path(urlConstructor.post(data.post.id));
 		});
 	};
 

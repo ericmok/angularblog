@@ -12,6 +12,10 @@
   float: left;
   width: 100px;
 }
+article.post header {
+  text-align: center;
+  margin-bottom: 1em;
+}
 article.post h1,
 article.post h2,
 article.post h3,
@@ -28,6 +32,45 @@ article.post .author {
   color: #AAA;
   margin-bottom: 1em;
 }
+article.reply {
+  background: #fdebd4;
+  padding: 40px;
+  border-radius: 35px;
+}
+article.reply h1,
+article.reply h2,
+article.reply h3,
+article.reply h4,
+article.reply h5,
+article.reply h6 {
+  font-family: Times New Roman, Times;
+}
+article.reply p {
+  font: 15px 'Open Sans';
+  line-height: 1.56;
+}
+article.reply .author {
+  color: #AAA;
+  margin-bottom: 1em;
+}
+.current-panel {
+  border-right: solid 4px #fad7a9;
+}
+/* Well covers up */
+.sidebar-quote {
+  /*background-color: lighten(@beige, 1%);*/
+  padding: 20px;
+  border-radius: 40px;
+  margin-bottom: 20px;
+  font-weight: bolder;
+}
+.sidebar-quote blockquote {
+  /*border-left: solid 5px #6990D4;*/
+  border-left: solid 5px #fad7a9;
+}
+.zero-posts {
+  text-align: center;
+}
 .parent {
   padding: 1em 0em;
 }
@@ -41,22 +84,21 @@ article.post .author {
 .sentence {
   padding: 3px 1px;
   border-radius: 2px;
-  -webkit-transition: all 0.3s ease;
-  -moz-transition: all 0.3s ease;
-  -ms-transition: all 0.3s ease;
-  -o-transition: all 0.3s ease;
-  transition: all 0.3s ease;
+  -webkit-transition: all 0.7s ease;
+  -moz-transition: all 0.7s ease;
+  -ms-transition: all 0.7s ease;
+  -o-transition: all 0.7s ease;
+  transition: all 0.7s ease;
 }
-.sentence-highlight {
+.sentence:hover {
   /*background-color: #F8E456;*/
-  /*background-color: #FAE7A9;*/
-  background-color: #F9EAEC;
+  background-color: #FAE7B9;
   border-radius: 5px;
 }
 .sentence-selected {
   /*background-color: #30D8F0; twitter blue*/
   /*background-color: #FAE7C9;*/
-  background-color: #FAD7A9;
+  background-color: #FAD7A9 !important;
 }
 .sentence-highlight.sentence-selected {
   background-color: #FAE7B9;

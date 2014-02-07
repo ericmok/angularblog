@@ -3,6 +3,7 @@ angular.module('Urls', [])
 .constant('urls', {
 	tokens: "/blog/api-tokens",
 	users: "/blog/api/users",
+	blogs: "/blog/api/blogs",
 	posts: "/blog/api/posts",
-	blogs: "/blog/api/blogs"
+	sentences: "/blog/api/sentences"
 });
