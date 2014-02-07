@@ -229,7 +229,19 @@ class CreatingPost(TestCase):
 		post_serializer = PostSerializer(data=data)
 		post_serializer.is_valid()
 		self.assertIn('title', post_serializer.data)
+        
+	def test_can_create_post_with_variable_punctuation(self):
+		payload = {"title": "Some title",
+					"description": "blah",
+					"parent_content_type": "blog",
+					"parent_id": 1,
+					"content": "Emphatic sentences are punctuated like this!"}
+		payload = json.dumps(payload)
+		response = self.client.post(POSTS_URL, payload, content_type='application/json', HTTP_X_AUTHORIZATION=self.token)
 
+		self.assertEqual(response.status_code, 201)
+        
+        
 	def test_can_create_post_with_sentence_payload(self):
 		payload = {"title": "Some title",
 					"description": "blah",

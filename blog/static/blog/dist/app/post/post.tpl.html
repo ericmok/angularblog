@@ -1,7 +1,7 @@
 <div ng-controller="PostCtrl" class="row">
 
 	<div ng-repeat="panel in sidebars" 
-			ng-class="{'col-xs-7': $index === currentPointer, 'current-panel': $index === currentPointer, 'col-xs-5': $index == currentPointer + 1, 'zoom-small': loading && $index == currentPointer + 1}" 
+			ng-class="{'col-xs-7': $index === currentPointer, 'current-panel': $index === currentPointer, 'col-xs-5': $index == currentPointer + 1, 'zoom-small': loading && $index === currentPointer + 1}" 
 			ng-hide="($index < currentPointer) || ($index > currentPointer + 1)"
 			class="sidebar-panel" >
 		
@@ -25,6 +25,32 @@
 				</p>
 
 			</article>
+            
+            <div class="main-comments-spacer">
+                <button class="btn btn-primary">Reply to Post</button>
+            </div>
+            
+			<article class="reply" ng-repeat="comment in mainComments.results">
+				<header>
+					<hgroup>
+						<div>
+							<h1 style="margin-right: 1.4em; vertical-align: middle; display: inline;">{{comment.title}}</h1> 
+                            <a style="vertical-align: imgddle" class="btn btn-info" href="#/post/{{comment.id}}">Go to Post to Reply &gt;&gt;</a>
+						</div>
+						<h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
+					</hgroup>
+				</header>
+
+				<p ng-repeat="para in comment.content.paragraphs">
+					<span ng-repeat="sen in para.sentences"  class="sentence">
+						{{sen.text}}
+					</span>
+				</p>
+
+			</article>
+			<article class="reply" ng-if="mainComments.results.length < 1">
+				There are no comments for this Post. Perhaps there are comments on the sentences instead?
+			</article>
 		</div>
 		
 		<!-- If this panel's index is on the right side... -->
@@ -42,25 +68,36 @@
 					<blockquote>
 						{{currentlySelectedSentenceObj.text}}
 					</blockquote>
-					<div style="text-align: center;">
-						<button class="btn btn-primary" ng-show="!isMakingComment" ng-click="createComment()">Leave a Comment</button>
-					</div>
-				
+
 				</section>
 			</header>
 
-			<div ng-if="isMakingComment">
-				<div>
-					<login-form></login-form>
-				</div>
-				<div ng-if="isLoggedIn()" class="make-comment">
-					<form class="form">
-						<input type="text" class="form-control title" placeholder="Title" />
-						<textarea class="form-control" placeholder="Enter your post here..."></textarea>
-						<input type="submit" class="btn btn-primary" value="Submit" />
-					</form>
-				</div>
-			</div>
+            <div ng-controller="SentenceCommentCtrl" class="sentence-comment-control">
+                <div style="text-align: center;"ng-show="!isMakingComment">
+                    <button class="btn btn-primary" ng-click="makeComment(currentlySelectedSentenceObj)">Leave a Comment</button>
+                </div>
+                <div ng-if="isMakingComment">
+                    <div class="login-prompt">
+                        <div ng-if="!isLoggedIn()">
+                            Login to Leave a Comment
+                        </div>
+                        <login-form></login-form>
+                    </div>
+                    <div ng-if="isLoggedIn()" class="make-comment">
+                        <form class="form">
+                            <input type="text" class="form-control title" ng-model="comment.title"  placeholder="Title" />
+                            <textarea class="form-control" placeholder="Enter your post here..." ng-model="comment.content"></textarea>
+                            <input type="submit" class="btn btn-primary" value="Submit Comment" ng-click="submitComment()" />
+                        </form>
+                    </div>
+                </div>
+                <div>
+                    {{error}}
+                </div>
+                <div ng-if="commentWasMade">
+					<h2>Your comment was made!</h2>
+                </div>
+            </div>
 
 			<!-- Reply -->
 			<article class="reply" ng-repeat="comment in panel.results">
@@ -95,28 +132,5 @@
 			</article>
 		</div>
 
-		<!-- For comments on the main post. Should be shown under same panel -->
-		<div ng-if="$index === currentPointer">
-			<article class="reply" ng-repeat="comment in mainComments.results">
-				<header>
-					<hgroup>
-						<div>
-							<h1 style="margin-right: 1.4em; vertical-align: middle; display: inline;">{{comment.title}}</h1> 
-						</div>
-						<h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
-					</hgroup>
-				</header>
-
-				<p ng-repeat="para in comment.content.paragraphs">
-					<span ng-repeat="sen in para.sentences"  class="sentence">
-						{{sen.text}}
-					</span>
-				</p>
-
-			</article>
-			<article class="reply" ng-if="mainComments.results.length < 1">
-				There are no comments for this Post. Perhaps there are comments on the sentences instead?
-			</article>
-		</div>
 	</div>
 </div>

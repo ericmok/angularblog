@@ -40,7 +40,12 @@
 			<div ng-if="isLoggedIn">
 				<login-form></login-form>
 			</div>
-			<button class="btn btn-success btn-lg" ng-click="createPost()">&lt;&lt; Submit this post</button>
+            <div ng-if="!isLoading">
+                <button class="btn btn-success btn-lg" ng-click="createPost()">&lt;&lt; Submit this post</button>
+            </div>
+            <div ng-if="isLoading">
+                <h2>Please wait, your request is being processed</h2>
+            </div>
 		</div>
 	</div>
 

@@ -260,7 +260,7 @@ def content_is_not_empty(content):
         return (re.search('[a-zA-Z]', content) is not None)
 
     def period_validator(content):
-        return (re.search('\.', content) is not None)
+        return (re.search('\.|\!|\?', content) is not None)
 
     def none_or_null_validator(content):
         return ( (re.search('^None$', content) is None) and (re.search('^null$', content) is None) )

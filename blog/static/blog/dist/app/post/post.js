@@ -32,9 +32,6 @@ angular.module('main')
 	// Loading boolean for the right-side sidebar (currentPointer + 1)
 	$scope.loading = false;
 
-	
-	$scope.isMakingComment = false;
-
 
 	$scope.isLoggedIn = function() {
 		return auth.isLoggedIn();
@@ -127,50 +124,105 @@ angular.module('main')
 				$scope.selectSentence(sentenceId, sidebarCounter);
 
 			});
-
-		// 400 millisecond. Coordinate with CSS transition timings!
-		}, 400);
+            
+            /* 
+             Duplicated action that selectSentence does. 
+             Purpose of this is to give immediate feedback.
+             */
+            $scope.currentlySelectedSentenceId = parseInt(sentenceId);
+            
+		// 450 millisecond. Coordinate with CSS transition timings!
+		}, 450);
 	};
 
-	// Initial Loading: Load left side, Then right side
-	RequestCache.getURL(urls.posts + '/' + $scope.postId).then(function(data) {
-		$scope.sidebars[$scope.currentPointer] = {
-			results: [data]
-		};
-
-		/* 
-		 Load sentence from sentence query parameter
-		 Since $location.replace() is called everytime the search params change,
-		 there is no need to $watch the params.
-
-		 Default if there is no search param: Load post comments into sidebar
-		 */
-		if ( $location.search().sentence !== undefined ) {
-			
-			RequestCache.getURL(urls.sentences + '/' + $location.search().sentence + '/comments').then(function(data) {
-
-				// If the sentence has no comments, just go back to default behavior
-				if (data.results.length == 0) {
-					$location.search({});
-					$location.replace();
-				} else {
-					$scope.sidebars[$scope.currentPointer + 1] = data;
-					$scope.selectSentence($location.search().sentence, $scope.currentPointer);
-				}
-			});	
-		} else {
-			
-			// Load right sidebar default content
-			// pass
-		}
-
-		// Load comments for the post
-		RequestCache.getURL(urls.posts + '/' + $scope.postId + '/comments').then(function(data) {
-			console.log('sidebar: ', data);
-			//$scope.sidebars[$scope.currentPointer + 1] = data;
-			$scope.mainComments = data;
-		});
+	$scope.bootstrap = function() {
+				
+		// Initial Loading: Load left side, Then right side
+		RequestCache.getURL(urls.posts + '/' + $scope.postId).then(function(data) {
+			$scope.sidebars[$scope.currentPointer] = {
+				results: [data]
+			};
 	
-	});
+			/* 
+			 Load sentence from sentence query parameter
+			 Since $location.replace() is called everytime the search params change,
+			 there is no need to $watch the params.
+	
+			 Default if there is no search param: Load post comments into sidebar
+			 */
+			if ( $location.search().sentence !== undefined ) {
+				
+				RequestCache.getURL(urls.sentences + '/' + $location.search().sentence + '/comments').then(function(data) {
+	
+					// If the sentence has no comments, just go back to default behavior
+					if (data.results.length == 0) {
+						$location.search({});
+						$location.replace();
+					} else {
+						$scope.sidebars[$scope.currentPointer + 1] = data;
+						$scope.selectSentence($location.search().sentence, $scope.currentPointer);
+					}
+				});	
+			} else {
+				
+				// Load right sidebar default content
+				// pass
+			}
+	
+			// Load comments for the post
+			RequestCache.getURL(urls.posts + '/' + $scope.postId + '/comments').then(function(data) {
+				console.log('sidebar: ', data);
+				//$scope.sidebars[$scope.currentPointer + 1] = data;
+				$scope.mainComments = data;
+			});
+		
+		});			
+	};
 
+	// Bootstrap the controller with info as soon as page loads!
+	$scope.bootstrap();
+})
+
+.controller('SentenceCommentCtrl', function($scope, $state, urls, RequestCache, PostsEndpoint, auth) {
+    $scope.isMakingComment = false;
+    $scope.commentWasMade = false;
+    $scope.error = '';
+	
+    $scope.comment = {
+        title: '',
+        content: '',
+        parent_content_type: '',
+        parent_id: -1
+    };
+    
+    $scope.makeComment = function(obj) {
+        $scope.isMakingComment = true;	
+        $scope.comment.parent_content_type = obj.content_type;
+        $scope.comment.parent_id = obj.id;
+    };
+   
+    $scope.submitComment = function() {
+        console.log('Submit comment');
+        console.log($scope.comment);
+        PostsEndpoint.create($scope.comment.parent_content_type, 
+                             $scope.comment.parent_id, 
+                             $scope.comment.title,
+                             $scope.comment.content).success(function(data) {
+            
+            // Success
+            $scope.commentWasMade = true;
+            $scope.error = '';
+            $scope.isMakingComment = false;
+            
+			// reload doesn't work
+			$state.reload();
+			
+			// Invalidate so we actually make bootstrap fetch new data
+			RequestCache.invalidateURL(urls.sentences + '/' + $scope.comment.parent_id + '/comments');
+			$scope.$parent.bootstrap();
+        }).error(function(data) {
+            $scope.commentWasMade = false;
+            $scope.error = 'There was a problem. ' + data.error;
+        });
+    };
 });

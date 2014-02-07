@@ -30,6 +30,13 @@ angular.module("AjaxCaching", [])
 				}
 			}
 			return null;
+		},
+		deleteURL: function(url) {
+			for (var i = 0; i < urlCache.length; i++) {
+				if (urlCache[i].url == url) {
+					urlCache.splice(i, 1);
+				}
+			}
 		}
 	};
 
@@ -37,6 +44,9 @@ angular.module("AjaxCaching", [])
 
 .factory('RequestCache', ["$http", "$q", "UrlCache", function($http, $q, UrlCache) {
 	return {
+		invalidateURL: function(url) {
+			UrlCache.deleteURL(url);
+		},
 		getURL: function(url) {
 			console.log("getURL:", url);
 			var cache = UrlCache.getURL(url);

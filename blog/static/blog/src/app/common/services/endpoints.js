@@ -72,7 +72,7 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 				url: urls.posts,
 				method: 'POST',
 				data: {
-					parent_content_type: 'blog',
+					parent_content_type: content_type,
 					parent_id: id,
 					title: title,
 					content: content
