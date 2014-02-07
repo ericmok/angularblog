@@ -1,6 +1,6 @@
 angular.module('main')
 
-.controller('PostCtrl', function($scope, $stateParams, $location, urlConstructor, RequestCache, urls, $timeout) {
+.controller('PostCtrl', function($scope, $stateParams, $location, $rootScope, auth, urlConstructor, RequestCache, urls, $timeout) {
 	console.log($stateParams.postId);
 	$scope.postId = $stateParams.postId;
 
@@ -32,8 +32,17 @@ angular.module('main')
 	// Loading boolean for the right-side sidebar (currentPointer + 1)
 	$scope.loading = false;
 
+	
+	$scope.isMakingComment = false;
+
+
+	$scope.isLoggedIn = function() {
+		return auth.isLoggedIn();
+	};
 
 	$scope.createComment = function() {
+		$rootScope.$broadcast('LOGIN_PROMPT');
+		$scope.isMakingComment = true;
 		//$location.path()
 	};
 

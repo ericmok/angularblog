@@ -1,6 +1,9 @@
 <div ng-controller="PostCtrl" class="row">
 
-	<div ng-repeat="panel in sidebars" ng-class="{'col-xs-7': $index === currentPointer, 'current-panel': $index === currentPointer, 'col-xs-5': $index == currentPointer + 1}" ng-hide="($index < currentPointer) || ($index > currentPointer + 1)">
+	<div ng-repeat="panel in sidebars" 
+			ng-class="{'col-xs-7': $index === currentPointer, 'current-panel': $index === currentPointer, 'col-xs-5': $index == currentPointer + 1, 'zoom-small': loading && $index == currentPointer + 1}" 
+			ng-hide="($index < currentPointer) || ($index > currentPointer + 1)"
+			class="sidebar-panel" >
 		
 		<div ng-if="$index === currentPointer">
 			<article class="post" ng-repeat="comment in panel.results">
@@ -40,11 +43,24 @@
 						{{currentlySelectedSentenceObj.text}}
 					</blockquote>
 					<div style="text-align: center;">
-						<button class="btn btn-primary" ng-click="createComment()">Leave a Comment</button>
+						<button class="btn btn-primary" ng-show="!isMakingComment" ng-click="createComment()">Leave a Comment</button>
 					</div>
 				
 				</section>
 			</header>
+
+			<div ng-if="isMakingComment">
+				<div>
+					<login-form></login-form>
+				</div>
+				<div ng-if="isLoggedIn()" class="make-comment">
+					<form class="form">
+						<input type="text" class="form-control title" placeholder="Title" />
+						<textarea class="form-control" placeholder="Enter your post here..."></textarea>
+						<input type="submit" class="btn btn-primary" value="Submit" />
+					</form>
+				</div>
+			</div>
 
 			<!-- Reply -->
 			<article class="reply" ng-repeat="comment in panel.results">
@@ -52,7 +68,7 @@
 					<hgroup>
 						<div>
 							<h2 style="margin-right: 1.4em; vertical-align: middle; display: inline;">{{comment.title}}</h2> 
-							<button style="vertical-align: middle" class="btn btn-info">Go to Post &gt;&gt;</button>
+							<a style="vertical-align: imgddle" class="btn btn-info" href="#/post/{{comment.id}}">Go to Post to Reply &gt;&gt;</a>
 						</div>
 						<h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
 					</hgroup>
@@ -86,7 +102,6 @@
 					<hgroup>
 						<div>
 							<h1 style="margin-right: 1.4em; vertical-align: middle; display: inline;">{{comment.title}}</h1> 
-							<button style="vertical-align: middle" class="btn btn-info">Revise Post</button>
 						</div>
 						<h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
 					</hgroup>

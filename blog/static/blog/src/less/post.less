@@ -85,6 +85,48 @@ article.reply
 	}
 }
 
+/* For zoom animation */
+.sidebar-panel
+{
+	-webkit-transition: all 0.7s ease;
+	-moz-transition: all 0.7s ease;
+	-o-transition: all 0.7s ease;
+	transition: all 0.7s ease;	
+}
+
+.zoom-small
+{
+	-webkit-transform: scale(0.9);
+	-moz-transform: scale(0.9);
+	-o-transform: scale(0.9);
+	transform: scale(0.9);
+}
+
+.make-comment
+{
+	padding: 20px;
+	border-radius: 3px;
+	background: saturate(@beige, 10%);
+	text-align: center;
+	margin-bottom: 1em;
+
+	.form
+	{
+		margin-top: 1em;
+	}
+
+	.title
+	{
+		margin-bottom: 1em;
+	}
+
+	textarea
+	{
+		height: 18em;
+		margin-bottom: 1em;
+	}
+}
+
 .zero-posts
 {
 	text-align: center;

@@ -13,5 +13,5 @@ textarea.form-control {
   line-height: 1.55;
   font-size: 20px;
   padding: 20px;
-  height: auto;
+  /*height: auto;*/
 }
