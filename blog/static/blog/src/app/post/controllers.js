@@ -5,7 +5,7 @@ angular.module('main')
 	$scope.postId = $stateParams.postId;
 
 	/* 
-	 Stores all the posts to be displayed side-by-side
+	 Stores all the posts to be displayed side-by-side / carousel-style
 	 The first index is selected by default. 2 items are loaded on init.
 	 */
 	$scope.sidebars = [];

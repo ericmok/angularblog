@@ -26,7 +26,11 @@
 
 			</article>
             
-            <div class="main-comments-spacer">
+            <div class="post-reply">
+                <form class="form">
+                    <input class="form-control" type="text" placeholder="Title" />
+                    <textarea class="form-control" ></textarea>
+                </form>
                 <button class="btn btn-primary">Reply to Post</button>
             </div>
             
@@ -84,6 +88,9 @@
                         <login-form></login-form>
                     </div>
                     <div ng-if="isLoggedIn()" class="make-comment">
+                        <div class="well well-sm" style="text-align: left">
+                            <blockquote>{{currentlySelectedSentenceObj.text}}</blockquote>
+                        </div>
                         <form class="form">
                             <input type="text" class="form-control title" ng-model="comment.title"  placeholder="Title" />
                             <textarea class="form-control" placeholder="Enter your post here..." ng-model="comment.content"></textarea>

@@ -68,13 +68,13 @@ angular.module("main", [
 			url: '/blog/:blogId/edit',
 			templateUrl: '/static/blog/dist/app/editblog/editblog.tpl.html'
 		})
+		.state('createpost', {
+			url: 'createpost',
+			templateUrl: '/static/blog/dist/app/post/createpost.tpl.html'
+		})
 		.state('post', {
 			url: '/post/:postId',
 			templateUrl: '/static/blog/dist/app/post/post.tpl.html'
-		})
-		.state('createpost', {
-			url: '/blog/:blogId/createpost', 
-			templateUrl: '/static/blog/dist/app/createpost/createpost.tpl.html'
 		});
 
 	urlConstructorProvider.register('latest', function() {

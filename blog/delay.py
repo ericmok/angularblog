@@ -5,5 +5,5 @@ import time
  
 class RoundTripDelay(object):
     def process_response(self, request, response):
-        time.sleep(random.randint(0, 2))
+        time.sleep(random.random()*2)
         return response

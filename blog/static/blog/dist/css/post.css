@@ -57,9 +57,9 @@ article.reply .author {
 .current-panel {
   border-right: solid 4px #fad7a9;
 }
-.main-comments-spacer {
+.post-reply {
   margin: 1em 0em;
-  text-align: center;
+  padding: 30px;
 }
 /* Well covers up */
 .sidebar-quote {
