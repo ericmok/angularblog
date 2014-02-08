@@ -2,34 +2,36 @@ angular.module('LoginForm', ['Security'])
 
 
 .directive('loginForm', function($compile, $timeout, auth) {
-
-	var loginRoot = angular.element("<div class='login'></div>");
-
-	var loginFormElement = angular.element('<form class="inner-form" ng-submit="login()"></form>');
-	var loginHeaderElement = angular.element('');
-
-	var alertElement = angular.element('<div class="alert alert-danger" ng-show="failure" ng-bind="status"></div>');
-
-	var usernameElement = angular.element('<input class="form-control" type="text" ng-model="username" name="username" placeholder="username" />');
-
-	var passwordElement = angular.element('<input class="form-control" ng-model="password" type="password" name="password" placeholder="password" />');
-
-	var loginButtonElement = angular.element('<input type="submit" class="btn btn-login" value="Log In" ng-class="{loading: busy}" />');
-	var createAccountElement = angular.element('<button class="btn btn-success" ng-submit="createUser">Create Account</button>');
-	var clearElement = angular.element('<div style="clear: both"></div>');
-
-	var logoutRoot = angular.element('<div class="logout"></div>');
-	var logoutUserInfoElement = angular.element('<div class="user-info"><p class="user-info-username">{{username}}</p></div>')
-	var logoutButtonElement = angular.element('<input type="button" ng-click="logout()" class="col-xs-6 btn btn-logout" value="Log Out" />')
-	var logoutClearElement = angular.element('<div style=\'clear:both;\'></div>');
-
+	
 	return {
 		restrict: 'EA', 
-		template: '<div class=\'login-form\'></div>',
+		template: '<div class=\'login-form\'><div class=\'inner-login-form\'></div><div ng-if=\"isLoggedIn()\" ng-transclude></div></div>',
 		replace: true,
+		transclude: true,
 		scope: {},
 		controller: function($scope) {
 
+			$scope.loginRoot = angular.element("<div class='login'></div>");
+		
+			$scope.loginFormElement = angular.element('<form class="inner-form" ng-submit="login()"></form>');
+			$scope.loginHeaderElement = angular.element('');
+		
+			$scope.alertElement = angular.element('<div class="alert alert-danger" ng-show="failure" ng-bind="status"></div>');
+		
+			$scope.usernameElement = angular.element('<input class="form-control" type="text" ng-model="username" name="username" placeholder="username" />');
+		
+			$scope.passwordElement = angular.element('<input class="form-control" ng-model="password" type="password" name="password" placeholder="password" />');
+		
+			$scope.loginButtonElement = angular.element('<input type="submit" class="btn btn-login" value="Log In" ng-class="{loading: busy}" />');
+			$scope.createAccountElement = angular.element('<button class="btn btn-success" ng-submit="createUser">Create Account</button>');
+			$scope.clearElement = angular.element('<div style="clear: both"></div>');
+		
+			$scope.logoutRoot = angular.element('<div class="logout"></div>');
+			$scope.logoutUserInfoElement = angular.element('<div class="user-info"><p class="user-info-username">{{username}}</p></div>')
+			$scope.logoutButtonElement = angular.element('<input type="button" ng-click="logout()" class="col-xs-6 btn btn-logout" value="Log Out" />')
+			$scope.logoutClearElement = angular.element('<div style=\'clear:both;\'></div>');
+			
+			
 			if ( auth.isLoggedIn() ) {
 				$scope.username = auth.getUsername();
 			}
@@ -41,6 +43,11 @@ angular.module('LoginForm', ['Security'])
 			$scope.failure = false; // Triggered true if log in is with bad credentials
 			$scope.status = '';
 			$scope.loading = false;
+			
+			// For template to use
+			$scope.isLoggedIn = function() {
+				return auth.isLoggedIn();	
+			};
 			
 			$scope.login = function() {
 
@@ -84,27 +91,27 @@ angular.module('LoginForm', ['Security'])
 		link: function(scope, element, attrs) {
 
 			// Login elements
-			loginFormElement.append(loginHeaderElement);
+			scope.loginFormElement.append(scope.loginHeaderElement);
 
-			loginFormElement.append(alertElement);
+			scope.loginFormElement.append(scope.alertElement);
 
-			loginFormElement.append(usernameElement);
-			loginFormElement.append(passwordElement);
-			loginFormElement.append(loginButtonElement);
+			scope.loginFormElement.append(scope.usernameElement);
+			scope.loginFormElement.append(scope.passwordElement);
+			scope.loginFormElement.append(scope.loginButtonElement);
 
-			loginFormElement.append(clearElement);
+			scope.loginFormElement.append(scope.clearElement);
 			
-			loginRoot.append(loginFormElement);
+			scope.loginRoot.append(scope.loginFormElement);
 			
 			// Logout element
-			logoutRoot.append(logoutUserInfoElement);
-			logoutRoot.append(logoutButtonElement);
-			logoutRoot.append(logoutClearElement);
+			scope.logoutRoot.append(scope.logoutUserInfoElement);
+			scope.logoutRoot.append(scope.logoutButtonElement);
+			scope.logoutRoot.append(scope.logoutClearElement);
 
 			// Visual feedback that a login prompt was broadcasted
 			scope.flash = function() {
 				element.addClass("flash");
-				usernameElement.focus();
+				scope.usernameElement.focus();
 
 				$timeout(function() {
 					element.removeClass("flash");		
@@ -121,14 +128,19 @@ angular.module('LoginForm', ['Security'])
 			scope.$watch(function() {
 				return auth.isLoggedIn();
 			}, function(val) {
-
+				
+				var inclusionRoot = element.children('.inner-login-form').first();
 				if (val == true) {					
-					element.empty(); 
-					element.append($compile(logoutRoot)(scope));
+					inclusionRoot.empty();
+					inclusionRoot.append($compile(scope.logoutRoot)(scope));
+					//element.empty(); 
+					//element.append($compile(logoutRoot)(scope));
 				}
 				else {
-					element.empty();
-					element.append($compile(loginRoot)(scope));
+					inclusionRoot.empty();
+					inclusionRoot.append($compile(scope.loginRoot)(scope));
+					//element.empty();
+					//element.append($compile(loginRoot)(scope));
 				}
 			});
 
@@ -136,10 +148,10 @@ angular.module('LoginForm', ['Security'])
 				return scope.loading;
 			}, function(val) {
 				if (val == true) {
-					loginButtonElement.val("Loading");
+					scope.loginButtonElement.val("Loading");
 				}
 				else {
-					loginButtonElement.val("Log In");	
+					scope.loginButtonElement.val("Log In");	
 				}
 			});
 		}

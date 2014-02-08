@@ -5,6 +5,7 @@
 			ng-hide="($index < currentPointer) || ($index > currentPointer + 1)"
 			class="sidebar-panel" >
 		
+        <!-- Main Post -->
 		<div ng-if="$index === currentPointer">
 			<article class="post" ng-repeat="comment in panel.results">
 				<header>
@@ -27,6 +28,9 @@
 			</article>
             
             <div class="post-reply">
+                <login-form>
+                    Test
+                </login-form>
                 <form class="form">
                     <input class="form-control" type="text" placeholder="Title" />
                     <textarea class="form-control" ></textarea>
