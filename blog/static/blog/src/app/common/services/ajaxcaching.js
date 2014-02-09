@@ -43,6 +43,9 @@ angular.module("AjaxCaching", [])
 })
 
 .factory('RequestCache', ["$http", "$q", "UrlCache", function($http, $q, UrlCache) {
+    /*
+     TODO: getURL should return the response instead of the data?
+     */
 	return {
 		invalidateURL: function(url) {
 			UrlCache.deleteURL(url);

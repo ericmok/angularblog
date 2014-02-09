@@ -1,5 +1,6 @@
 
 angular.module("main", [
+    'filters.moment',
 	'ui.router', 
 	'Security', 
 	'LoginForm', 
@@ -75,7 +76,19 @@ angular.module("main", [
 		.state('post', {
 			url: '/post/:postId',
 			templateUrl: '/static/blog/dist/app/post/post.tpl.html'
-		});
+		})
+		.state('revisepost', {
+			url: '/post/:postId/revise',
+			templateUrl: '/static/blog/dist/app/revisepost/revisepost.tpl.html'
+		})
+        .state('revisions', {
+            url: '/revisions/:postId',
+            templateUrl: '/static/blog/dist/app/revisions/revisions.tpl.html'
+        })
+        .state('revisions.edition', {
+            url: '/:editionId',
+            templateUrl: '/static/blog/dist/app/revisions/revisions.edition.tpl.html'
+        });
 
 	urlConstructorProvider.register('latest', function() {
 		return '/latest';
@@ -145,6 +158,9 @@ angular.module("AjaxCaching", [])
 })
 
 .factory('RequestCache', ["$http", "$q", "UrlCache", function($http, $q, UrlCache) {
+    /*
+     TODO: getURL should return the response instead of the data?
+     */
 	return {
 		invalidateURL: function(url) {
 			UrlCache.deleteURL(url);
@@ -303,7 +319,37 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 
 .factory('PostsEndpoint', function($http, $q, auth, urls, RequestCache) {
 	return {
-
+        flattenContent: function(content) {
+            /*
+             Flatten content sentences into a string to be put into a textarea
+             */
+            var flattened = '';
+            
+            content.paragraphs.forEach(function(paragraph, pIndex, pArray) {
+                
+                paragraph.sentences.forEach(function(sentence) {
+                    flattened += sentence.text;
+                });
+                
+                // Don't put new lines if there are no more paragraphs after this one
+                if (pIndex !== content.paragraphs.length - 1) {
+                    flattened += '\n\n\n';
+                }
+            });
+            
+            return flattened;
+        },
+        verifyCreate: function(content_type, id, title, content) {
+            // TODO: For verifying errors with title / content before sending
+        },
+        
+        /**
+         Makes a POST request and handles authorization tokens
+         TODO: Add Hashcash proof of work for POST request...
+         TODO: Take a dictionary in place of these parameters...
+         
+         Returns: $http
+         */
 		create: function(content_type, id, title, content) {
 			return $http({
 				url: urls.posts,
@@ -326,7 +372,35 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 				console.log('Error!');
 				return data;
 			});
-		}
+		},
+        
+        /**
+         Makes cached GET request
+         
+         Returns: RequestCache response
+         */
+        fetch: function(id) {
+            return RequestCache.getURL(urls.posts + '/' + id);
+        },
+        
+        /**
+         The novelty of an update request. Creates a new edition resource...
+         TODO: Take a dictionary
+         
+         Returns: $http
+         */
+        patch: function(id, content) {
+            return $http({
+                url: urls.posts + '/' + id,
+                method: 'PATCH',
+                data: {
+                    content: content
+                },
+                headers: {
+                    'X-Authorization': auth.loginToken
+                }
+            });
+        }
 	};
 })
 
@@ -865,3 +939,14 @@ angular.module('UniqueInput', [])
 
  /* *** */ 
 
+
+
+ /* *** */ 
+
+angular.module('filters.moment', []).
+
+filter('moment', function() {
+    return function(date) {
+        return moment(date).fromNow();
+    };
+});

@@ -1,0 +1,23 @@
+<div ng-controller="RevisePostCtrl">
+    <h2>Revise Post</h2>
+    <form class="form">
+        <input type="hidden" name="id" ng-model="edition.id" />
+        <input type="text" class="form-control title" name="title" readonly ng-model="edition.title" />
+        <textarea rows="14" name="content" class="form-control" ng-model="edition.content"></textarea>
+        <div ng-hide="submitLoading">
+            <button class="btn btn-primary" ng-click="submitRevision()">Submit Revision</button>
+        </div>
+        <div ng-show="submitLoading">
+            Your request is processing...
+        </div>
+        <div ng-show="submitAttempted">
+            <div ng-show="submitSuccess" class="alert alert-success">
+                Your revision was submitted!
+            </div>
+            <div ng-hide="submitSuccess" class="alert alert-danger">
+                There was an error with this request. Please change your form and try again.
+            </div>
+        </div>
+    </form>
+    
+</div>

@@ -32,6 +32,14 @@ angular.module('main')
 	// Loading boolean for the right-side sidebar (currentPointer + 1)
 	$scope.loading = false;
 
+	// For template. TODO: Have a data store for this?
+	$scope.getCurrentPost = function() {
+		return $scope.sidebars[$scope.currentPointer].results[0];
+	};
+
+	$scope.canRevisePost = function() {
+		return $scope.sidebars[$scope.currentPointer].results[0].author == auth.getUsername();
+	};
 
 	$scope.isLoggedIn = function() {
 		return auth.isLoggedIn();
@@ -90,8 +98,8 @@ angular.module('main')
 	};
 
 	$scope.updateSidebar = function(sentenceId, sidebarCounter) {
-		console.log('sidebar', sidebarCounter);
-		console.log('Change sidebar to:', sentenceId);
+		//console.log('sidebar', sidebarCounter);
+		//console.log('Change sidebar to:', sentenceId);
 
 		// When starting a new request, remove previous requests
 		$scope.cancelTimers();
@@ -133,6 +141,15 @@ angular.module('main')
             
 		// 450 millisecond. Coordinate with CSS transition timings!
 		}, 450);
+	};
+
+	$scope.reloadMainComments = function() {
+		RequestCache.invalidateURL(urls.posts + '/' + $scope.postId + '/comments');
+		RequestCache.getURL(urls.posts + '/' + $scope.postId + '/comments').then(function(data) {
+				console.log('sidebar: ', data);
+				//$scope.sidebars[$scope.currentPointer + 1] = data;
+				$scope.mainComments = data;
+			});
 	};
 
 	$scope.bootstrap = function() {
@@ -219,10 +236,87 @@ angular.module('main')
 			
 			// Invalidate so we actually make bootstrap fetch new data
 			RequestCache.invalidateURL(urls.sentences + '/' + $scope.comment.parent_id + '/comments');
+
 			$scope.$parent.bootstrap();
         }).error(function(data) {
             $scope.commentWasMade = false;
             $scope.error = 'There was a problem. ' + data.error;
         });
     };
+})
+
+.controller('PostFormCtrl', function($scope, $state, $rootScope, PostsEndpoint, auth) {
+	
+	$scope.postCreated = false;
+	$scope.errors = [];
+	$scope.isLoading = false;
+
+	$scope._isActive = false;
+
+	$scope.model = {
+		title: '',
+		content: ''
+	};
+
+	$scope.isActive = function(val) {
+		if (val) {
+			$scope._isActive = val;
+			return $scope._isActive;
+		}
+		return $scope._isActive;
+	};
+
+	$scope.makeActive = function() {
+		$scope._isActive = true;
+	};
+
+	$scope.isLoggedIn = function() {
+		return auth.isLoggedIn();
+	};
+
+	$scope.submitComment = function(content_type, id, callback) {
+
+		if (!auth.isLoggedIn()) {
+			$rootScope.$broadcast('LOGIN_PROMPT');
+			return;
+		}
+
+        console.log('Submit comment');
+        console.log($scope.model);
+
+        $scope.isLoading = true;
+
+        PostsEndpoint.create(content_type, 
+                             id, 
+                             $scope.model.title,
+                             $scope.model.content).success(function(data) {
+            
+            // Success
+            $scope.postCreated = true;
+            $scope.errors = [];
+            
+            if (callback !== undefined) {
+				callback();
+            }
+
+            $scope.isLoading = false;
+
+        }).error(function(data) {
+
+        	$scope.postCreated = false;
+
+        	$scope.errors = [];
+
+        	for (var key in data) {
+        		if (data.hasOwnProperty(key)) {
+        			$scope.errors.unshift({
+        				name: key,
+        				value: data[key]
+        			});
+        		}
+        	}
+
+        	$scope.isLoading = false;
+        });
+	};
 });

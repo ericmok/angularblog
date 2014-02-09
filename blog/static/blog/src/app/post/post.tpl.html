@@ -15,7 +15,8 @@
 						</div>
 						<h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
 					</hgroup>
-					<button style="vertical-align: middle" class="btn btn-info">Revise Post</button>
+
+					<a style="vertical-align: middle" class="btn btn-info" ui-sref="revisepost({postId: comment.id})" ng-show="canRevisePost()">Revise Post</a>
 				</header>
 
 				<p ng-repeat="para in comment.content.paragraphs">
@@ -27,23 +28,42 @@
 
 			</article>
             
+            <!-- Reply form -->
             <div class="post-reply">
-                <login-form>
-                    Test
-                </login-form>
-                <form class="form">
-                    <input class="form-control" type="text" placeholder="Title" />
-                    <textarea class="form-control" ></textarea>
+
+                <form class="form" ng-controller="PostFormCtrl">
+                	<button class="btn btn-primary" ng-if="!isActive()" ng-click="makeActive()">Reply to Post</button>
+                	<div ng-if="isActive()">
+	                	<div class="login-prompt">
+							<div ng-if="!isLoggedIn()">
+		                		<h3>Login to Reply to Post</h3>
+		                	</div>
+		                	<login-form></login-form>
+	                	</div>
+	                	<div ng-if="isLoggedIn()">
+							<div ng-hide="postCreated">
+								<div class="alert alert-danger" ng-if="errors" ng-repeat="error in errors">
+			                		{{error.name}}: {{error.value}}
+			                	</div>
+			                    <input class="form-control" type="text" placeholder="Title" ng-model="model.title" />
+			                    <textarea class="form-control" rows="11" ng-model="model.content" placeholder="Enter your reply here..."></textarea>
+			                    <button class="btn btn-primary" ng-hide="isLoading" ng-click="submitComment('post', getCurrentPost().id, reloadMainComments)">Reply to Post</button>
+			                    <div ng-show="isLoading">
+			                    	Submitting post...
+			                    </div>
+		                	</div>
+	                	</div>
+                	</div>
                 </form>
-                <button class="btn btn-primary">Reply to Post</button>
             </div>
             
-			<article class="reply" ng-repeat="comment in mainComments.results">
+            <!-- Main Post Comments -->
+			<article class="main-comment" ng-repeat="comment in mainComments.results">
 				<header>
 					<hgroup>
 						<div>
 							<h1 style="margin-right: 1.4em; vertical-align: middle; display: inline;">{{comment.title}}</h1> 
-                            <a style="vertical-align: imgddle" class="btn btn-info" href="#/post/{{comment.id}}">Go to Post to Reply &gt;&gt;</a>
+                            <a style="vertical-align: imgddle" class="btn btn-info" asdfhref="#/post/{{comment.id}}" ui-sref="post(comment.id)">Go to Post to Reply &gt;&gt;</a>
 						</div>
 						<h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
 					</hgroup>
@@ -102,7 +122,7 @@
                         </form>
                     </div>
                 </div>
-                <div>
+                <div class="alert alert-danger" ng-if="error">
                     {{error}}
                 </div>
                 <div ng-if="commentWasMade">

@@ -1,5 +1,6 @@
 
 angular.module("main", [
+    'filters.moment',
 	'ui.router', 
 	'Security', 
 	'LoginForm', 
@@ -75,7 +76,19 @@ angular.module("main", [
 		.state('post', {
 			url: '/post/:postId',
 			templateUrl: '/static/blog/dist/app/post/post.tpl.html'
-		});
+		})
+		.state('revisepost', {
+			url: '/post/:postId/revise',
+			templateUrl: '/static/blog/dist/app/revisepost/revisepost.tpl.html'
+		})
+        .state('revisions', {
+            url: '/revisions/:postId',
+            templateUrl: '/static/blog/dist/app/revisions/revisions.tpl.html'
+        })
+        .state('revisions.edition', {
+            url: '/:editionId',
+            templateUrl: '/static/blog/dist/app/revisions/revisions.edition.tpl.html'
+        });
 
 	urlConstructorProvider.register('latest', function() {
 		return '/latest';

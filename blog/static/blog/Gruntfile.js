@@ -21,7 +21,7 @@ module.exports = function(grunt) {
 				separator: '\n\n /* *** */ \n\n'
 			},
 			app: {
-				src: ['src/app/main.js', 'src/app/common/services/*.js', 'src/app/common/directives/*.js'],
+				src: ['src/app/main.js', 'src/app/common/services/*.js', 'src/app/common/directives/*.js', 'src/app/common/filters/*.js'],
 				dest: 'dist/app/main.js'
 			},
 			pages: {
@@ -43,7 +43,13 @@ module.exports = function(grunt) {
 				}, {
 					src: 'src/app/createpost/*.js',
 					dest: 'dist/app/createpost/createpost.js'
-				}]
+				}, {
+					src: 'src/app/revisepost/*.js',
+					dest: 'dist/app/revisepost/revisepost.js'
+				}, {
+                    src: 'src/app/revisions/*.js',
+                    dest: 'dist/app/revisions/revisions.js'
+                }]
 			}
 		},
 		copy: {

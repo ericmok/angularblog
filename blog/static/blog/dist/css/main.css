@@ -1,3 +1,148 @@
+/* Common */
+input.ng-valid-unique-source {
+  border: solid 1px #51A351 !important;
+}
+input.ng-invalid-unique-source {
+  border: solid 1px #BD362F !important;
+}
+.form-control.title {
+  font-size: 20px;
+  padding: 20px;
+}
+textarea.form-control {
+  font-family: Times, Times New Roman, Serif;
+  line-height: 1.4;
+  font-size: 18px;
+  padding: 20px;
+  /*height: auto;*/
+}
+/* #d9534f */
+/* #d43f3a */
+.login-form {
+  text-align: center;
+  display: inline-block;
+  padding: 1.3em;
+  width: 25em;
+  border: solid 1px #DDD;
+  border-radius: 5px;
+  -webkit-transition: background-color 0.7s ease;
+  -moz-transition: background-color 0.7s ease;
+  -ms-transition: background-color 0.7s ease;
+  -o-transition: background-color 0.7s ease;
+  transition: background-color 0.7s ease;
+  /* Fixes: Placing the login form in different places may change the font */
+}
+.login-form .inner-form {
+  -webkit-transition: all 0.7s ease;
+  -moz-transition: all 0.7s ease;
+  -ms-transition: all 0.7s ease;
+  -o-transition: all 0.7s ease;
+  transition: all 0.7s ease;
+  /*background-color: #FFF;*/
+}
+.login-form.flash {
+  background-color: #FFEBAD;
+  border: solid 1px #ffe594;
+}
+.login-form input {
+  box-shadow: inset 0px 1px 7px -4px;
+}
+.login-form input[type=password] {
+  margin-top: 4px;
+  float: left;
+  width: 71%;
+}
+.login-form input[type=submit] {
+  margin-top: 4px;
+  float: right;
+  width: 28%;
+  /* 2px / 320px */
+}
+.login-form input[type=submit]:after {
+  content: ' ';
+  display: table;
+  clear: both;
+}
+.login-form .busy {
+  background-color: #EEE;
+}
+.login-form .btn-login {
+  background-color: #db5b57;
+  border: solid 1px #da5753;
+  color: #FFF;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.login-form .btn-login:hover {
+  background-color: #d74642;
+  border: solid 1px #da5753;
+  color: #FFF;
+}
+.login-form .user-info {
+  padding-top: 6px;
+  text-align: left;
+  float: left;
+  width: 50%;
+}
+.login-form .user-info > p:before {
+  content: "Username: ";
+  font-weight: bolder;
+}
+.login-form .user-info > p {
+  font-family: 'Arial', 'Helvetica' !important;
+  font-size: 14px;
+}
+.login-form .btn-logout {
+  background-color: #5cb85c;
+  border: solid 1px #4cae4c;
+  color: #FFF;
+  float: left;
+  width: 49.00625%;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+.login-form .btn-logout:hover {
+  color: #FFF;
+  background-color: #4cae4c;
+}
+/* Pages */
+.tableture {
+  height: 100%;
+  margin-bottom: 2em;
+}
+.tableture img {
+  margin: 0px auto;
+}
+.tableture .inner {
+  border-radius: 5px;
+  border: solid 1px #CCC;
+  text-align: center;
+  height: 100%;
+  padding: 1.3em;
+}
+.tableture h5 {
+  font-weight: bolder;
+}
+.tableture p {
+  text-align: left;
+  line-height: 1.5;
+}
+@media (max-width: 800px) {
+  .tableture p {
+    margin-top: 1em;
+  }
+}
+.blog-description {
+  margin: 0px 0px 20px 0px;
+  padding: 30px 10px;
+  background-color: #FFF5CF;
+}
 .slide-container {
   position: relative;
   height: 50px;

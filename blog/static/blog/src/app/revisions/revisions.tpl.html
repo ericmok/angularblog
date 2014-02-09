@@ -1,0 +1,16 @@
+<div ng-controller="RevisionsCtrl">
+    <h1>Revisions</h1>
+
+    <div>
+        <h2>{{post.title}}</h2>
+        <address>by {{post.author}} on {{post.parent_content_type}}/{{post.parent_id}}</address>
+        <h3>Revisions:</h3>
+        <ol>
+            <li ng-repeat="edition in post.editions">
+               <a>{{edition.created | moment}}</a>
+            </li>
+        </ol>
+    </div>
+
+    <div ui-view></div>
+</div>
