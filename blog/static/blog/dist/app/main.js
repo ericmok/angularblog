@@ -87,7 +87,7 @@ angular.module("main", [
         })
         .state('revisions.edition', {
             url: '/:editionId',
-            templateUrl: '/static/blog/dist/app/revisions/revisions.edition.tpl.html'
+            templateUrl: '/static/blog/dist/app/revisions/revisions.editions.tpl.html'
         });
 
 	urlConstructorProvider.register('latest', function() {
@@ -319,6 +319,10 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 
 .factory('PostsEndpoint', function($http, $q, auth, urls, RequestCache) {
 	return {
+		invalidateCache: function(id) {
+			RequestCache.invalidateURL(urls.posts + '/' + id);
+			RequestCache.invalidateURL(urls.posts + '/' + id + '/comments');
+		},
         flattenContent: function(content) {
             /*
              Flatten content sentences into a string to be put into a textarea
@@ -328,7 +332,7 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
             content.paragraphs.forEach(function(paragraph, pIndex, pArray) {
                 
                 paragraph.sentences.forEach(function(sentence) {
-                    flattened += sentence.text;
+                    flattened += sentence.text + ' ';
                 });
                 
                 // Don't put new lines if there are no more paragraphs after this one
@@ -402,6 +406,14 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
             });
         }
 	};
+})
+
+.factory('EditionsEndpoint', function(RequestCache, urls) {
+    return {
+        fetch: function(id) {
+            return RequestCache.getURL(urls.editions + '/' + id);
+        }
+    };
 })
 
 .factory('SentencesEndpoint', function() {
@@ -565,6 +577,18 @@ angular.module('Security', ['Urls'])
 
  /* *** */ 
 
+angular.module('Serializers', []).
+
+factory('Blog', function() {
+    return function(data) {
+        this.id = data.id;
+        this.title = data.title;
+        this.description = data.description;
+    };
+});
+
+ /* *** */ 
+
 angular.module('Urls', [])
 
 .constant('urls', {
@@ -572,6 +596,7 @@ angular.module('Urls', [])
 	users: "/blog/api/users",
 	blogs: "/blog/api/blogs",
 	posts: "/blog/api/posts",
+    editions: "/blog/api/editions",
 	sentences: "/blog/api/sentences"
 });
 
@@ -948,5 +973,11 @@ angular.module('filters.moment', []).
 filter('moment', function() {
     return function(date) {
         return moment(date).fromNow();
+    };
+}).
+
+filter('momentverbose', function() {
+    return function(date) {
+        return moment(date).format('LLLL');
     };
 });

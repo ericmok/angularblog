@@ -1,15 +1,20 @@
 <div ng-controller="RevisionsCtrl">
     <h1>Revisions</h1>
 
-    <div>
-        <h2>{{post.title}}</h2>
-        <address>by {{post.author}} on {{post.parent_content_type}}/{{post.parent_id}}</address>
+    <div ng-hide="isLoading">
+		<div class="well well-sm">
+        	<h2>{{post.title}}</h2>
+        	<address>by {{post.author}} on {{post.parent_content_type}}/{{post.parent_id}}</address>
+		</div>
         <h3>Revisions:</h3>
-        <ol>
-            <li ng-repeat="edition in post.editions">
-               <a>{{edition.created | moment}}</a>
-            </li>
-        </ol>
+        <div class="list-group">
+            <a class="list-group-item" 
+			   ng-repeat="edition in editions" 
+			   ng-class="{'active': edition.id == selectedEdition}" 
+			   ui-sref="revisions.edition({'editionId': {{edition.id}} })">
+               	{{edition.created | momentverbose }} ({{edition.created | moment}})
+            </a>
+        </div>
     </div>
 
     <div ui-view></div>

@@ -87,7 +87,7 @@ angular.module("main", [
         })
         .state('revisions.edition', {
             url: '/:editionId',
-            templateUrl: '/static/blog/dist/app/revisions/revisions.edition.tpl.html'
+            templateUrl: '/static/blog/dist/app/revisions/revisions.editions.tpl.html'
         });
 
 	urlConstructorProvider.register('latest', function() {

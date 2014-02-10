@@ -66,6 +66,10 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 
 .factory('PostsEndpoint', function($http, $q, auth, urls, RequestCache) {
 	return {
+		invalidateCache: function(id) {
+			RequestCache.invalidateURL(urls.posts + '/' + id);
+			RequestCache.invalidateURL(urls.posts + '/' + id + '/comments');
+		},
         flattenContent: function(content) {
             /*
              Flatten content sentences into a string to be put into a textarea
@@ -75,7 +79,7 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
             content.paragraphs.forEach(function(paragraph, pIndex, pArray) {
                 
                 paragraph.sentences.forEach(function(sentence) {
-                    flattened += sentence.text;
+                    flattened += sentence.text + ' ';
                 });
                 
                 // Don't put new lines if there are no more paragraphs after this one
@@ -149,6 +153,14 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
             });
         }
 	};
+})
+
+.factory('EditionsEndpoint', function(RequestCache, urls) {
+    return {
+        fetch: function(id) {
+            return RequestCache.getURL(urls.editions + '/' + id);
+        }
+    };
 })
 
 .factory('SentencesEndpoint', function() {

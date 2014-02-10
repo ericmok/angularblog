@@ -408,6 +408,8 @@ class PatchRequests(TestCase):
 		sentences = Sentence.objects.filter(edition = ed)
 
 		test_content = ' '.join( [sentences[0].text.value, sentences[1].text.value] )
+        
+		test_content += ' This is a third unmerged sentence.'
 
 		payload = {
 			"content": test_content
@@ -432,4 +434,5 @@ class PatchRequests(TestCase):
 		patch_request = self.client.patch(POSTS_URL + "/1", data=payload, HTTP_X_AUTHORIZATION=self.token, content_type='application/json')
 		self.assertEqual(patch_request.status_code, 201)		
 		jres = json.loads(patch_request.content)
-		self.assertEqual(jres['number_merged'], 0)		
+		self.assertEqual(jres['number_merged'], 0)
+		self.assertEqual(jres['number_sentences'], 2)

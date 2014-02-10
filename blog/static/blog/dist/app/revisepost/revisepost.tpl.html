@@ -3,6 +3,7 @@
     <form class="form">
         <input type="hidden" name="id" ng-model="edition.id" />
         <input type="text" class="form-control title" name="title" readonly ng-model="edition.title" />
+		
         <textarea rows="14" name="content" class="form-control" ng-model="edition.content"></textarea>
         <div ng-hide="submitLoading">
             <button class="btn btn-primary" ng-click="submitRevision()">Submit Revision</button>

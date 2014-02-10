@@ -5,5 +5,6 @@ angular.module('Urls', [])
 	users: "/blog/api/users",
 	blogs: "/blog/api/blogs",
 	posts: "/blog/api/posts",
+    editions: "/blog/api/editions",
 	sentences: "/blog/api/sentences"
 });

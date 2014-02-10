@@ -1,0 +1,9 @@
+/*
+ Refactor: Make an article.less for storing article based css
+ */
+.sentence-modified {
+  background-color: #AA99DD;
+}
+.sentence-added {
+  background-color: #AADD99;
+}

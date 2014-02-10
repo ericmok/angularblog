@@ -1,4 +1,9 @@
 /* Common */
+/* Engraved look */
+.soft {
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.7), 0px -1px 0px rgba(0, 0, 0, 0.4);
+  color: #AAA;
+}
 input.ng-valid-unique-source {
   border: solid 1px #51A351 !important;
 }
@@ -314,4 +319,13 @@ article.main-comment .author {
 }
 .sentence-highlight.sentence-selected {
   background-color: #FAE7B9;
+}
+/*
+ Refactor: Make an article.less for storing article based css
+ */
+.sentence-modified {
+  background-color: #AA99DD;
+}
+.sentence-added {
+  background-color: #AADD99;
 }

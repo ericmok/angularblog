@@ -8,7 +8,7 @@ angular.module('main')
     
     $scope.submitLoading = false;
     $scope.submitAttempted = false;
-    $scope.submitSuccess = false;
+    $scope.submitSuccess = true;
     
     // Bootstrap the controller with data
     PostsEndpoint.fetch($stateParams.postId).then(function(data) {
@@ -31,6 +31,10 @@ angular.module('main')
                 
                 $scope.submitLoading = false;
                 $scope.submitSuccess = true;    
+				
+				PostsEndpoint.invalidateCache($stateParams.postId);
+				
+				$state.transitionTo('revisions', {postId: $stateParams.postId});
                 
             }, function(response) {
                 
