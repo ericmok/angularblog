@@ -70,8 +70,8 @@ angular.module("main", [
 			templateUrl: '/static/blog/dist/app/editblog/editblog.tpl.html'
 		})
 		.state('createpost', {
-			url: 'createpost',
-			templateUrl: '/static/blog/dist/app/post/createpost.tpl.html'
+			url: '/blog/:blogId/createpost',
+			templateUrl: '/static/blog/dist/app/createpost/createpost.tpl.html'
 		})
 		.state('post', {
 			url: '/post/:postId',

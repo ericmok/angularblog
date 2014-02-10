@@ -5,16 +5,22 @@
         <input type="text" class="form-control title" name="title" readonly ng-model="edition.title" />
 		
         <textarea rows="14" name="content" class="form-control" ng-model="edition.content"></textarea>
-        <div ng-hide="submitLoading">
+
+		<div ng-hide="submitLoading">
+			<div>
+				<login-form></login-form>
+			</div>
             <button class="btn btn-primary" ng-click="submitRevision()">Submit Revision</button>
         </div>
-        <div ng-show="submitLoading">
+        <div ng-show="submitLoading" class="alert alert-info">
             Your request is processing...
         </div>
         <div ng-show="submitAttempted">
-            <div ng-show="submitSuccess" class="alert alert-success">
-                Your revision was submitted!
-            </div>
+			<div ng-hide="submitLoading">
+				<div ng-show="submitSuccess" class="alert alert-success">
+					Your revision was submitted!
+            	</div>
+			</div>
             <div ng-hide="submitSuccess" class="alert alert-danger">
                 There was an error with this request. Please change your form and try again.
             </div>

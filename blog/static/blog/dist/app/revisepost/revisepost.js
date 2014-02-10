@@ -1,6 +1,6 @@
 angular.module('main')
 
-.controller('RevisePostCtrl', function($scope, $state, $stateParams, PostsEndpoint, auth) {
+.controller('RevisePostCtrl', function($scope, $state, $stateParams, $rootScope, PostsEndpoint, auth) {
     $scope.edition = {id: -1, title: '', content: ''};
     
     // Are the state params valid so that the model loads?
@@ -12,7 +12,7 @@ angular.module('main')
     
     // Bootstrap the controller with data
     PostsEndpoint.fetch($stateParams.postId).then(function(data) {
-            
+           
         /* 
          This is a one-to-one mapping
          TODO: Make a post serializer...
@@ -24,6 +24,11 @@ angular.module('main')
         // Allow function definition if the model exists
         $scope.submitRevision = function() {
             
+			if (!auth.isLoggedIn()) { 
+				$rootScope.$broadcast('LOGIN_PROMPT');
+				return;
+			}
+			
             $scope.submitAttempted = true;
             $scope.submitLoading = true;
             

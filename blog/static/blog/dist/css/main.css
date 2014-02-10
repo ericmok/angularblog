@@ -148,6 +148,7 @@ textarea.form-control {
   padding: 30px 10px;
   background-color: #FFF5CF;
 }
+/*@beige: #FAD7A9;*/
 .slide-container {
   position: relative;
   height: 50px;
@@ -183,9 +184,10 @@ article.post .author {
   margin-bottom: 1em;
 }
 article.reply {
-  background: #fdebd4;
-  padding: 40px;
-  border-radius: 35px;
+  background: #ffe5a3;
+  margin: 10px;
+  padding: 30px;
+  border-radius: 33px;
   margin-bottom: 2em;
 }
 article.reply h1,
@@ -228,7 +230,9 @@ article.main-comment .author {
   margin-bottom: 1em;
 }
 .current-panel {
-  border-right: solid 4px #fad7a9;
+  /*border-right: solid 4px @beige;*/
+  box-shadow: 1px 0px 20px 1px #999;
+  padding: 10px 30px;
 }
 .post-reply {
   margin: 1em 0em;
@@ -244,7 +248,7 @@ article.main-comment .author {
 }
 .sidebar-quote blockquote {
   /*border-left: solid 5px #6990D4;*/
-  border-left: solid 5px #fad7a9;
+  border-left: solid 5px #ffde89;
 }
 /* For zoom animation */
 .sidebar-panel {
@@ -258,6 +262,10 @@ article.main-comment .author {
   -moz-transform: scale(0.9);
   -o-transform: scale(0.9);
   transform: scale(0.9);
+  -webkit-opacity: 0.4;
+  -moz-opacity: 0.4;
+  -o-opacity: 0.4;
+  opacity: 0.4;
 }
 .sentence-comment-control {
   margin-bottom: 1em;
@@ -309,13 +317,15 @@ article.main-comment .author {
 }
 .sentence:hover {
   /*background-color: #F8E456;*/
-  background-color: #FAE7B9;
+  /*background-color: #FAE7B9;*/
+  background-color: #ffe5a3;
   border-radius: 5px;
 }
 .sentence-selected {
   /*background-color: #30D8F0; twitter blue*/
   /*background-color: #FAE7C9;*/
-  background-color: #FAD7A9 !important;
+  /*background-color: #FAD7A9 !important;*/
+  background-color: #ffde89;
 }
 .sentence-highlight.sentence-selected {
   background-color: #FAE7B9;

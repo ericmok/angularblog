@@ -1,14 +1,6 @@
 
 
 <h2>Latest</h2>
-<div class="breadcrumb">
-	<li>
-		test
-	</li>
-	<li>
-		asdf
-	</li>
-</div>
 
 <div ng-controller="LatestPostsCtrl" class="col-md-6">
 	
@@ -17,11 +9,14 @@
 			<article class="post">
 				<header>
 					<hgroup>
-						<a href="#/post/{{post.id}}">
-								<h3>
-									{{post.title}}
-								</h3>
-							</a>						<h6>{{post.author}} on [ {{post.parent_content_type}} / {{post.parent_id}} ]</h6>
+						
+						<h3>
+							<a href="#/post/{{post.id}}">
+								{{post.title}}
+							</a>
+						</h3>
+							
+						<h6>{{post.author}} on [ {{post.parent_content_type}} / {{post.parent_id}} ]</h6>
 					</hgroup>
 				</header>
 				<p ng-repeat="para in post.content.paragraphs">
@@ -54,13 +49,13 @@
 				<login-form></login-form>
 			</div>
 		</div>
-		<div style="margin-top: 3em">
+		<div style="margin-top: 3em; margin-bottom: 3em;">
 			<a class="btn btn-primary" ng-click="createBlog()">Create Blog</a>
 		</div>
 		
-		<div ng-repeat="blog in blogs.results">
-			<a href="#/blog/{{blog.title}}"><h4>{{blog.title}}</h4></a>
-		</div>
+		<ul ng-repeat="blog in blogs.results" class="breadcrumb">
+			<li><a href="#/blog/{{blog.title}}"><h4>{{blog.title}}</h4></a></li>
+		</ul>
 	</div>
 </div>
 

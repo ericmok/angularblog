@@ -1,6 +1,7 @@
 angular.module('main')
 
 .controller('CreatePostCtrl', function($scope, $state, $stateParams, urlConstructor, $location, auth, BlogsEndpoint, PostsEndpoint) {
+	
 	$scope.blogId = $stateParams.blogId;
 	$scope.blog = null;
 

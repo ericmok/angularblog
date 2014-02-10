@@ -1,5 +1,6 @@
-@beige: #FAD7A9;
-
+/*@beige: #FAD7A9;*/
+@beige: #FFDE89;
+	
 .slide-container
 {
 	position: relative;
@@ -44,9 +45,10 @@ article.post
 article.reply
 {
 
-	background: lighten(@beige, 9%);
-	padding: 40px;
-	border-radius: 35px;
+	background: lighten(@beige, 5%);
+	margin: 10px;
+	padding: 30px;
+	border-radius: 33px;
     margin-bottom: 2em;
     
 	h1, h2, h3, h4, h5, h6
@@ -92,7 +94,9 @@ article.main-comment
 
 .current-panel
 {
-	border-right: solid 4px @beige;
+	/*border-right: solid 4px @beige;*/
+	box-shadow: 1px 0px 20px 1px #999;
+	padding: 10px 30px;
 }
 
 .post-reply
@@ -128,10 +132,16 @@ article.main-comment
 
 .zoom-small
 {
+	
 	-webkit-transform: scale(0.9);
 	-moz-transform: scale(0.9);
 	-o-transform: scale(0.9);
 	transform: scale(0.9);
+	
+	-webkit-opacity: 0.4;
+	-moz-opacity: 0.4;
+	-o-opacity: 0.4;
+	opacity: 0.4;
 }
 
 .sentence-comment-control
@@ -210,7 +220,8 @@ article.main-comment
 	&:hover
 	{
 		/*background-color: #F8E456;*/
-		background-color: #FAE7B9;
+		/*background-color: #FAE7B9;*/
+		background-color: lighten(@beige, 5%);
 		border-radius: 5px;
 	}
 }
@@ -219,7 +230,8 @@ article.main-comment
 {
 	/*background-color: #30D8F0; twitter blue*/
 	/*background-color: #FAE7C9;*/
-	background-color: #FAD7A9 !important;
+	/*background-color: #FAD7A9 !important;*/
+	background-color: @beige;
 }
 
 .sentence-highlight.sentence-selected 

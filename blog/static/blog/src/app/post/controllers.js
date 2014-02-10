@@ -116,7 +116,8 @@ angular.module('main')
 
 				// Update the sidebar
 				$scope.sidebars[$scope.currentPointer + 1] = data;
-
+		
+				
 				// Update the URL if the user has stayed very long on the sentence
 				$scope.urlChangeTimer = $timeout(function() {
 					$location.search({sentence: sentenceId});
@@ -131,6 +132,31 @@ angular.module('main')
 				 */
 				$scope.selectSentence(sentenceId, sidebarCounter);
 
+						
+//				
+//				console.log('currently selected', $scope.currentlySelectedSentenceObj);
+//				
+//				if ($scope.currentlySelectedSentenceObj && $scope.currentlySelectedSentenceObj.previous_version !== null) {
+//					
+//					console.log('previous:', $scope.currentlySelectedSentenceObj.previous_version);
+//					
+//					RequestCache.getURL(urls.sentences + '/' + $scope.currentlySelectedSentenceObj.previous_version + '/comments').then(function(data) {
+//						
+//						console.log('previous data:', data);
+//						
+//						// Update the sidebar
+//						if ($scope.sidebars[$scope.currentPointer + 1].results.length < 16) {
+				
+//							can't deal with duplicates...
+//							$scope.sidebars[$scope.currentPointer + 1].results = $scope.sidebars[$scope.currentPointer + 1].results.concat(data.results);
+//							
+//							console.log($scope.sidebars[$scope.currentPointer + 1]);
+//						}
+//					});
+//					
+//				}
+
+				
 			});
             
             /* 

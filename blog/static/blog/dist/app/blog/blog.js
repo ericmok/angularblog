@@ -47,7 +47,8 @@ angular.module('main')
 		}
 		else {
 			// Show a make post form or go to page
-			$location.path(urlConstructor.createpost($scope.blog.title));
+			//$location.path(urlConstructor.createpost($scope.blog.title));
+			$state.transitionTo('createpost', {blogId: $scope.blog.title});
 		}
 	};
 });

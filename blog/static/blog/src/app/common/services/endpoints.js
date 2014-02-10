@@ -131,9 +131,24 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
          Returns: RequestCache response
          */
         fetch: function(id) {
-            return RequestCache.getURL(urls.posts + '/' + id);
+			
+			// TODO: Make another request to get the parent object
+            return RequestCache.getURL(urls.posts + '/' + id).then(function(data) {
+				
+				return RequestCache.getURL(urls[data.parent_content_type + 's'] + '/' + data.parent_id).then(function(parent) {
+					data.parent = parent;
+					return data;
+				});
+			});
         },
         
+		fetchAll: function(page) {
+			if (!page) {
+				page = 1;
+			}
+			return RequestCache.getURL(urls.posts + '?page=' + page);
+		},
+		
         /**
          The novelty of an update request. Creates a new edition resource...
          TODO: Take a dictionary
