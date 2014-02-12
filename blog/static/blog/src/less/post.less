@@ -1,5 +1,6 @@
 /*@beige: #FAD7A9;*/
 @beige: #FFDE89;
+@specialGreen: #44FF9E;
 	
 .slide-container
 {
@@ -48,7 +49,8 @@ article.reply
 	background: lighten(@beige, 5%);
 	margin: 10px;
 	padding: 30px;
-	border-radius: 33px;
+    /* High radius, widget style? Or card style... */
+	border-radius: 23px; 
     margin-bottom: 2em;
     
 	h1, h2, h3, h4, h5, h6
@@ -95,15 +97,16 @@ article.main-comment
 .current-panel
 {
 	/*border-right: solid 4px @beige;*/
-	box-shadow: 1px 0px 20px 1px #999;
+	box-shadow: 1px 0px 20px -1px #AAA;
 	padding: 10px 30px;
 }
 
-.post-reply
+.right-panel
 {
-	margin: 1em 0em;
-	padding: 30px;
+    box-shadow: -1px 0px 20px -1px #AAA;
+    padding-bottom: 1em;
 }
+
 
 /* Well covers up */
 .sidebar-quote
@@ -224,6 +227,11 @@ article.main-comment
 		background-color: lighten(@beige, 5%);
 		border-radius: 5px;
 	}
+}
+
+.sentence-new
+{
+    background-color: lighten(@specialGreen, 10%);
 }
 
 .sentence-selected 

@@ -129,7 +129,7 @@ class Edition(models.Model):
     An addressing mechanism for storing versions of a post as it is edited throughout
     its life.
     """
-    parent = models.ForeignKey('Post')
+    parent = models.ForeignKey('Post', related_name = 'editions')
     created = models.DateTimeField(auto_now_add = True)
 
     def content_type(self):
@@ -206,3 +206,5 @@ class Paragraph(models.Model):
 
     number_posts = models.IntegerField(default = 0)
     
+    def content_type(self):
+        return "paragraph"

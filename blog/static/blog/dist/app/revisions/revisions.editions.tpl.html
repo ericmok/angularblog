@@ -4,7 +4,7 @@
 	<div class="row">
 		
 		<div ng-if="!previousEdition" class="col-xs-6">
-			<h3>This is the oldest version</h3>
+			<h4>This is the oldest version</h4>
 		</div>
 		<div class="col-xs-6" ng-show="previousEdition">
 			<hgroup>
@@ -23,7 +23,7 @@
 		</div>
 		<div class="col-xs-6">
 			<hgroup>
-				<h3><span class="soft">Newer</span> <small>{{edition.created | momentverbose}}</small></h3>
+				<h3><span class="soft" ng-if="previousVersion">Newer</span> <small>{{edition.created | momentverbose}}</small></h3>
 			</hgroup>
 			<article class="post">
 				<p ng-repeat="paragraph in edition.paragraphs">

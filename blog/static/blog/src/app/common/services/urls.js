@@ -6,5 +6,6 @@ angular.module('Urls', [])
 	blogs: "/blog/api/blogs",
 	posts: "/blog/api/posts",
     editions: "/blog/api/editions",
+    paragraphs: "/blog/api/paragraphs",
 	sentences: "/blog/api/sentences"
 });

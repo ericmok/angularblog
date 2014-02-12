@@ -70,6 +70,32 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 			RequestCache.invalidateURL(urls.posts + '/' + id);
 			RequestCache.invalidateURL(urls.posts + '/' + id + '/comments');
 		},
+        
+        constructParentURL: function(post) {
+            
+            if (arguments.length == 2) {
+                var post = {
+                    parent_content_type: arguments[0],
+                    parent_id: arguments[1]
+                };
+            }
+                
+            if (post.parent_content_type === 'blog') {
+                return urls.blogs + '/' + post.parent_id;
+            }
+            if (post.parent_content_type === 'post') {
+                return urls.posts + '/' + post.parent_id;
+            }
+            if (post.parent_content_type === 'paragraph') {
+                return urls.paragraphs + '/' + post.parent_id;
+            }
+            if (post.parent_content_type === 'sentence') {
+                return urls.sentences + '/' + post.parent_id;
+            }
+            throw "Post Endpoing construct fail. You should be passing in a Post object as a param?"
+            return null;
+        },
+        
         flattenContent: function(content) {
             /*
              Flatten content sentences into a string to be put into a textarea
@@ -132,13 +158,17 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
          */
         fetch: function(id) {
 			
-			// TODO: Make another request to get the parent object
+            var self = this;
+            
             return RequestCache.getURL(urls.posts + '/' + id).then(function(data) {
 				
-				return RequestCache.getURL(urls[data.parent_content_type + 's'] + '/' + data.parent_id).then(function(parent) {
-					data.parent = parent;
-					return data;
-				});
+                // The server-generated parent_repr field replaces this functionality for now...
+				// Loads the parent object into the parent field
+//                return RequestCache.getURL(self.constructParentURL(data.parent_content_type, data.parent_id)).then(function(parent) {
+//					data.parent = parent;
+//					return data;
+//				});
+                return data;
 			});
         },
         
@@ -178,8 +208,10 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
     };
 })
 
-.factory('SentencesEndpoint', function() {
+.factory('SentencesEndpoint', function(RequestCache, urls) {
 	return {
-
+        fetch: function(id) {
+            return RequestCache.getURL(urls.sentences + '/' + id);
+        }
 	};
 });

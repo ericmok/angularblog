@@ -79,8 +79,9 @@ controller('RevisionsEditionsCtrl', function($scope, $state, $stateParams, Posts
 								if (oldSentence.text === newSentence.text) {
 									
 									// If sentence just stayed the same
-									newSentence.color = 115;
-									oldSentence.color = 115;
+                                    var color = 115 + Math.random() * 60;
+									newSentence.color = color;
+									oldSentence.color = color;
 								} else {
 									
 									// If an actual modification was made

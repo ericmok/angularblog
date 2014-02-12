@@ -88,12 +88,18 @@ class BlogPaginationSerializer(BasePaginationSerializer):
         object_serializer_class = BlogSerializer
 
 
+
+
 class PostSerializer(serializers.HyperlinkedModelSerializer):
-    
+    """
+	TODO: Change to more functional serializer functions instead of using Django Rest Framework...
+	"""
     author = serializers.SlugRelatedField(slug_field = 'username', read_only = True)
 
     parent_id = serializers.IntegerField(source = 'parent_id', required = True)
     parent_content_type = serializers.CharField(max_length = 32, source='parent_content_type', required = True)
+    
+    parent_repr = serializers.SerializerMethodField('get_parent_repr')
     
     href = serializers.HyperlinkedIdentityField(view_name = 'post-detail')
 
@@ -103,6 +109,23 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     editions = serializers.SerializerMethodField('get_editions')
     content = serializers.SerializerMethodField('get_content')
 
+    def get_parent_repr(self, obj):
+        if obj.pk is None:
+            return None
+        
+        parent = ContentType.objects.get(model = obj.parent_content_type).get_object_for_this_type(pk = obj.parent_id)
+
+        ct = parent.content_type()
+
+        if ct == 'blog':
+            return parent.title
+        if ct == 'post':
+            return parent.title
+        if ct == 'paragraph':
+            return 'paragraph'
+        if ct == 'sentence':
+            return parent.text.value
+	
     def get_editions(self,obj):
         if obj.pk is None:
             # Post hasn't been instantiated yet.
@@ -186,7 +209,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         model = Post
         fields = ('content_type', 'id', 'href', 'title', 'author',
                   'created', 'modified',
-                  'parent_content_type', 'parent_id', 'editions', 'content')
+                  'parent_content_type', 'parent_id', 'parent_repr', 'editions', 'content')
 
         read_only_fields = ('created', 'modified',)
         
@@ -248,15 +271,81 @@ class UserPaginationSerializer(BasePaginationSerializer):
         object_serializer_class = BasicUserSerializer
 
 
+def serialize_blog_brief(blog):
+    """
+    TODO
+    """
+    return {
+        'id': blog.id,
+        'title': blog.title,
+        'href': '/blog/api/blogs'
+    }
 
-def serialize_edition(edition):
+def serialize_parent_field(parent_content_type, parent_id):
+    """
+    TODO: Deep option, calls recursive serializer
+    """
+    return_json = None
+
+    parent = ContentType.objects.get(name = parent_content_type).get_object_for_this_type(pk = parent_id)
+
+    if parent.content_type() == 'blog':
+        return_json = parent.title
+    if parent.content_type() == 'post':
+        return_json = parent.title
+    if parent.content_type() == 'paragraph':
+        return_json = 'Paragraph'
+    if parent.content_type() == 'sentence':
+        return_json = parent.text.value
+
+    return return_json
+
+
+
+def serialize_post(post, deep = True):
+    """
+    If not deep: parent will not be fully evaluated.
+    This is useful to stop recursive serialization if a post is made on a post that is made on a post
+
+    TODO: Write a test for this
+    """
+    return_json = OrderedDict([('id', post.id),
+                                ('title', post.title),
+                                ('author', post.author.username),
+                                ('created', post.created.isoformat()),
+                                ('modified', post.modified.isoformat()),
+                                ('content_type', post.content_type()),
+                                ('parent_content_type', post.parent_content_type.name),
+                                ('parent_id', post.parent_id),
+                                ('is_active', post.is_active),
+                                ('blog', post.blog.pk),
+                                ('number_posts', post.number_posts),
+                                ('editions', [])])
+
+    if deep:
+        return_json['parent_repr'] = serialize_parent_field(post.parent_content_type, post.parent_id)
+
+    for index, edition in enumerate(post.editions.order_by('-created')):
+
+        if (deep == True) and (index == 0):
+            return_json['content'] = serialize_edition(edition)
+
+        return_json['editions'].append(serialize_edition(edition, deep = False))
+
+    return return_json
+
+
+def serialize_edition(edition, deep = True):
+
     return_json = OrderedDict([('id', edition.pk), 
-                               ('created', edition.created),
-                               ('content_type', 'edition'),
-                               ('paragraphs', [])])
-    
-    for p in edition.paragraphs.all():
-        return_json['paragraphs'].append( serialize_paragraph(p) )
+                               ('created', edition.created.isoformat()),
+                               ('content_type', 'edition')])
+
+    if deep: 
+        return_json['paragraphs'] = []
+        for p in edition.paragraphs.all():
+            return_json['paragraphs'].append( serialize_paragraph(p) )
+
     return return_json
 
 
@@ -278,7 +367,14 @@ def serialize_paragraph(paragraph):
 
 
 def serialize_sentence(sentence):
+    """
+    TODO: Is it clean to return just edition and post pk?
+    """
+    edition = sentence.edition
+
     return_json = {
+        'post': edition.parent.pk,
+        'edition': edition.pk,
         'id': sentence.pk, 
         'text': sentence.text.value, 
         'ordering': sentence.ordering,

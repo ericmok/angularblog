@@ -7,7 +7,8 @@ angular.module("main", [
 	'Urls', 
 	'AjaxCaching', 
 	'Endpoints',
-	'UniqueInput'])
+	'UniqueInput',
+    'PostParentDirective'])
 
 .provider('urlConstructor', function UrlConstructorProvider() {
 	/**
@@ -85,7 +86,7 @@ angular.module("main", [
             url: '/revisions/:postId',
             templateUrl: '/static/blog/dist/app/revisions/revisions.tpl.html'
         })
-        .state('revisions.edition', {
+        .state('revisions.edition', { // TODO: Change to .editions
             url: '/:editionId',
             templateUrl: '/static/blog/dist/app/revisions/revisions.editions.tpl.html'
         });
@@ -323,6 +324,32 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 			RequestCache.invalidateURL(urls.posts + '/' + id);
 			RequestCache.invalidateURL(urls.posts + '/' + id + '/comments');
 		},
+        
+        constructParentURL: function(post) {
+            
+            if (arguments.length == 2) {
+                var post = {
+                    parent_content_type: arguments[0],
+                    parent_id: arguments[1]
+                };
+            }
+                
+            if (post.parent_content_type === 'blog') {
+                return urls.blogs + '/' + post.parent_id;
+            }
+            if (post.parent_content_type === 'post') {
+                return urls.posts + '/' + post.parent_id;
+            }
+            if (post.parent_content_type === 'paragraph') {
+                return urls.paragraphs + '/' + post.parent_id;
+            }
+            if (post.parent_content_type === 'sentence') {
+                return urls.sentences + '/' + post.parent_id;
+            }
+            throw "Post Endpoing construct fail. You should be passing in a Post object as a param?"
+            return null;
+        },
+        
         flattenContent: function(content) {
             /*
              Flatten content sentences into a string to be put into a textarea
@@ -385,13 +412,17 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
          */
         fetch: function(id) {
 			
-			// TODO: Make another request to get the parent object
+            var self = this;
+            
             return RequestCache.getURL(urls.posts + '/' + id).then(function(data) {
 				
-				return RequestCache.getURL(urls[data.parent_content_type + 's'] + '/' + data.parent_id).then(function(parent) {
-					data.parent = parent;
-					return data;
-				});
+                // The server-generated parent_repr field replaces this functionality for now...
+				// Loads the parent object into the parent field
+//                return RequestCache.getURL(self.constructParentURL(data.parent_content_type, data.parent_id)).then(function(parent) {
+//					data.parent = parent;
+//					return data;
+//				});
+                return data;
 			});
         },
         
@@ -431,9 +462,11 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
     };
 })
 
-.factory('SentencesEndpoint', function() {
+.factory('SentencesEndpoint', function(RequestCache, urls) {
 	return {
-
+        fetch: function(id) {
+            return RequestCache.getURL(urls.sentences + '/' + id);
+        }
 	};
 });
 
@@ -612,6 +645,7 @@ angular.module('Urls', [])
 	blogs: "/blog/api/blogs",
 	posts: "/blog/api/posts",
     editions: "/blog/api/editions",
+    paragraphs: "/blog/api/paragraphs",
 	sentences: "/blog/api/sentences"
 });
 
@@ -835,6 +869,239 @@ angular.module('PostCreation', ['Security'])
 		replace: true
 	};
 });
+
+ /* *** */ 
+
+angular.module('PostParentDirective', ['ui.router', 'Endpoints'])
+
+.directive('postParent', function($compile) {
+    return {
+        restrict: 'EA',
+        template: '<div ng-transclude></div>',
+        replace: true,
+        transclude: true,
+        scope: {
+            parentContentType: '=',
+            parentId: '=',
+            parentRepr: '='
+        },
+        controller: function($scope, $state, SentencesEndpoint) {
+            
+            if ($scope.parentContentType === 'blog') {
+                
+                $scope.sref = $state.href('blog', {blogId: $scope.parentRepr});
+                $scope.representation = $scope.parentRepr;   
+                
+            } else if ($scope.parentContentType === 'post') {
+                
+                $scope.sref = $state.href('post', {postId: $scope.parentId});
+                $scope.representation = $scope.parentRepr;
+                
+            } else if ($scope.parentContentType === 'paragraph') {
+                
+                $scope.sref = 'latest';
+                $scope.representation = $scope.parentRepr;
+                
+            } else if ($scope.parentContentType == 'sentence') {
+                
+                SentencesEndpoint.fetch($scope.parentId).then(function(data) {
+                    var loc = $state.href('post', { postId: data.post }) + '?sentence=' + $scope.parentId;
+                    $scope.sref = loc;
+                });
+                
+                $scope.representation = $scope.parentRepr;
+            }
+
+            this.getParentContentType = function() {
+                return $scope.parentContentType;
+            };
+            
+            this.getLink = function() {
+                return $scope.sref;
+            };
+        },
+        link: function(scope, element, attrs) {
+
+//            scope.$watch(function() {
+//                return scope.sref;
+//            }, function(val) {
+//                 var el = $compile(scope.anchor)(scope);
+//                el.attr('href', val);
+//                el.empty();
+//                el.append( $compile(angular.element('<p>{{scope.representation}}</p>'))(scope) );
+//
+//                console.log('el:', el);
+//
+//                element.append(el); 
+//            });
+        }
+    };
+    
+}).
+
+directive('blogTemplate', function() {
+    return {
+        restrict: 'EA',
+        template: '<div ng-if="isActive"><div ng-transclude></div></div>',
+        replace: true,
+        transclude: true,
+        require: '^postParent',
+        controller: function($scope) {
+        },
+        link: function(scope, element, attrs, postParentCtrl) {
+            scope.$watch(function() {
+                return postParentCtrl.parentContentType;
+            }, function(val) {
+               if (postParentCtrl.parentContentType === 'blog') {
+                   scope.isActive = true;
+                } 
+            });
+        }
+    };
+}).
+
+directive('postTemplate', function() {
+    return {
+        restrict: 'EA',
+        template: '<div ng-if="isActive"><div ng-transclude></div></div>',
+        replace: true,
+        transclude: true,
+        require: '^postParent',
+        controller: function($scope) {
+        },
+        link: function(scope, element, attrs, postParentCtrl) {
+            scope.$watch(function() {
+                return postParentCtrl.parentContentType;
+            }, function(val) {
+               if (postParentCtrl.parentContentType === 'post') {
+                   scope.isActive = true;
+                } 
+            });
+        }
+    };
+}).
+
+directive('paragraphTemplate', function() {
+    return {
+        restrict: 'EA',
+        template: '<div ng-if="isActive"><div ng-transclude></div></div>',
+        replace: true,
+        transclude: true,
+        require: '^postParent',
+        controller: function($scope) {
+        },
+        link: function(scope, element, attrs, postParentCtrl) {
+            scope.$watch(function() {
+                return postParentCtrl.parentContentType;
+            }, function(val) {
+               if (postParentCtrl.parentContentType === 'paragraph') {
+                   scope.isActive = true;
+                } 
+            });
+        }
+    };
+}).
+
+directive('sentenceTemplate', function($compile) {
+    return {
+        require: '^postParent',
+        restrict: 'EA',
+        template: '<div><div ng-if="isSentence == true"><div ng-transclude></div></div></div>',
+        transclude: true,
+        replace: true,
+        controller: function($scope) {
+            $scope.isSentence = false;
+            $scope.sref = 'test';
+            
+            this.goToParent = function() {
+                console.log('go to parent');
+            };
+        },
+        link: function(scope, element, attrs, postParentCtrl) {
+                
+                if (postParentCtrl.getParentContentType() === 'sentence') {
+                    scope.isSentence = true;
+                    
+                    scope.$watch(function() {
+                        postParentCtrl.getLink();
+                    }, function(val) {
+                        scope.sref = val;
+                    });
+                } 
+
+        }
+    };
+})
+
+.directive('genericPointer', function() {
+})
+
+.directive('referenceModel', function($state, SentencesEndpoint) {
+    
+    /*
+    Sets the href attribute to point to a page on the site that can display the model
+    */
+    return {
+        scope: {
+            parentContentType: '@',
+            parentId: '@'
+        },
+        controller: function($scope) {
+            $scope.link = '#';
+            $scope.parentContentType = null;
+            $scope.parentId = null;
+            
+            $scope.setParentContentType = function(val) {
+                $scope.parentContentType = val;
+                if ($scope.parentId !== null) {
+                    $scope.doWork();
+                }
+            };
+            
+            $scope.setParentId = function(val) {
+                $scope.parentId = val;
+                if ($scope.parentContentType !== null) {
+                    $scope.doWork();
+                }
+            };
+            
+            $scope.doWork = function() {
+                switch ($scope.parentContentType) {
+                    case 'blog':
+                        $scope.link = $state.href('blog', {blogId: $scope.parentId});
+                        $scope.render();
+                        break;
+                    case 'post':
+                        $scope.link = $state.href('post', {postId: $scope.parentId});
+                        $scope.render();
+                        break;
+                    case 'paragraph':
+                        console.error('Paragraph links not implemented');
+                        break;
+                    case 'sentence':
+                        SentencesEndpoint.fetch($scope.parentId).then(function(sentence) {
+                            $scope.link = $state.href('post', {postId: sentence.post}) + '?sentence=' + sentence.id;
+                            $scope.render();
+                        });
+                        break;
+                };
+            };
+        },
+        link: function(scope, element, attrs) {
+            attrs.$observe('parentContentType', function(val) {
+                scope.setParentContentType(val);
+            });
+            attrs.$observe('parentId', function(val) {
+                scope.setParentId(val);
+            });
+            
+            scope.render = function() { 
+                element.attr('href', scope.link);    
+            };
+        }
+    };
+});
+
 
  /* *** */ 
 

@@ -1,31 +1,48 @@
 <div ng-controller="PostCtrl" class="row">
 
 	<div ng-repeat="panel in sidebars" 
-			ng-class="{'col-xs-7': $index === currentPointer, 'current-panel': $index === currentPointer, 'col-xs-5': $index == currentPointer + 1, 'zoom-small': loading && $index === currentPointer + 1}" 
+			ng-class="{'col-xs-7': $index === currentPointer, 'current-panel': $index === currentPointer, 'col-xs-5': $index == currentPointer + 1,'zoom-small': loading && $index === currentPointer + 1}" 
 			ng-hide="($index < currentPointer) || ($index > currentPointer + 1)"
 			class="sidebar-panel" >
 		
+            
         <!-- Main Post -->
 		<div ng-if="$index === currentPointer">
 			<article class="post" ng-repeat="comment in panel.results">
-				<header>
-					<hgroup>
-						<div>
-							<h1>{{comment.title}}</h1> 
-						</div>
-						<h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
-					</hgroup>
+                <section>
+                    <header style="text-align: left;">
+                        This post was made on:
+                        <blockquote>
+                            <h5>{{comment.parent_repr}}</h5>
+                        </blockquote>
+                    </header>
+                    <a reference-model parent-content-type="{{comment.parent_content_type}}" parent-id="{{comment.parent_id}}">Go to {{comment.parent_content_type}}</a>
+                    <section>
+                        <header>
+                            <hgroup>
+                                <div>
+                                    <h1>{{comment.title}}</h1> 
+                                </div>
+                                <h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
+                            </hgroup>
 
-					<a style="vertical-align: middle" class="btn btn-info" ui-sref="revisepost({postId: comment.id})" ng-show="canRevisePost()">Revise Post</a>
-				</header>
+                            <a style="vertical-align: middle" class="btn btn-info" ui-sref="revisepost({postId: comment.id})" ng-show="canRevisePost()">Revise Post</a>
+                        </header>
+                        
+                        <div ng-if="comment.editions.length > 1" class="list-group">
+                            <a ng-repeat="edition in comment.editions" class="list-group-item" ui-sref="revisions.edition({postId: {{comment.id}}, editionId: {{edition.id}} })">
+                                {{edition.created | momentverbose}}
+                            </a>
+                        </div>
 
-				<p ng-repeat="para in comment.content.paragraphs">
-					<span ng-repeat="sen in para.sentences" class="sentence" ng-class="{'sentence-selected': sen.id == currentlySelectedSentenceId}" ng-mouseover="updateSidebar(sen.id, $parent.$parent.$index)" ng-mouseout="cancelTimers()">
-						{{sen.text}}
-						<span class="badge" ng-if="sen.number_replies > 0">{{sen.number_replies}}</span>
-					</span>
-				</p>
-
+                        <p ng-repeat="para in comment.content.paragraphs">
+                            <span ng-repeat="sen in para.sentences" class="sentence" ng-class="{'sentence-selected': sen.id == currentlySelectedSentenceId, 'sentence-new': sen.previous_version !== null}" ng-mouseover="updateSidebar(sen.id, $parent.$parent.$index)" ng-mouseout="cancelTimers()">
+                                {{sen.text}}
+                                <span class="badge" ng-if="sen.number_replies > 0">{{sen.number_replies}}</span>
+                            </span>
+                        </p>
+                    </section>
+                </section>
 			</article>
             
             <!-- Reply form -->
@@ -82,7 +99,7 @@
 		</div>
 		
 		<!-- If this panel's index is on the right side... -->
-		<div ng-if="$index == currentPointer + 1" style="position: relative; box-shadow: 20px -20px 20px -20px #CCC">
+		<div ng-if="$index == currentPointer + 1" class="right-panel">
 			
 			<!-- Loading message -->
 			<div ng-if="loading" style="position: absolute; width: 100%; height: 100%; background: #FFF; opacity: 0.5; text-align: center;">

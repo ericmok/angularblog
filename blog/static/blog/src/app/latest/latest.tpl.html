@@ -16,12 +16,13 @@
 							</a>
 						</h3>
 							
-						<h6>{{post.author}} on [ {{post.parent_content_type}} / {{post.parent_id}} ]</h6>
+						<h6>By {{post.author}} on <a ng-click="goToParent(post)">{{post.parent_repr}}</a></h6>
+                        
 					</hgroup>
 				</header>
 				<p ng-repeat="para in post.content.paragraphs">
 					<span ng-if="para.ordering == 1">
-						<span ng-repeat="sent in para.sentences">
+						<span ng-repeat="sent in para.sentences" ng-if="sent.ordering < 5">
 							{{sent.text}}
 							<span class="badge" ng-if="sent.number_replies > 0">{{sent.number_replies}}</span>
 						</span>

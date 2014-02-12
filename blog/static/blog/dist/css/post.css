@@ -37,7 +37,8 @@ article.reply {
   background: #ffe5a3;
   margin: 10px;
   padding: 30px;
-  border-radius: 33px;
+  /* High radius, widget style? Or card style... */
+  border-radius: 23px;
   margin-bottom: 2em;
 }
 article.reply h1,
@@ -81,12 +82,12 @@ article.main-comment .author {
 }
 .current-panel {
   /*border-right: solid 4px @beige;*/
-  box-shadow: 1px 0px 20px 1px #999;
+  box-shadow: 1px 0px 20px -1px #aaaaaa;
   padding: 10px 30px;
 }
-.post-reply {
-  margin: 1em 0em;
-  padding: 30px;
+.right-panel {
+  box-shadow: -1px 0px 20px -1px #aaaaaa;
+  padding-bottom: 1em;
 }
 /* Well covers up */
 .sidebar-quote {
@@ -170,6 +171,9 @@ article.main-comment .author {
   /*background-color: #FAE7B9;*/
   background-color: #ffe5a3;
   border-radius: 5px;
+}
+.sentence-new {
+  background-color: #77ffb8;
 }
 .sentence-selected {
   /*background-color: #30D8F0; twitter blue*/

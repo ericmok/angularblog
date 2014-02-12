@@ -297,7 +297,20 @@ class CreatingPost(TestCase):
 		jres = json.loads(response.content)
 		self.assertEqual(jres['number_paragraphs'], 3)
 		self.assertEqual(jres['number_sentences'], 5)
-
+        
+	def test_can_get_parent_repr_json(self):
+		"""
+		TODO: Add more tests...
+		"""
+		response = self.client.get(POSTS_URL + '/1', HTTP_X_AUTHORIZATION = self.token)
+		jres = json.loads(response.content)
+		self.assertEqual(jres['parent_repr'], 'Jurisprudence')
+		
+		response = self.client.get(POSTS_URL + '/15', HTTP_X_AUTHORIZATION = self.token)
+		jres = json.loads(response.content)
+		self.assertIn('.', jres['parent_repr'])
+		
+		
 
 class CreatingPostOnParagraph(TestCase):
 	fixtures = ['nice_fixture3.json']

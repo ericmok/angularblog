@@ -7,7 +7,8 @@ angular.module("main", [
 	'Urls', 
 	'AjaxCaching', 
 	'Endpoints',
-	'UniqueInput'])
+	'UniqueInput',
+    'PostParentDirective'])
 
 .provider('urlConstructor', function UrlConstructorProvider() {
 	/**
@@ -85,7 +86,7 @@ angular.module("main", [
             url: '/revisions/:postId',
             templateUrl: '/static/blog/dist/app/revisions/revisions.tpl.html'
         })
-        .state('revisions.edition', {
+        .state('revisions.edition', { // TODO: Change to .editions
             url: '/:editionId',
             templateUrl: '/static/blog/dist/app/revisions/revisions.editions.tpl.html'
         });
