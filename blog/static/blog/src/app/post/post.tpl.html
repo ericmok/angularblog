@@ -30,13 +30,16 @@
                         </header>
                         
                         <div ng-if="comment.editions.length > 1" class="list-group">
-                            <a ng-repeat="edition in comment.editions" class="list-group-item" ui-sref="revisions.edition({postId: {{comment.id}}, editionId: {{edition.id}} })">
+                            <a ng-repeat="edition in comment.editions" class="list-group-item" ui-sref="revisions.editions({postId: {{comment.id}}, editionId: {{edition.id}} })">
                                 {{edition.created | momentverbose}}
                             </a>
                         </div>
 
                         <p ng-repeat="para in comment.content.paragraphs">
-                            <span ng-repeat="sen in para.sentences" class="sentence" ng-class="{'sentence-selected': sen.id == currentlySelectedSentenceId, 'sentence-new': sen.previous_version !== null}" ng-mouseover="updateSidebar(sen.id, $parent.$parent.$index)" ng-mouseout="cancelTimers()">
+                            <span ng-repeat="sen in para.sentences" class="sentence" 
+                                  ng-class="{'sentence-selected': sen.id == currentlySelectedSentenceId, 'sentence-new': sen.previous_version !== null && comment.editions.length > 1}" 
+                                  ng-mouseover="updateSidebar(sen.id, $parent.$parent.$index)" 
+                                  ng-mouseout="cancelTimers()">
                                 {{sen.text}}
                                 <span class="badge" ng-if="sen.number_replies > 0">{{sen.number_replies}}</span>
                             </span>

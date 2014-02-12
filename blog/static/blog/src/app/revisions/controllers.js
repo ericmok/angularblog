@@ -28,7 +28,7 @@ controller('RevisionsEditionsCtrl', function($scope, $state, $stateParams, Posts
 	$scope.post = null;
     $scope.edition = null;
 	
-	$scope.currentSentenceId = -1;
+	$scope.selectedSentence = null;
 	
 	$scope.isLoading = true;
 	
@@ -42,15 +42,11 @@ controller('RevisionsEditionsCtrl', function($scope, $state, $stateParams, Posts
 	});
 	
 	$scope.unhighlight = function() {
-		$scope.currentSentenceId = -1;
+		$scope.selectedSentence = null;
 	};
 	
-	$scope.highlightSentence = function(id) {
-		if (id) {
-			$scope.currentSentenceId = id;
-		} else {
-			return $scope.currentSentenceId;
-		}
+	$scope.highlightSentence = function(sentence) {
+		$scope.selectedSentence = sentence;
 	};
 	
 	
@@ -58,44 +54,98 @@ controller('RevisionsEditionsCtrl', function($scope, $state, $stateParams, Posts
 	 Given 2 contents, generate color mapping for sentences
 	 */
 	$scope.colorMap = function(older, newer) {
-		var colorStepSize = 360/70;
+		var colorStepSize = 360/30;
 		var counter = 0;
-		
-		angular.forEach(newer.paragraphs, function(newParagraph) {
-			angular.forEach(newParagraph.sentences, function(newSentence) {
-				
-				angular.forEach(older.paragraphs, function(oldParagraph) {
-					angular.forEach(oldParagraph.sentences, function(oldSentence) {
-						
-						// console.log('sen:', oldSentence, newSentence);
-						// color code old sentence with new sentence
-						if (oldSentence.id === newSentence.previous_version) {
-							
-							// If color was already assigned (each sentence might have multiple decendents)
-							if (oldSentence.color) {
-								newSentence.color = oldSentence.color + Math.random() * 80;
-							} else {
-								
-								if (oldSentence.text === newSentence.text) {
-									
-									// If sentence just stayed the same
-                                    var color = 115 + Math.random() * 60;
-									newSentence.color = color;
-									oldSentence.color = color;
-								} else {
-									
-									// If an actual modification was made
-									newSentence.color = counter * colorStepSize + 214 + Math.random() * 270;
-									oldSentence.color = newSentence.color;
-								}	
-							};							
-						}
-					});
-				});
-				
-				counter++;
+	   	var match = false;
+        var tempOldSentence = null;
+        var tempNewSentence = null;
+        
+        
+        angular.forEach(older.paragraphs, function(oldParagraph) {
+            angular.forEach(oldParagraph.sentences, function(oldSentence) {      
+                 oldSentence.color = 0;
+                oldSentence.saturation = '80%';
+                oldSentence.lightness = '88%';   
+            });
+        });
+        
+        angular.forEach(newer.paragraphs, function(newParagraph) {
+            angular.forEach(newParagraph.sentences, function(newSentence) {
+
+                match = false;
+                
+                if (newSentence.previous_version !== null) {
+                    
+                    // Search for match
+                    angular.forEach(older.paragraphs, function(oldParagraph) {
+                        angular.forEach(oldParagraph.sentences, function(oldSentence) {      
+
+                            //console.log('sen:', oldSentence, newSentence);
+                            // color code old sentence with new sentence
+
+                            if (oldSentence.id === newSentence.previous_version) {
+
+                                match = true;
+
+                                tempOldSentence = oldSentence;
+                                tempNewSentence = newSentence;
+
+                            } 
+
+                        });
+                    }); // end older loop 
+
+                    if (match) {
+
+                        // If color was already assigned (each sentence might have multiple decendents)
+                        if (tempOldSentence.color !== 0) {
+
+                            // Children sentences have similar colors if they have the same parent
+                            tempNewSentence.color = tempOldSentence.color; // + Math.random() * 20;
+                            tempNewSentence.saturation = tempOldSentence.saturation;
+                            tempNewSentence.lightness = tempOldSentence.lightness;
+
+                        } else {
+
+                            if (tempOldSentence.text === tempNewSentence.text) {
+
+                                // If sentence just stayed the same
+                                var color = 223 + Math.random() * 270;
+                                tempNewSentence.color = color;
+                                tempNewSentence.saturation = '60%';
+                                tempNewSentence.lightness = '95%';
+
+                                tempOldSentence.color = color;
+                                tempOldSentence.saturation = '60%';
+                                tempOldSentence.lightness = '95%';
+
+                            } else {
+
+                                // If an actual modification was made
+                                //tempNewSentence.color = 223;// + (214) + (Math.random() * 180);
+                                //tempNewSentence.color = 223 + (counter * 60) + (Math.random() * 120);
+                                tempNewSentence.color = 223 + Math.random() * 20;
+                                counter++;
+
+                                tempOldSentence.color = tempNewSentence.color;
+
+                                tempNewSentence.saturation = '83%';
+                                tempNewSentence.lightness = '88%';
+
+                                tempOldSentence.saturation = '83%';
+                                tempOldSentence.lightness = '88%';
+                            }	
+                        };							
+                    } 
+                } else { // previous_version is null
+                    
+                    newSentence.color = 134;
+                    newSentence.saturation = '80%';
+                    newSentence.lightness = '80%';
+                }
+                
 			});
-		});
+		}); // newer loop
 	};
 	
 	

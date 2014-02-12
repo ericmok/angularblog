@@ -11,7 +11,7 @@
             <a class="list-group-item" 
 			   ng-repeat="edition in editions" 
 			   ng-class="{'active': edition.id == selectedEdition}" 
-			   ui-sref="revisions.edition({'editionId': {{edition.id}} })">
+			   ui-sref="revisions.editions({'editionId': {{edition.id}} })">
                	{{edition.created | momentverbose }} ({{edition.created | moment}})
             </a>
         </div>

@@ -212,7 +212,7 @@ article.main-comment
 .sentence
 {
 	padding: 3px 1px;
-	border-radius: 2px;
+	border-radius: 3px;
 
 	-webkit-transition: all 0.7s ease;
 	-moz-transition: all 0.7s ease;
@@ -231,7 +231,7 @@ article.main-comment
 
 .sentence-new
 {
-    background-color: lighten(@specialGreen, 10%);
+    background-color: lighten(@specialGreen, 20%);
 }
 
 .sentence-selected 
@@ -239,7 +239,8 @@ article.main-comment
 	/*background-color: #30D8F0; twitter blue*/
 	/*background-color: #FAE7C9;*/
 	/*background-color: #FAD7A9 !important;*/
-	background-color: @beige;
+	background-color: @beige !important;
+    /*border: solid 1px @beige;*/
 }
 
 .sentence-highlight.sentence-selected 

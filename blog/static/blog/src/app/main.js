@@ -86,7 +86,7 @@ angular.module("main", [
             url: '/revisions/:postId',
             templateUrl: '/static/blog/dist/app/revisions/revisions.tpl.html'
         })
-        .state('revisions.edition', { // TODO: Change to .editions
+        .state('revisions.editions', { // TODO: Change to .editions
             url: '/:editionId',
             templateUrl: '/static/blog/dist/app/revisions/revisions.editions.tpl.html'
         });

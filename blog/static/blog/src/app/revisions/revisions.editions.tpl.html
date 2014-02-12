@@ -10,13 +10,18 @@
 			<hgroup>
 				<h3><span class="soft">Older</span> <small>{{previousEdition.created | momentverbose}}</small></h3> 
 			</hgroup>
+<!--
+            'sentence-added': !sentence.previous_version, 
+             ng-class="{'sentence-added': !sentence.previous_version}"
+-->
 			<article class="post">
 				<p ng-repeat="paragraph in previousEdition.paragraphs">
 					<span 
-						  style="background: hsl({{sentence.color}}, 80%, 88%);" 
+						  style="background: hsl({{sentence.color}}, {{sentence.saturation}}, {{sentence.lightness}});" 
 						  ng-repeat="sentence in paragraph.sentences" class="sentence" 
-						  ng-class="{'sentence-added': !sentence.previous_version, 'sentence-selected': sentence.id == currentSentenceId}">
-						{{sentence.text}} 
+                          
+						  ng-class="{'sentence-selected': sentence.id == selectedSentence.previous_version}">
+                        <!--[ {{sentence.id}} ]--> {{sentence.text}} 
 					</span>
 				</p>
 			</article>
@@ -27,14 +32,16 @@
 			</hgroup>
 			<article class="post">
 				<p ng-repeat="paragraph in edition.paragraphs">
-					
+                    
 					<span 
-						  style="background: hsl({{sentence.color}}, 80%, 88%);" 
+						  style="background: hsl({{sentence.color}}, {{sentence.saturation}}, {{sentence.lightness}});" 
 						  ng-repeat="sentence in paragraph.sentences" class="sentence" 
-						  ng-class="{'sentence-added': !sentence.previous_version}" 
-						  ng-mouseover="highlightSentence(sentence.previous_version)" 
-						  ng-mouseout="unhighlight()">						
-						{{sentence.text}} 
+ 
+						  ng-mouseover="highlightSentence(sentence)" 
+						  ng-mouseout="unhighlight()"
+                          
+                          ng-class="{'sentence-selected': sentence.id == selectedSentence.id}">						
+						<!--[ {{sentence.id}} / {{sentence.previous_version}} ]--> {{sentence.text}}
 					</span>
 					
 				</p>
