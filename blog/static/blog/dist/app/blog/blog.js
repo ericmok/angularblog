@@ -1,6 +1,6 @@
 angular.module('main')
 
-.controller('BlogCtrl', function($scope, $stateParams, urlConstructor, $http, urls, auth, $rootScope, $state, $location, BlogsEndpoint) {
+.controller('BlogCtrl', function($scope, $state, $stateParams, urlConstructor, $http, urls, auth, $rootScope, $state, $location, BlogsEndpoint) {
 	
 	// Warning:	latest.js contains BlogsCtrl
 	
@@ -35,8 +35,9 @@ angular.module('main')
             $scope.isBootstrapping = false;
 		});
 	}, function(response) {
-		console.log("FAI");
+		console.log("FAIL");
         $scope.error404 = true;
+        $state.go('error404');
 	});
 
 	// This will change after we load the blog and determine permissions

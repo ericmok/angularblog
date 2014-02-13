@@ -31,6 +31,9 @@ angular.module('LoginForm', ['Security'])
 			$scope.logoutButtonElement = angular.element('<input type="button" ng-click="logout()" class="col-xs-6 btn btn-logout" value="Log Out" />')
 			$scope.logoutClearElement = angular.element('<div style=\'clear:both;\'></div>');
 			
+            this.test = function() {
+                console.log('test');
+            };
 			
 			if ( auth.isLoggedIn() ) {
 				$scope.username = auth.getUsername();
