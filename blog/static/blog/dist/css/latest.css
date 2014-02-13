@@ -1,0 +1,10 @@
+.latest-post-list-item {
+  padding: 20px;
+  margin: 10px;
+  border: solid 1px #DDD;
+  border-radius: 5px;
+  background-color: #EEE;
+}
+.latest-post-list-item .post-title {
+  font-size: 36px;
+}

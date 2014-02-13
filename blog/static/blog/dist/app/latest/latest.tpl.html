@@ -3,14 +3,14 @@
 <h2>Latest</h2>
 
 <div ng-controller="LatestPostsCtrl" class="col-md-7">
-	    
+
 	<div ng-repeat="post in posts.results">
-		<div class="well well-sm">
+		<div class="latest-post-list-item">
 			<article class="post">
 				<header>
 					<hgroup>
 						
-						<h3>
+						<h3 class="post-title">
 							<a href="#/post/{{post.id}}">
 								{{post.title}}
 							</a>
@@ -30,21 +30,26 @@
                 </div>
 				<p ng-repeat="para in post.content.paragraphs">
 					<span ng-if="para.ordering == 1">
-						<span ng-repeat="sent in para.sentences" ng-if="sent.ordering < 5">
+						<span ng-repeat="sent in para.sentences" ng-if="sent.ordering < 6">
 							{{sent.text}}
 							<span class="badge" ng-if="sent.number_replies > 0">{{sent.number_replies}}</span>
 						</span>
 					</span>
 				</p>
 
+<!--
 				<footer ng-if="post.content.paragraphs.length > 1" style="text-align: center; font-weight: bolder;">
 					<a>Read More...</a>					
 				</footer>
+-->
 			</article>
 		</div>
 	</div>
 
-	<div ng-if="posts.results.length < 1">
+    <div ng-if="isBootstrapping">            
+        <img src="/static/blog/assets/loader.gif" />
+    </div>
+	<div ng-if="posts.results.length < 1 && !isBootstrapping">
 		<h2>There are no posts to display!</h2>
 	</div>
 </div>

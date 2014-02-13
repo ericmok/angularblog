@@ -1,6 +1,6 @@
 /* Common */
 body {
-  background-color: #FEFEFE;
+  background-color: #FDFDFD;
 }
 .navbar {
   margin: 0 0 20px 0;
@@ -13,7 +13,8 @@ body {
   display: inline-block;
   float: left;
   margin: 18px 0 0 0;
-  box-shadow: 0px 10px 10px -10px #454545;
+  /*box-shadow: 0px 10px 10px -10px #454545;*/
+  box-shadow: 0px 4px 4px -4px #454545;
   background-color: #C8DBEC;
   /* BFDDF5 */
 }
@@ -160,6 +161,16 @@ textarea.form-control {
   .tableture p {
     margin-top: 1em;
   }
+}
+.latest-post-list-item {
+  padding: 20px;
+  margin: 10px;
+  border: solid 1px #DDD;
+  border-radius: 5px;
+  background-color: #EEE;
+}
+.latest-post-list-item .post-title {
+  font-size: 36px;
 }
 .blog-description {
   margin: 0px 0px 20px 0px;

@@ -1,7 +1,10 @@
 angular.module('main')
 
 .controller('LatestPostsCtrl', function($scope, urls, $state, $location, PostsEndpoint, SentencesEndpoint) {
-	console.log("controller");
+	
+    // For posts data. Front page includes blogs loading but that is not so important since that's loaded on nav anyways...
+    $scope.isBootstrapping = true;
+    
 	$scope.posts = {results: []};
 
 //	RequestCache.getURL(urls.posts).then(function(response) {
@@ -9,6 +12,7 @@ angular.module('main')
 //	});
 	PostsEndpoint.fetchAll().then(function(data) {
 		$scope.posts = data;
+        $scope.isBootstrapping = false;
 	});
 
     $scope.goToParent = function(post) {

@@ -61,7 +61,7 @@ angular.module("main", [
 		})
         .state('error404', {
             url: '/error',
-            templateURL: '/static/blog/dist/app/error404/error404.tpl.html'
+            templateUrl: '/static/blog/dist/app/error404/error404.tpl.html'
         })
 		.state('createblog', {
 			url: '/createblog',
