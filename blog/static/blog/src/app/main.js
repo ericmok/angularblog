@@ -7,7 +7,7 @@ angular.module("main", [
 	'Urls', 
 	'AjaxCaching', 
 	'Endpoints',
-	'UniqueInput',
+	'UniqueSource',
     'PostParentDirective',
     'Crypto'])
 

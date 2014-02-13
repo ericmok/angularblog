@@ -1,4 +1,4 @@
-angular.module('UniqueInput', [])
+angular.module('UniqueSource', [])
 
 .directive('uniqueSource', function($http, $timeout) {
 	return {
