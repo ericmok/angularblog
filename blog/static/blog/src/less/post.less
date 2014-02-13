@@ -1,5 +1,6 @@
 /*@beige: #FAD7A9;*/
-@beige: #FFDE89;
+/*@beige: #FFDE89;*/
+@beige: #FFEAB5;
 @specialGreen: #44FF9E;
 	
 .slide-container
@@ -46,7 +47,7 @@ article.post
 article.reply
 {
 
-	background: lighten(@beige, 5%);
+	background: lighten(@beige, 2%);
 	margin: 10px;
 	padding: 30px;
     /* High radius, widget style? Or card style... */
@@ -59,14 +60,28 @@ article.reply
 	}
 	p
 	{
-		font: 15px 'Open Sans';
+		font: 14px Arial;
 		line-height: 1.56;
 	}
 	.author
 	{
 		color: #AAA;
 		margin-bottom: 1em;
-	}	
+	}
+    .sentence
+    {
+        -webkit-transition: box-shadow 0.3s ease;
+        -moz-transition: box-shadow 0.3s ease;
+        -o-transition: box-shadow 0.3s ease;
+        transition: box-shadow 0.3s ease;
+        
+        padding: 2px 0;
+    }
+    .sentence:hover
+    {
+        color: #333;
+        background-color: #FFF;
+    }
 }
 
 article.main-comment
@@ -97,14 +112,20 @@ article.main-comment
 .current-panel
 {
 	/*border-right: solid 4px @beige;*/
-	box-shadow: 1px 0px 20px -1px #AAA;
-	padding: 10px 30px;
+	box-shadow: 20px 0 20px -20px #999;
+	padding: 10px 43px;
 }
 
 .right-panel
 {
-    box-shadow: -1px 0px 20px -1px #AAA;
+    /*box-shadow: -1px 0px 20px -1px #AAA;*/
+    box-shadow: 10px 0px 10px -10px #AAA;
     padding-bottom: 1em;
+    
+    -webkit-transition: box-shadow 0.3s ease;
+    -moz-transition: box-shadow 0.3s ease;
+    -o-transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease;
 }
 
 
@@ -145,6 +166,11 @@ article.main-comment
 	-moz-opacity: 0.4;
 	-o-opacity: 0.4;
 	opacity: 0.4;
+    
+    .right-panel
+    {
+        box-shadow: 0 0 0 0 #EEE;
+    }
 }
 
 .sentence-comment-control
@@ -195,6 +221,20 @@ article.main-comment
 .parent
 {
 	padding: 1em 0em;
+}
+
+.parent-representation
+{
+    margin: 0 0 1em 0;
+    padding: 10px;
+    border: solid 1px #DDD;
+    background-color: #EEE;
+    
+    span
+    {
+        background-color: #DDF;
+        padding: 5px;
+    }
 }
 
 .parent-title

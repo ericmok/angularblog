@@ -8,6 +8,8 @@
 
 		<link href="{{STATIC_URL}}blog/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+        <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+        
 <!-- 		<link href="{{STATIC_URL}}blog/dist/css/index.css" rel="stylesheet" />
 		<link href="{{STATIC_URL}}blog/dist/css/blog.css" rel="stylesheet" />
 		<link href="{{STATIC_URL}}blog/dist/css/post.css" rel="stylesheet" />
@@ -22,6 +24,8 @@
 		<script src="{{STATIC_URL}}blog/bower_components/jquery/jquery.min.js"></script>
 		<script src="{{STATIC_URL}}blog/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 		
+        <script src="{{STATIC_URL}}blog/bower_components/crypto-js/rollups/md5.js"></script>
+        
 		<script src="{{STATIC_URL}}blog/bower_components/angular/angular.js"></script>
 		<script src="{{STATIC_URL}}blog/bower_components/angular-animate/angular-animate.js"></script>
 		<script src="{{STATIC_URL}}blog/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
@@ -36,16 +40,28 @@
 		<script src="{{STATIC_URL}}blog/dist/app/createpost/createpost.js"></script>
 		<script src="{{STATIC_URL}}blog/dist/app/revisepost/revisepost.js"></script>
         <script src="{{STATIC_URL}}blog/dist/app/revisions/revisions.js"></script>
+        <script src="{{STATIC_URL}}blog/dist/app/error404/error404.js"></script>
 	</head>
 	<body ng-app="main">
 	{% verbatim %}
+        <nav class="navbar" ng-controller="NavCtrl">
+            <div class="inner-navbar">
+                <div class="logo">
+                    {% endverbatim %}
+                    <img src="{{STATIC_URL}}blog/assets/icon1.svg" />
+                    {% verbatim %}
+                </div>
+
+                <ul class="breadcrumb">
+                    <li><a ui-sref="latest">Latest</a></li>
+                    <li ng-repeat='blog in blogs.results'><a ui-sref="blog({blogId: blog.title})">{{blog.title}}</a></li>
+                </ul>
+
+                <div style="clear: both;"></div>
+            </div>
+        </nav>
+        
 		<div class="container">
-			<nav class="navbar navbar-default" role="navigation">
-				<div class="navbar-brand">Eric's Blog Prototype</div>
-				<div>
-					<a ui-sref="latest">Latest</a>
-				</div>
-			</nav>
 			
 			<div ui-view autoscroll="false">
 			</div>

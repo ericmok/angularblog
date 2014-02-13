@@ -1,7 +1,19 @@
+/**
+src/app/post/controllers.js
+
+Need to refactor this dearly...
+*/
+
 angular.module('main')
 
-.controller('PostCtrl', function($scope, $stateParams, $location, $rootScope, auth, urlConstructor, RequestCache, urls, $timeout) {
-	console.log($stateParams.postId);
+.controller('PostCtrl', function($scope, $state, $stateParams, $location, $rootScope, auth, RequestCache, SentencesEndpoint, urls, $timeout) {
+
+    // Has the page been bootstrapped with data yet? If not show some feedback
+    $scope.isBootstrapping = true;
+    
+    // TODO
+    $scope.error404 = false;
+    
 	$scope.postId = $stateParams.postId;
 
 	/* 
@@ -50,7 +62,7 @@ angular.module('main')
 		$scope.isMakingComment = true;
 		//$location.path()
 	};
-
+    
 	$scope.forAllSentencesInASidebar = function(sidebarCounter, func) {
 		/* 
 		Previous behavior:
@@ -81,13 +93,25 @@ angular.module('main')
 
 		$scope.currentlySelectedSentenceId = parseInt(sentenceId);
 
-		// This throws an error, sidebars are undefined for some reason
+		// Make sure sidebars are NOT undefined before calling this
 		$scope.forAllSentencesInASidebar(sidebarCounter, function(sentence) {
 			if (sentence.id === $scope.currentlySelectedSentenceId) {
 				//console.log('for loop', sentence);
 				$scope.currentlySelectedSentenceObj = sentence;
 			}
 		});
+        
+        /*
+         When a sentence is selected, lazy load the previous version relationship into the selected sentence object
+         If the previous_version has the same text as the current one, that means that the sentence was modified
+         TODO: This could be determined from a possible ratio field in the object that the server may return
+         */
+        SentencesEndpoint.getPreviousVersion( $scope.currentlySelectedSentenceObj ).then(function(sentence) {
+            $scope.currentlySelectedSentenceObj.previous_sentence = sentence;
+            $scope.currentlySelectedSentenceObj.previous_sentence_was_modified = function() {
+                return $scope.currentlySelectedSentenceObj.previous_sentence.text !== $scope.currentlySelectedSentenceObj.text;
+            };
+        });
 	};
 
 	// If a user mouseouts, cancel timers
@@ -132,30 +156,13 @@ angular.module('main')
 				 */
 				$scope.selectSentence(sentenceId, sidebarCounter);
 
-						
-//				
-//				console.log('currently selected', $scope.currentlySelectedSentenceObj);
-//				
-//				if ($scope.currentlySelectedSentenceObj && $scope.currentlySelectedSentenceObj.previous_version !== null) {
-//					
-//					console.log('previous:', $scope.currentlySelectedSentenceObj.previous_version);
-//					
-//					RequestCache.getURL(urls.sentences + '/' + $scope.currentlySelectedSentenceObj.previous_version + '/comments').then(function(data) {
-//						
-//						console.log('previous data:', data);
-//						
-//						// Update the sidebar
-//						if ($scope.sidebars[$scope.currentPointer + 1].results.length < 16) {
-				
-//							can't deal with duplicates...
-//							$scope.sidebars[$scope.currentPointer + 1].results = $scope.sidebars[$scope.currentPointer + 1].results.concat(data.results);
-//							
-//							console.log($scope.sidebars[$scope.currentPointer + 1]);
-//						}
-//					});
-//					
-//				}
 
+                if ($scope.currentlySelectedSentenceObj && $scope.currentlySelectedSentenceObj.previous_version !== null) {
+                    SentencesEndpoint.fetch($scope.currentlySelectedSentenceObj.previous_version).then(function(data) {
+                        // Previous data loading...
+                        $scope.sidebars[$scope.currentPointer + 1].results.concat(data.results);
+                    });
+                }				
 				
 			});
             
@@ -182,6 +189,9 @@ angular.module('main')
 				
 		// Initial Loading: Load left side, Then right side
 		RequestCache.getURL(urls.posts + '/' + $scope.postId).then(function(data) {
+            
+            $scope.isBootstrapping = false;
+            
 			$scope.sidebars[$scope.currentPointer] = {
 				results: [data]
 			};
@@ -196,7 +206,7 @@ angular.module('main')
 			if ( $location.search().sentence !== undefined ) {
 				
 				RequestCache.getURL(urls.sentences + '/' + $location.search().sentence + '/comments').then(function(data) {
-	
+                    
 					// If the sentence has no comments, just go back to default behavior
 					if (data.results.length == 0) {
 						$location.search({});
@@ -219,7 +229,11 @@ angular.module('main')
 				$scope.mainComments = data;
 			});
 		
-		});			
+		}, function(data) {
+            // The original post couldn't load!
+            $scope.error404 = true;
+            $state.go('error404');
+        });			
 	};
 
 	// Bootstrap the controller with info as soon as page loads!

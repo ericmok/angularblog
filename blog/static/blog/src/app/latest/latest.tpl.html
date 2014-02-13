@@ -2,8 +2,8 @@
 
 <h2>Latest</h2>
 
-<div ng-controller="LatestPostsCtrl" class="col-md-6">
-	
+<div ng-controller="LatestPostsCtrl" class="col-md-7">
+	    
 	<div ng-repeat="post in posts.results">
 		<div class="well well-sm">
 			<article class="post">
@@ -16,10 +16,18 @@
 							</a>
 						</h3>
 							
-						<h6>By {{post.author}} on <a ng-click="goToParent(post)">{{post.parent_repr}}</a></h6>
-                        
+						<h6>By {{post.author}} 
+                            <span ng-if="post.parent_content_type !== 'sentence'">on 
+                                <a reference-model parent-content-type="{{post.parent_content_type}}" parent-id="{{post.parent_id}}">{{post.parent_repr}}</a>
+                            </span></h6>
 					</hgroup>
 				</header>
+                <div ng-if="post.parent_content_type === 'sentence'">
+                    <h4>A reply on:</h4>
+                    <blockquote>
+                        <a ng-click="goToParent(post)">{{post.parent_repr}}</a>
+                    </blockquote>
+                </div>
 				<p ng-repeat="para in post.content.paragraphs">
 					<span ng-if="para.ordering == 1">
 						<span ng-repeat="sent in para.sentences" ng-if="sent.ordering < 5">
@@ -43,7 +51,7 @@
 
 
 
-<div class="col-md-6">
+<div class="col-md-5">
 	<div ng-controller="BlogsCtrl">		
 		<div style="text-align: center;">
 			<div style="display: inline-block;">

@@ -8,7 +8,8 @@ angular.module("main", [
 	'AjaxCaching', 
 	'Endpoints',
 	'UniqueInput',
-    'PostParentDirective'])
+    'PostParentDirective',
+    'Crypto'])
 
 .provider('urlConstructor', function UrlConstructorProvider() {
 	/**
@@ -58,6 +59,10 @@ angular.module("main", [
 			url: '/latest',
 			templateUrl: '/static/blog/dist/app/latest/latest.tpl.html'
 		})
+        .state('error404', {
+            url: '/error',
+            templateURL: '/static/blog/dist/app/error404/error404.tpl.html'
+        })
 		.state('createblog', {
 			url: '/createblog',
 			templateUrl: '/static/blog/dist/app/createblog/createblog.tpl.html'
@@ -109,6 +114,14 @@ angular.module("main", [
 	urlConstructorProvider.register('createpost', function(id) {
 		return '/blog/' + id + '/createpost';
 	});
+})
+
+.controller('NavCtrl', function($scope, BlogsEndpoint) {
+    $scope.blogs = [];
+    
+    BlogsEndpoint.fetchAll().then(function (collection) {
+        $scope.blogs = collection;
+    });
 });
 
 
@@ -249,6 +262,18 @@ angular.module("AjaxCaching", [])
 });
 
 
+
+ /* *** */ 
+
+angular.module('Crypto',[])
+
+.factory('md5', function() {
+    return {
+        md5: function(val) {
+            return CryptoJS.MD5(val);
+        }
+    };
+});
 
  /* *** */ 
 
@@ -466,6 +491,9 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 	return {
         fetch: function(id) {
             return RequestCache.getURL(urls.sentences + '/' + id);
+        },
+        getPreviousVersion: function(sentence) {
+            return RequestCache.getURL(urls.sentences + '/' + sentence.previous_version);
         }
 	};
 });

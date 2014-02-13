@@ -1,5 +1,9 @@
 <div ng-controller="PostCtrl" class="row">
 
+    <div ng-if="isBootstrapping">
+        <img src="/static/blog/assets/loader.gif" />
+    </div>
+
 	<div ng-repeat="panel in sidebars" 
 			ng-class="{'col-xs-7': $index === currentPointer, 'current-panel': $index === currentPointer, 'col-xs-5': $index == currentPointer + 1,'zoom-small': loading && $index === currentPointer + 1}" 
 			ng-hide="($index < currentPointer) || ($index > currentPointer + 1)"
@@ -10,34 +14,29 @@
 		<div ng-if="$index === currentPointer">
 			<article class="post" ng-repeat="comment in panel.results">
                 <section>
-                    <header style="text-align: left;">
-                        This post was made on:
-                        <blockquote>
-                            <h5>{{comment.parent_repr}}</h5>
-                        </blockquote>
+                    <header class="parent-representation" style="text-align: left;">
+                        This post was made on: 
+                        <span>{{comment.parent_repr}}</span>
+                        <a reference-model parent-content-type="{{comment.parent_content_type}}" parent-id="{{comment.parent_id}}">Go to {{comment.parent_content_type}}</a>
                     </header>
-                    <a reference-model parent-content-type="{{comment.parent_content_type}}" parent-id="{{comment.parent_id}}">Go to {{comment.parent_content_type}}</a>
+                    
                     <section>
                         <header>
                             <hgroup>
                                 <div>
                                     <h1>{{comment.title}}</h1> 
                                 </div>
-                                <h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
+                                <h4 class="author">
+                                    By {{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]
+                                </h4>
                             </hgroup>
 
                             <a style="vertical-align: middle" class="btn btn-info" ui-sref="revisepost({postId: comment.id})" ng-show="canRevisePost()">Revise Post</a>
                         </header>
-                        
-                        <div ng-if="comment.editions.length > 1" class="list-group">
-                            <a ng-repeat="edition in comment.editions" class="list-group-item" ui-sref="revisions.editions({postId: {{comment.id}}, editionId: {{edition.id}} })">
-                                {{edition.created | momentverbose}}
-                            </a>
-                        </div>
 
                         <p ng-repeat="para in comment.content.paragraphs">
                             <span ng-repeat="sen in para.sentences" class="sentence" 
-                                  ng-class="{'sentence-selected': sen.id == currentlySelectedSentenceId, 'sentence-new': sen.previous_version !== null && comment.editions.length > 1}" 
+                                  ng-class="{'sentence-selected': sen.id == currentlySelectedSentenceId}" 
                                   ng-mouseover="updateSidebar(sen.id, $parent.$parent.$index)" 
                                   ng-mouseout="cancelTimers()">
                                 {{sen.text}}
@@ -45,6 +44,15 @@
                             </span>
                         </p>
                     </section>
+                    
+                    <footer>
+                        <h3 ng-if="comment.editions.length > 1">This Post was edited {{comment.editions.length - 1}} times</h3>         
+                        <div ng-if="comment.editions.length > 1" class="list-group">
+                            <a ng-repeat="edition in comment.editions" class="list-group-item" ui-sref="revisions.editions({postId: {{comment.id}}, editionId: {{edition.id}} })">
+                                {{edition.created | momentverbose}}
+                            </a>
+                        </div>
+                    </footer>
                 </section>
 			</article>
             
@@ -112,7 +120,13 @@
 			<!-- Quote -->
 			<header class="sidebar-quote" ng-if="currentlySelectedSentenceObj !== null">
 				<section>
-				
+                    <div ng-if="currentlySelectedSentenceObj.previous_sentence_was_modified()">
+                        Changed from:
+                        <blockquote>
+                            {{currentlySelectedSentenceObj.previous_sentence.text}}
+                        </blockquote>
+                        To:
+                    </div>
 					<blockquote>
 						{{currentlySelectedSentenceObj.text}}
 					</blockquote>

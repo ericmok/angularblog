@@ -3,8 +3,10 @@
 
     <div ng-hide="isLoading">
 		<div class="well well-sm">
-        	<h2>{{post.title}}</h2>
-        	<address>by {{post.author}} on {{post.parent_content_type}}/{{post.parent_id}}</address>
+        	<h2><a ui-sref="post({postId: post.id})">{{post.title}}</a></h2>
+        	<address>By {{post.author}} on:<br/>
+                <a reference-model parent-content-type="{{post.parent_content_type}}" parent-id="{{post.parent_id}}">{{post.parent_repr}}</a>
+            </address>
 		</div>
         <h3>Revisions:</h3>
         <div class="list-group">
@@ -12,7 +14,8 @@
 			   ng-repeat="edition in editions" 
 			   ng-class="{'active': edition.id == selectedEdition}" 
 			   ui-sref="revisions.editions({'editionId': {{edition.id}} })">
-               	{{edition.created | momentverbose }} ({{edition.created | moment}})
+               	{{edition.created | momentverbose }} ({{edition.created | moment}}) 
+                <span ng-if="$last">&lt; Original Version</span>
             </a>
         </div>
     </div>

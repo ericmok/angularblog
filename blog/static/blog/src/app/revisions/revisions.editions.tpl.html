@@ -1,10 +1,20 @@
 <div ng-controller="RevisionsEditionsCtrl">	
-	<h4>Edition Changes</h4>
-		
+    <header>
+        <h4>Edition Changes</h4>
+        <p>
+            <ul>
+                <li><span class="text text-warning">Red = Deleted</span></li>
+                <li><span class="text text-primary">Blue = Modified</span></li>
+                <li><span class="text text-success">Green = Added</span></li>    
+                <li><span class="text text-info">Random = Just for your viewing pleasure</span></li>
+            </ul>
+        </p>
+    </header>
+
 	<div class="row">
 		
 		<div ng-if="!previousEdition" class="col-xs-6">
-			<h4>This is the oldest version</h4>
+			<h2>Original Version -></h2>
 		</div>
 		<div class="col-xs-6" ng-show="previousEdition">
 			<hgroup>
@@ -28,7 +38,7 @@
 		</div>
 		<div class="col-xs-6">
 			<hgroup>
-				<h3><span class="soft" ng-if="previousVersion">Newer</span> <small>{{edition.created | momentverbose}}</small></h3>
+				<h3><span class="soft" ng-if="previousEdition">Newer</span> <small>{{edition.created | momentverbose}}</small></h3>
 			</hgroup>
 			<article class="post">
 				<p ng-repeat="paragraph in edition.paragraphs">

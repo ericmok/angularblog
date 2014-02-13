@@ -11,6 +11,7 @@
     "requirejs": ">=2.1.10",
     "angular-route": "~1.2.10",
     "angular-ui-router": "0.2.8-bowratic-tedium",
-    "momentjs": "~2.5.1"
+    "momentjs": "~2.5.1",
+    "crypto-js": "https://crypto-js.googlecode.com/files/CryptoJS%20v3.1.2.zip"
   }
 }

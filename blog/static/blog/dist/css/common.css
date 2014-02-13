@@ -1,3 +1,21 @@
+body {
+  background-color: #FEFEFE;
+}
+.navbar {
+  margin: 0 0 20px 0;
+}
+.navbar .logo {
+  display: inline-block;
+  float: left;
+}
+.navbar .breadcrumb {
+  display: inline-block;
+  float: left;
+  margin: 18px 0 0 0;
+  box-shadow: 0px 10px 10px -10px #454545;
+  background-color: #C8DBEC;
+  /* BFDDF5 */
+}
 /* Engraved look */
 .soft {
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.7), 0px -1px 0px rgba(0, 0, 0, 0.4);

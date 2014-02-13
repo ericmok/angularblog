@@ -1,3 +1,9 @@
+"""
+Serializers that conver Django models to python models, which is intended to be JSON dumped.
+
+Massive refactoring is in store. I want to move away from Django Rest Framework and use a more functional/modular approach..
+"""
+
 from blog.models import User, Blog, Post, Paragraph, Sentence, Edition
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
@@ -386,6 +392,7 @@ def serialize_sentence(sentence):
         }
     if (sentence.previous_version is not None):
         return_json['previous_version'] = sentence.previous_version.pk
+        
     else:
         return_json['previous_version'] = None
     return return_json
@@ -394,6 +401,7 @@ def serialize_sentence(sentence):
 # NOT IMPLEMENTED
 def serialize_sentence_with_replies(sentence):
     """
+    NOT IMPLEMENTED: just an idea for implementations
     Serializes sentence to JSON serializable Python data structure.
     Includes replies.
     """

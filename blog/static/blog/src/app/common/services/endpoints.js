@@ -212,6 +212,9 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 	return {
         fetch: function(id) {
             return RequestCache.getURL(urls.sentences + '/' + id);
+        },
+        getPreviousVersion: function(sentence) {
+            return RequestCache.getURL(urls.sentences + '/' + sentence.previous_version);
         }
 	};
 });

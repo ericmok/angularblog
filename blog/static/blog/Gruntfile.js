@@ -49,6 +49,9 @@ module.exports = function(grunt) {
 				}, {
                     src: 'src/app/revisions/*.js',
                     dest: 'dist/app/revisions/revisions.js'
+                }, {
+                    src: 'src/app/error404/*.js',
+                    dest: 'dist/app/error404/error404.js'
                 }]
 			}
 		},

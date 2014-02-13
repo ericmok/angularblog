@@ -1,4 +1,5 @@
 /*@beige: #FAD7A9;*/
+/*@beige: #FFDE89;*/
 .slide-container {
   position: relative;
   height: 50px;
@@ -34,7 +35,7 @@ article.post .author {
   margin-bottom: 1em;
 }
 article.reply {
-  background: #ffe5a3;
+  background: #ffedbf;
   margin: 10px;
   padding: 30px;
   /* High radius, widget style? Or card style... */
@@ -50,12 +51,23 @@ article.reply h6 {
   font-family: Times New Roman, Times;
 }
 article.reply p {
-  font: 15px 'Open Sans';
+  font: 14px Arial;
   line-height: 1.56;
 }
 article.reply .author {
   color: #AAA;
   margin-bottom: 1em;
+}
+article.reply .sentence {
+  -webkit-transition: box-shadow 0.3s ease;
+  -moz-transition: box-shadow 0.3s ease;
+  -o-transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease;
+  padding: 2px 0;
+}
+article.reply .sentence:hover {
+  color: #333;
+  background-color: #FFF;
 }
 article.main-comment {
   background: #EEE;
@@ -82,12 +94,17 @@ article.main-comment .author {
 }
 .current-panel {
   /*border-right: solid 4px @beige;*/
-  box-shadow: 1px 0px 20px -1px #aaaaaa;
-  padding: 10px 30px;
+  box-shadow: 20px 0 20px -20px #999999;
+  padding: 10px 43px;
 }
 .right-panel {
-  box-shadow: -1px 0px 20px -1px #aaaaaa;
+  /*box-shadow: -1px 0px 20px -1px #AAA;*/
+  box-shadow: 10px 0px 10px -10px #aaaaaa;
   padding-bottom: 1em;
+  -webkit-transition: box-shadow 0.3s ease;
+  -moz-transition: box-shadow 0.3s ease;
+  -o-transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease;
 }
 /* Well covers up */
 .sidebar-quote {
@@ -99,7 +116,7 @@ article.main-comment .author {
 }
 .sidebar-quote blockquote {
   /*border-left: solid 5px #6990D4;*/
-  border-left: solid 5px #ffde89;
+  border-left: solid 5px #ffeab5;
 }
 /* For zoom animation */
 .sidebar-panel {
@@ -117,6 +134,9 @@ article.main-comment .author {
   -moz-opacity: 0.4;
   -o-opacity: 0.4;
   opacity: 0.4;
+}
+.zoom-small .right-panel {
+  box-shadow: 0 0 0 0 #EEE;
 }
 .sentence-comment-control {
   margin-bottom: 1em;
@@ -150,6 +170,16 @@ article.main-comment .author {
 .parent {
   padding: 1em 0em;
 }
+.parent-representation {
+  margin: 0 0 1em 0;
+  padding: 10px;
+  border: solid 1px #DDD;
+  background-color: #EEE;
+}
+.parent-representation span {
+  background-color: #DDF;
+  padding: 5px;
+}
 .parent-title {
   font-family: Times New Roman, Times;
   /*	font-size: 32px;*/
@@ -169,7 +199,7 @@ article.main-comment .author {
 .sentence:hover {
   /*background-color: #F8E456;*/
   /*background-color: #FAE7B9;*/
-  background-color: #ffe5a3;
+  background-color: #fff1cf;
   border-radius: 5px;
 }
 .sentence-new {
@@ -179,7 +209,7 @@ article.main-comment .author {
   /*background-color: #30D8F0; twitter blue*/
   /*background-color: #FAE7C9;*/
   /*background-color: #FAD7A9 !important;*/
-  background-color: #ffde89 !important;
+  background-color: #ffeab5 !important;
   /*border: solid 1px @beige;*/
 }
 .sentence-highlight.sentence-selected {

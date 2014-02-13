@@ -1,19 +1,29 @@
 <div ng-controller="BlogCtrl">
 	
 	<div class="col-xs-12 blog-description"> 
-		<h2>{{blog.title}}</h2>
-		<section>
-			<h4>{{blog.description}}</h4>
-			<button class="btn btn-primary" ng-click="makePost()">Make a Post</button>
-			<button class="btn btn-primary" ng-if="canEditBlog()" ng-click="editBlog()">Edit Description</button>
-		</section>
+        <div ng-switch on="isBootstrapping">
+            <div ng-switch-when="true">
+                <img src="/static/blog/assets/loader.gif" />
+            </div>
+            <div ng-switch-when="false">
+                <h2>{{blog.title}}</h2>
+                <section>
+                    <h4>{{blog.description}}</h4>
+                    <button class="btn btn-primary" ng-click="makePost()">Make a Post</button>
+                    <button class="btn btn-primary" ng-if="canEditBlog()" ng-click="editBlog()">Edit Description</button>
+                </section>  
+            </div>
+        </div>
 	</div>
 	
 	<div style="clear: both;"></div>
 
 	<div class="col-md-7">
-			
-			<div class="well well-sm">
+            <div ng-if="posts.results.length < 1">
+                <h3>This blog has no posts yet.</h3>
+            </div>
+        
+			<div class="well well-sm" ng-if="posts.results.length > 0">
 				<article class="post" ng-repeat="post in posts.results">
 					<header>
 						<hgroup>

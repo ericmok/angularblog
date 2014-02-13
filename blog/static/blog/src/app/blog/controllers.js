@@ -8,6 +8,10 @@ angular.module('main')
 	$scope.blogId = $stateParams.blogId;
 	$scope.blog = null;
 	$scope.posts = [];
+    
+    // If loading content
+    $scope.isBootstrapping = true;
+    $scope.error404 = false;
 
 	BlogsEndpoint.fetch($scope.blogId).then(function(response) {
 		$scope.blog = response;
@@ -27,9 +31,12 @@ angular.module('main')
 			method: 'GET'
 		}).then(function(response) {
 			$scope.posts = response.data;
+            
+            $scope.isBootstrapping = false;
 		});
 	}, function(response) {
 		console.log("FAI");
+        $scope.error404 = true;
 	});
 
 	// This will change after we load the blog and determine permissions
