@@ -5,7 +5,9 @@ angular.module('UniqueSource', [])
 		require: 'ngModel',
 		restrict: 'A',
         scope: {
-            'uniqueSource': '@'
+            'uniqueSource': '@',
+            'loading': '&',
+            'finished': '&'
         },
 		controller: function($scope) {
             $scope.urlParam = null; // Wait for attribute to link
@@ -29,6 +31,8 @@ angular.module('UniqueSource', [])
 				$scope.delayTimer = $timeout(function() {
 					$scope.validating = true;
 
+					$scope.loading();
+
 					console.log("ping!", $scope.data);
 
 					if ($scope.data.length < 1) {
@@ -45,6 +49,8 @@ angular.module('UniqueSource', [])
 						$scope.delayTimer = null;
 						$scope.validating = false;
 
+						$scope.finished();
+
 					}).error(function(data) {
 
 						//console.log("fail", data);
@@ -52,6 +58,9 @@ angular.module('UniqueSource', [])
 						$scope.ngModelCtrl.$setValidity('uniqueSource', true);
 						$scope.delayTimer = null;
 						$scope.validating = false;
+
+						$scope.finished();
+
 					});
 				}, $scope.DELAY);
 			};

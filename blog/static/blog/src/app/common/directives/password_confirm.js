@@ -5,13 +5,31 @@ angular.module('PasswordConfirm', [])
 		require: 'ngModel',
 		restrict: 'A',
 		scope: {
-			passwordConfirm: '@'
+			equals: '@'
 		}, 
 		link: function(scope, element, attrs, ngModelCtrl) {
-			attrs.$observe('passwordConfirm', function(val) {
-				if (val === ngModelCtrl.$viewValue) {
+
+			scope.validate = function() {
+				console.log('equals', attrs);
+				if (attrs['equals'] === '') {
+					ngModelCtrl.$setValidity('confirmed', true);
+				}
+
+				if (ngModelCtrl.$viewValue === attrs['equals']) {
+					ngModelCtrl.$setValidity('confirmed', true);
+				} else {
 					ngModelCtrl.$setValidity('confirmed', false);
 				}
+			};
+
+			scope.$watch(function() {
+				return ngModelCtrl.$modelValue;
+			}, function(newVal) {
+				scope.validate();
+			});
+
+			attrs.$observe('equals', function(val) {
+				scope.validate();
 			});
 		}
 	};
