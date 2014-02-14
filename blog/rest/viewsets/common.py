@@ -10,7 +10,7 @@ import hashlib
 def hash_cash_check(key, counter, hash_value):
     if str( hashlib.md5(key + str(counter)).hexdigest() ) != hash_value:
         return False
-    if hash_value[0] == '0' and hash_value[1] == '0':
+    if hash_value[0] == '0' and hash_value[1] == '0' and hash_value[2] == '0':
         return True
     else:
         return False

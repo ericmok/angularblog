@@ -693,7 +693,21 @@ angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 		transclude: true,
 		scope: {},
 		controller: function($scope) {
-
+            $scope.isRegistering = false;
+            
+            $scope.switchToRegisterForm = function() {
+                $scope.isRegistering = true;
+            };
+            
+            $scope.switchToLoginForm = function(username, password) {
+            	console.log('switch:', username, password);
+            	if (username) {
+            		$scope.username = username;
+            		$scope.password = password;
+            		$scope.login();
+            	}
+                $scope.isRegistering = false;
+            };
 
 			if ( auth.isLoggedIn() ) {
 				$scope.username = auth.getUsername();
@@ -755,8 +769,8 @@ angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 
 
 			var loginRoot = angular.element("<div class='login'></div>");
-		
-			var loginFormElement = angular.element('<form class="inner-form" ng-submit="login()"></form>');
+            
+			var loginFormElement = angular.element('<form class="inner-login-form" ng-show="!isRegistering" ng-submit="login()"></form>');
 			var loginHeaderElement = angular.element('');
 		
 			var alertElement = angular.element('<div class="alert alert-danger" ng-show="failure" ng-bind="status"></div>');
@@ -766,15 +780,16 @@ angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 			var passwordElement = angular.element('<input class="form-control" ng-model="password" type="password" name="password" placeholder="password" />');
 		
 			var loginButtonElement = angular.element('<input type="submit" class="btn btn-login" value="Log In" ng-class="{loading: busy}" />');
-			var createAccountElement = angular.element('<button class="btn btn-success" ng-submit="createUser">Create Account</button>');
+            
 			var clearElement = angular.element('<div style="clear: both"></div>');
-		
+            		
 			var logoutRoot = angular.element('<div class="logout"></div>');
 			var logoutUserInfoElement = angular.element('<div class="user-info"><p class="user-info-username">{{username}}</p></div>')
 			var logoutButtonElement = angular.element('<input type="button" ng-click="logout()" class="col-xs-6 btn btn-logout" value="Log Out" />')
 			var logoutClearElement = angular.element('<div style=\'clear:both;\'></div>');
 
-            registerForm = angular.element('<register-form></register-form>');
+            var registerLink = angular.element('<a ng-show="!isRegistering" ng-click="switchToRegisterForm()">or click here to create account</a>');
+            var registerForm = angular.element('<div ng-hide="!isRegistering"><register-form success="switchToLoginForm(username, password)"></register-form><a ng-click="switchToLoginForm()">Already have an account? Click here to login.</a></div>');
             
 			// Login elements
 			loginFormElement.append(loginHeaderElement);
@@ -789,6 +804,7 @@ angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 
 			loginRoot.append(loginFormElement);
             
+            loginRoot.append(registerLink);
             loginRoot.append(registerForm);
 			
 			// Logout element
@@ -887,6 +903,27 @@ angular.module('ModelRepresentations', [])
 			}, function(newVal) {
 				var compiled_html = $compile(html)(scope);
 				element.append( angular.element(compiled_html) );
+			});
+		}
+	};
+});
+
+ /* *** */ 
+
+angular.module('PasswordConfirm', [])
+
+.directive('passwordConfirm', function() {
+	return {
+		require: 'ngModel',
+		restrict: 'A',
+		scope: {
+			passwordConfirm: '@'
+		}, 
+		link: function(scope, element, attrs, ngModelCtrl) {
+			attrs.$observe('passwordConfirm', function(val) {
+				if (val === ngModelCtrl.$viewValue) {
+					ngModelCtrl.$setValidity('confirmed', false);
+				}
 			});
 		}
 	};
@@ -1139,28 +1176,55 @@ directive('sentenceTemplate', function($compile) {
 
  /* *** */ 
 
-angular.module('RegisterForm', ['UniqueSource', 'Urls', 'Crypto'])
+angular.module('RegisterForm', ['UniqueSource', 'Urls', 'Crypto', 'Security', 'PasswordConfirm'])
 
 .directive('registerForm', function(urls) {
     return {
         restrict: 'EA',
         template: 
-            '<form>' +
-                '<input type="text" ng-model="username" ng-minLength="4" unique-source=" urls.users " class="form-control" placeholder="Enter a unique username" />' +
-                '<input type="password" ng-model="password" class="form-control" ng-minLength="4" placeholder="Password" />' +
-                '<button class="btn btn-success" ng-click="createAccount()">Create Account</button>' +
+            '<form name="registerForm" ng-submit="createAccount()" class="register-form">' +
+                '<h3>Register</h3>' +
+                '<input type="text" name="username" ng-model="username" ng-minlength="4" ng-pattern="/\w*/" ng-required unique-source="' + 
+                urls.users + 
+                '" class="form-control" placeholder="Enter a unique username" />' +
+                '<input type="password" name="password" ng-model="password" class="form-control" ng-minlength="5" ng-required placeholder="Enter a password..." />' +
+                '<input type="password" name="passwordConfirm" ng-model="passwordConfirm" class="form-control" password-confirm="{{password}}" placeholder="Type your password a second time..." ng-required />' +
+                '<div ng-if="registerForm.username.$error.minlength">Username needs to be at least 4 characters long</div>' +
+                '<div ng-if="registerForm.username.$error.uniqueSource">That username is already taken!</div>' +
+                '<div ng-if="registerForm.password.$error.minlength">That password is too short!</div>' +
+                '<div ng-if="registerForm.passwordConfirm.$error">{{registerForm.passwordConfirm.$error}}</div>' +
+                '<div ng-if="calculating"><img src=\"/static/blog/assets/ajax-loader.gif\" /></div>' +
+                '<button class="btn btn-success" ng-hide="calculating">Create Account</button>' +
             '</form>',
         scope: {
             success: '&'
         },
-        controller: function($scope, $http, urls, md5) {
+        controller: function($scope, $http, urls, md5, auth) {
             $scope.username = '';
             $scope.password = '';
+            $scope.passwordConfirm = '';
             
             $scope.calculating = false;
             
-            $scope.hashCash = function() {false
-                $scope.calculating = true;
+//            $scope.isValid = function(formCtrl) {
+//                for (var item in formCtrl.username.$error) {
+//                    if (formCtrl.username.$error.hasOwnProperty(item) {
+//                        if (formCtrl.username.$error[item] === true) {
+//                            return false;
+//                        }
+//                    }
+//                }
+//                for (var item in formCtrl.password.$error) {
+//                    if (formCtrl.password.$error.hasOwnProperty(item) {
+//                        if (formCtrl.password.$error[item] === true) {
+//                            return false;
+//                        }
+//                    }
+//                }
+//                return true;
+//            };
+            
+            $scope.hashCash = function() {
                 
                 var counter = 0;
                 var hash = 'aa';
@@ -1170,11 +1234,11 @@ angular.module('RegisterForm', ['UniqueSource', 'Urls', 'Crypto'])
                     
                     hash = [$scope.username, counter].join('');
                     hash = md5.md5(hash).toString();
-                    console.log('hash', hash);
-                    console.log(hash.charAt(0), hash.charAt(1));
+                    //console.log('hash', hash);
+                    //console.log(hash.charAt(0), hash.charAt(1));
                     
-                    if ((hash.charAt(0) === '0') && (hash.charAt(1) === '0')) {
-                        $scope.calculating = false;
+                    if ((hash.charAt(0) === '0') && (hash.charAt(1) === '0') && (hash.charAt(2) === '0')) {
+                        
                         return {
                             counter: counter,
                             hash: hash
@@ -1185,6 +1249,7 @@ angular.module('RegisterForm', ['UniqueSource', 'Urls', 'Crypto'])
             
             $scope.createAccount = function() {
                 
+                $scope.calculating = true;
                 var hashCash = $scope.hashCash();
                 
                 $http({
@@ -1192,14 +1257,19 @@ angular.module('RegisterForm', ['UniqueSource', 'Urls', 'Crypto'])
                     url: urls.users,
                     data: {
                         username: $scope.username,
-                        password: $scope.password,
+                        password: $scope.password
+                    },
+                    headers: {
                         unique: 'username ' + hashCash.counter + ' ' + hashCash.hash
                     }
-                }).then(function() {
+                }).then(function(data) {
                     $scope.success();
-                    console.log('success');
+                    $scope.calculating = false;
+                    console.log('Create user success');
+                    $scope.success({username: $scope.username, password: $scope.password});
                 }, function() {
-                    console.log('fail');
+                    $scope.calculating = false;
+                    console.log('Create user fail');
                 });
             };
         },

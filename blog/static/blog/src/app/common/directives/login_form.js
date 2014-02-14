@@ -10,7 +10,21 @@ angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 		transclude: true,
 		scope: {},
 		controller: function($scope) {
-
+            $scope.isRegistering = false;
+            
+            $scope.switchToRegisterForm = function() {
+                $scope.isRegistering = true;
+            };
+            
+            $scope.switchToLoginForm = function(username, password) {
+            	console.log('switch:', username, password);
+            	if (username) {
+            		$scope.username = username;
+            		$scope.password = password;
+            		$scope.login();
+            	}
+                $scope.isRegistering = false;
+            };
 
 			if ( auth.isLoggedIn() ) {
 				$scope.username = auth.getUsername();
@@ -72,8 +86,8 @@ angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 
 
 			var loginRoot = angular.element("<div class='login'></div>");
-		
-			var loginFormElement = angular.element('<form class="inner-form" ng-submit="login()"></form>');
+            
+			var loginFormElement = angular.element('<form class="inner-login-form" ng-show="!isRegistering" ng-submit="login()"></form>');
 			var loginHeaderElement = angular.element('');
 		
 			var alertElement = angular.element('<div class="alert alert-danger" ng-show="failure" ng-bind="status"></div>');
@@ -83,15 +97,16 @@ angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 			var passwordElement = angular.element('<input class="form-control" ng-model="password" type="password" name="password" placeholder="password" />');
 		
 			var loginButtonElement = angular.element('<input type="submit" class="btn btn-login" value="Log In" ng-class="{loading: busy}" />');
-			var createAccountElement = angular.element('<button class="btn btn-success" ng-submit="createUser">Create Account</button>');
+            
 			var clearElement = angular.element('<div style="clear: both"></div>');
-		
+            		
 			var logoutRoot = angular.element('<div class="logout"></div>');
 			var logoutUserInfoElement = angular.element('<div class="user-info"><p class="user-info-username">{{username}}</p></div>')
 			var logoutButtonElement = angular.element('<input type="button" ng-click="logout()" class="col-xs-6 btn btn-logout" value="Log Out" />')
 			var logoutClearElement = angular.element('<div style=\'clear:both;\'></div>');
 
-            registerForm = angular.element('<register-form></register-form>');
+            var registerLink = angular.element('<a ng-show="!isRegistering" ng-click="switchToRegisterForm()">or click here to create account</a>');
+            var registerForm = angular.element('<div ng-hide="!isRegistering"><register-form success="switchToLoginForm(username, password)"></register-form><a ng-click="switchToLoginForm()">Already have an account? Click here to login.</a></div>');
             
 			// Login elements
 			loginFormElement.append(loginHeaderElement);
@@ -106,6 +121,7 @@ angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 
 			loginRoot.append(loginFormElement);
             
+            loginRoot.append(registerLink);
             loginRoot.append(registerForm);
 			
 			// Logout element

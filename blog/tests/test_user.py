@@ -88,7 +88,7 @@ class UserViewsetTests(TestCase):
             counter += 1
             hsh = str(hashlib.md5('asdfasdf' + str(counter)).hexdigest())
             #print('hsh', hsh)
-            if hsh[0] == '0' and hsh[1] == '0':
+            if hsh[0] == '0' and hsh[1] == '0' and hsh[2] == '0':
                 not_found = False
             
         hash_cash = hashlib.md5('asdfasdf' + str(counter))

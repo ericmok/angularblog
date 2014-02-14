@@ -56,7 +56,7 @@ textarea.form-control {
   transition: background-color 0.7s ease;
   /* Fixes: Placing the login form in different places may change the font */
 }
-.login-form .inner-form {
+.login-form .inner-login-form {
   -webkit-transition: all 0.7s ease;
   -moz-transition: all 0.7s ease;
   -ms-transition: all 0.7s ease;
@@ -64,28 +64,28 @@ textarea.form-control {
   transition: all 0.7s ease;
   /*background-color: #FFF;*/
 }
-.login-form.flash {
-  background-color: #FFEBAD;
-  border: solid 1px #ffe594;
-}
-.login-form input {
+.login-form .inner-login-form input {
   box-shadow: inset 0px 1px 7px -4px;
 }
-.login-form input[type=password] {
+.login-form .inner-login-form input[type=password] {
   margin-top: 4px;
   float: left;
   width: 71%;
 }
-.login-form input[type=submit] {
+.login-form .inner-login-form input[type=submit] {
   margin-top: 4px;
   float: right;
   width: 28%;
   /* 2px / 320px */
 }
-.login-form input[type=submit]:after {
+.login-form .inner-login-form input[type=submit]:after {
   content: ' ';
   display: table;
   clear: both;
+}
+.login-form.flash {
+  background-color: #FFEBAD;
+  border: solid 1px #ffe594;
 }
 .login-form .busy {
   background-color: #EEE;
@@ -134,6 +134,13 @@ textarea.form-control {
 .login-form .btn-logout:hover {
   color: #FFF;
   background-color: #4cae4c;
+}
+.register-form {
+  margin: 10px 0 0 0;
+}
+.register-form .form-control {
+  width: 100% !important;
+  margin: 0 0 5px 0;
 }
 /* Pages */
 .tableture {

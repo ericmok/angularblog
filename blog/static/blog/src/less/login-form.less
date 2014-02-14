@@ -22,7 +22,7 @@
 	-o-transition: background-color 0.7s ease;
 	transition: background-color 0.7s ease;
 
-	.inner-form
+	.inner-login-form
 	{
 		-webkit-transition: all 0.7s ease;
 		-moz-transition: all 0.7s ease;
@@ -31,6 +31,32 @@
 		transition: all 0.7s ease;
 
 		/*background-color: #FFF;*/
+
+        input
+        {
+            box-shadow: inset 0px 1px 7px -4px;
+        }
+
+        input[type=password] 
+        {
+            margin-top: 4px;
+            float: left;
+            width: 71%;
+        }
+
+        input[type=submit]
+        {
+            margin-top: 4px;
+            float: right;
+            width: 28%; /* 2px / 320px */
+        }
+
+        input[type=submit]:after 
+        {
+            content: ' ';
+            display: table;
+            clear: both;
+        }
 	}
 
 	&.flash
@@ -39,31 +65,6 @@
 		border: solid 1px darken(#FFEBAD, 5%);
 	}
 
-	input
-	{
-		box-shadow: inset 0px 1px 7px -4px;
-	}
-
-	input[type=password] 
-	{
-		margin-top: 4px;
-		float: left;
-		width: 71%;
-	}
-
-	input[type=submit]
-	{
-		margin-top: 4px;
-		float: right;
-		width: 28%; /* 2px / 320px */
-	}
-
-	input[type=submit]:after 
-	{
-		content: ' ';
-		display: table;
-		clear: both;
-	}
 
 	.busy
 	{
