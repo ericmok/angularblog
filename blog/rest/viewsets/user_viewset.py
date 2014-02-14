@@ -19,7 +19,7 @@ import json
 from blog.rest.serializers import UserSerializer, BasicUserSerializer, UserPaginationSerializer
 from blog.models import *
 
-from blog.rest.viewsets.common import PaginationError, build_collection_json_from_query, post_view
+from blog.rest.viewsets.common import PaginationError, build_collection_json_from_query, post_view, hash_cash_check
 
 
 class UserViewSet(viewsets.GenericViewSet, 
@@ -42,6 +42,33 @@ class UserViewSet(viewsets.GenericViewSet,
 
 
     def create(self, request):
+        #unique = request.META.get('HTTP_X_UNIQUE', None)
+        unique = request.META.get('HTTP_UNIQUE', None)
+        
+        # Unique header exists?
+        if unique is None:
+            return Response({'error': 'Proof of work missing'}, status = 400)
+        else:
+            # Unique header contains 3 tokens?
+            tokens = unique.split()
+            
+            if len(tokens) != 3:
+                return Response({'error': 'Proof of work header requires 3 tokens'}, status = 400)
+            
+            # First token of header is a field in the data?
+            key = request.DATA.get(tokens[0], None)
+            if key is None:
+                return Response({'error': 'Proof of work for field not valid'}, status = 400)
+            
+            counter = tokens[1]
+            hash_value = tokens[2]
+            
+            # Verification
+            result = hash_cash_check(key, counter, hash_value)
+            
+            if result is False:
+                return Response({'error': 'Proof of work failed'}, status = 400)
+        
         serializer = UserSerializer(data = request.DATA, files = request.FILES, context = {'request': request})
         if serializer.is_valid():
             try:

@@ -1,7 +1,7 @@
-angular.module('LoginForm', ['Security', 'UniqueSource'])
+angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 
 
-.directive('loginForm', function($compile, $timeout, auth) {
+.directive('loginForm', function($compile, $timeout, urls, auth) {
 	
 	return {
 		restrict: 'EA', 
@@ -91,6 +91,8 @@ angular.module('LoginForm', ['Security', 'UniqueSource'])
 			var logoutButtonElement = angular.element('<input type="button" ng-click="logout()" class="col-xs-6 btn btn-logout" value="Log Out" />')
 			var logoutClearElement = angular.element('<div style=\'clear:both;\'></div>');
 
+            registerForm = angular.element('<register-form></register-form>');
+            
 			// Login elements
 			loginFormElement.append(loginHeaderElement);
 
@@ -101,10 +103,10 @@ angular.module('LoginForm', ['Security', 'UniqueSource'])
 			loginFormElement.append(loginButtonElement);
 
 			loginFormElement.append(clearElement);
-            
-            //loginFormElement.append(registerForm);
 
 			loginRoot.append(loginFormElement);
+            
+            loginRoot.append(registerForm);
 			
 			// Logout element
 			logoutRoot.append(logoutUserInfoElement);

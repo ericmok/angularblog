@@ -3,6 +3,7 @@ angular.module("main", [
     'filters.moment',
 	'ui.router', 
 	'Security', 
+    'RegisterForm',
 	'LoginForm', 
 	'Urls', 
 	'AjaxCaching', 
@@ -680,10 +681,10 @@ angular.module('Urls', [])
 
  /* *** */ 
 
-angular.module('LoginForm', ['Security', 'UniqueSource'])
+angular.module('LoginForm', ['Security', 'UniqueSource', 'RegisterForm'])
 
 
-.directive('loginForm', function($compile, $timeout, auth) {
+.directive('loginForm', function($compile, $timeout, urls, auth) {
 	
 	return {
 		restrict: 'EA', 
@@ -773,6 +774,8 @@ angular.module('LoginForm', ['Security', 'UniqueSource'])
 			var logoutButtonElement = angular.element('<input type="button" ng-click="logout()" class="col-xs-6 btn btn-logout" value="Log Out" />')
 			var logoutClearElement = angular.element('<div style=\'clear:both;\'></div>');
 
+            registerForm = angular.element('<register-form></register-form>');
+            
 			// Login elements
 			loginFormElement.append(loginHeaderElement);
 
@@ -783,10 +786,10 @@ angular.module('LoginForm', ['Security', 'UniqueSource'])
 			loginFormElement.append(loginButtonElement);
 
 			loginFormElement.append(clearElement);
-            
-            //loginFormElement.append(registerForm);
 
 			loginRoot.append(loginFormElement);
+            
+            loginRoot.append(registerForm);
 			
 			// Logout element
 			logoutRoot.append(logoutUserInfoElement);
@@ -1136,6 +1139,78 @@ directive('sentenceTemplate', function($compile) {
 
  /* *** */ 
 
+angular.module('RegisterForm', ['UniqueSource', 'Urls', 'Crypto'])
+
+.directive('registerForm', function(urls) {
+    return {
+        restrict: 'EA',
+        template: 
+            '<form>' +
+                '<input type="text" ng-model="username" ng-minLength="4" unique-source=" urls.users " class="form-control" placeholder="Enter a unique username" />' +
+                '<input type="password" ng-model="password" class="form-control" ng-minLength="4" placeholder="Password" />' +
+                '<button class="btn btn-success" ng-click="createAccount()">Create Account</button>' +
+            '</form>',
+        scope: {
+            success: '&'
+        },
+        controller: function($scope, $http, urls, md5) {
+            $scope.username = '';
+            $scope.password = '';
+            
+            $scope.calculating = false;
+            
+            $scope.hashCash = function() {false
+                $scope.calculating = true;
+                
+                var counter = 0;
+                var hash = 'aa';
+                
+                while (true) {
+                    counter++;
+                    
+                    hash = [$scope.username, counter].join('');
+                    hash = md5.md5(hash).toString();
+                    console.log('hash', hash);
+                    console.log(hash.charAt(0), hash.charAt(1));
+                    
+                    if ((hash.charAt(0) === '0') && (hash.charAt(1) === '0')) {
+                        $scope.calculating = false;
+                        return {
+                            counter: counter,
+                            hash: hash
+                        };
+                    }
+                }
+            };
+            
+            $scope.createAccount = function() {
+                
+                var hashCash = $scope.hashCash();
+                
+                $http({
+                    method: 'POST',
+                    url: urls.users,
+                    data: {
+                        username: $scope.username,
+                        password: $scope.password,
+                        unique: 'username ' + hashCash.counter + ' ' + hashCash.hash
+                    }
+                }).then(function() {
+                    $scope.success();
+                    console.log('success');
+                }, function() {
+                    console.log('fail');
+                });
+            };
+        },
+        link: function(scope, element, attrs) {
+        
+        }
+    };
+});
+
+ /* *** */ 
+
 angular.module('RestrictedPanel', ['Security', 'LoginForm'])
 
 .directive('restrictedPanel', function($compile, auth) {
@@ -1224,7 +1299,12 @@ angular.module('UniqueSource', [])
 	return {
 		require: 'ngModel',
 		restrict: 'A',
+        scope: {
+            'uniqueSource': '@'
+        },
 		controller: function($scope) {
+            $scope.urlParam = null; // Wait for attribute to link
+            
 			$scope.delayTimer = null;
 			$scope.DELAY = 800;
 
@@ -1233,6 +1313,12 @@ angular.module('UniqueSource', [])
 			$scope.validating = false;
 
 			$scope.startValidation = function() {
+                
+                // If the urlParam hasn't been bootstrapped, then skip!
+                if ($scope.urlParam === null) {
+                    return;
+                }
+                
 				$timeout.cancel($scope.delayTimer);
 
 				$scope.delayTimer = $timeout(function() {
@@ -1244,17 +1330,20 @@ angular.module('UniqueSource', [])
 						$scope.delayTimer = null;
 						return;
 					}
+                    
+                    console.log('ping goes to [', $scope.urlParam, ' ]');
+					$http.get($scope.urlParam + "/" + $scope.data).success(function(data) { 
 
-					$http.get($scope.source + "/" + $scope.data).success(function(data) { 
-
-						console.log("success", data);
+						//console.log("success", data);
+                        console.log("uniqueness test fails");
 						$scope.ngModelCtrl.$setValidity('uniqueSource', false);
 						$scope.delayTimer = null;
 						$scope.validating = false;
 
 					}).error(function(data) {
 
-						console.log("fail", data);
+						//console.log("fail", data);
+                        console.log("uniqueness test succeeds");
 						$scope.ngModelCtrl.$setValidity('uniqueSource', true);
 						$scope.delayTimer = null;
 						$scope.validating = false;
@@ -1263,7 +1352,11 @@ angular.module('UniqueSource', [])
 			};
 		},
 		link: function(scope, element, attrs, ngModelCtrl) {
-			scope.source = attrs.uniqueSource;
+            
+            attrs.$observe('uniqueSource', function(val) {
+                scope.urlParam = val;
+            });
+            
 			scope.ngModelCtrl = ngModelCtrl;
 
 			element.on('keyup', function(ev) {

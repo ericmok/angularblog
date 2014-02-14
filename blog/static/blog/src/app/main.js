@@ -3,6 +3,7 @@ angular.module("main", [
     'filters.moment',
 	'ui.router', 
 	'Security', 
+    'RegisterForm',
 	'LoginForm', 
 	'Urls', 
 	'AjaxCaching', 
