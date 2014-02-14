@@ -53,11 +53,11 @@ angular.module("main", [
 
 .config(function($stateProvider, $urlRouterProvider, urlConstructorProvider) {
 
-	$urlRouterProvider.otherwise('/latest');
+	$urlRouterProvider.otherwise('/');
 
 	$stateProvider
 		.state('latest', {
-			url: '/latest',
+			url: '/',
 			templateUrl: '/static/blog/dist/app/latest/latest.tpl.html'
 		})
         .state('error404', {
@@ -488,12 +488,17 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
     };
 })
 
-.factory('SentencesEndpoint', function(RequestCache, urls) {
+.factory('SentencesEndpoint', function(RequestCache, urls, $q) {
 	return {
         fetch: function(id) {
             return RequestCache.getURL(urls.sentences + '/' + id);
         },
         getPreviousVersion: function(sentence) {
+        	if (sentence.previous_version === null) {
+        		var deferred = $q.defer();
+        		deferred.reject('Sentence has no previous version');
+        		return deferred.promise;
+        	}
             return RequestCache.getURL(urls.sentences + '/' + sentence.previous_version);
         }
 	};
@@ -669,13 +674,13 @@ factory('Blog', function() {
 angular.module('Urls', [])
 
 .constant('urls', {
-	tokens: "/blog/api-tokens",
-	users: "/blog/api/users",
-	blogs: "/blog/api/blogs",
-	posts: "/blog/api/posts",
-    editions: "/blog/api/editions",
-    paragraphs: "/blog/api/paragraphs",
-	sentences: "/blog/api/sentences"
+	tokens: "/api-tokens",
+	users: "/api/users",
+	blogs: "/api/blogs",
+	posts: "/api/posts",
+    editions: "/api/editions",
+    paragraphs: "/api/paragraphs",
+	sentences: "/api/sentences"
 });
 
 

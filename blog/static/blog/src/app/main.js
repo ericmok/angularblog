@@ -53,11 +53,11 @@ angular.module("main", [
 
 .config(function($stateProvider, $urlRouterProvider, urlConstructorProvider) {
 
-	$urlRouterProvider.otherwise('/latest');
+	$urlRouterProvider.otherwise('/');
 
 	$stateProvider
 		.state('latest', {
-			url: '/latest',
+			url: '/',
 			templateUrl: '/static/blog/dist/app/latest/latest.tpl.html'
 		})
         .state('error404', {

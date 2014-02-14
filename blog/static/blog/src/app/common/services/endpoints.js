@@ -208,12 +208,17 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
     };
 })
 
-.factory('SentencesEndpoint', function(RequestCache, urls) {
+.factory('SentencesEndpoint', function(RequestCache, urls, $q) {
 	return {
         fetch: function(id) {
             return RequestCache.getURL(urls.sentences + '/' + id);
         },
         getPreviousVersion: function(sentence) {
+        	if (sentence.previous_version === null) {
+        		var deferred = $q.defer();
+        		deferred.reject('Sentence has no previous version');
+        		return deferred.promise;
+        	}
             return RequestCache.getURL(urls.sentences + '/' + sentence.previous_version);
         }
 	};

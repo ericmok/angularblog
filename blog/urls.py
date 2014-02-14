@@ -37,20 +37,23 @@ def tester(template):
 
 urlpatterns = patterns('',
 
-	url(r'^/api/', include(router.urls)),
+	url(r'^api/', include(router.urls)),
 
-    url(r'^/api-auth/$', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^/api-tokens/?', 'blog.rest.sessions.obtain_auth_token'),
+    url(r'^api-auth/$', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api-tokens/?', 'blog.rest.sessions.obtain_auth_token'),
 
-    #url(r'^/?$', blog.views.index.page, name='index'),
-    url(r'^/?$', blog.views.index.index, name='index'),
+    # So I'm wondering whether I should turn off append slash and
+    # Use prefix slashes instead...?
 
-    url(r'^/?layout/?$', blog.views.index.layout, name='layout'),
-    url(r'^/?latest/?$', blog.views.index.latest, name='latest'),
+    #url(r'^$', blog.views.index.page, name='index'),
+    url(r'^about/?$', blog.views.index.index, name='index'),
 
-    url(r'^/register/?$', blog.views.register.index, name = 'register'),
-    url(r'^/sign-in/?$', blog.views.register.sign_in, name = 'sign-in'),
-    url(r'^/sign-out/?$', blog.views.register.sign_out, name = 'sign-out'),
+    url(r'^$', blog.views.index.layout, name='layout'),
+    url(r'^latest/?$', blog.views.index.latest, name='latest'),
+
+    url(r'^register/?$', blog.views.register.index, name = 'register'),
+    url(r'^sign-in/?$', blog.views.register.sign_in, name = 'sign-in'),
+    url(r'^sign-out/?$', blog.views.register.sign_out, name = 'sign-out'),
 
     url(r'^/tests/?$', tester("blog/jasminetests.html")),
 
