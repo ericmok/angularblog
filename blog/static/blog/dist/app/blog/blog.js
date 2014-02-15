@@ -1,6 +1,6 @@
 angular.module('main')
 
-.controller('BlogCtrl', function($scope, $state, $stateParams, urlConstructor, $http, urls, auth, $rootScope, $state, $location, BlogsEndpoint) {
+.controller('BlogCtrl', function($scope, $state, $stateParams, $http, urls, auth, $rootScope, $state, $location, BlogsEndpoint) {
 	
 	// Warning:	latest.js contains BlogsCtrl
 	
@@ -46,7 +46,7 @@ angular.module('main')
 	};
 
 	$scope.editBlog = function() {
-		$location.path(urlConstructor.editblog($scope.blog.title));
+		$location.path($state.go('editblog', {blogId: $scope.blog.title}) );
 	};
 
 	$scope.makePost = function() {

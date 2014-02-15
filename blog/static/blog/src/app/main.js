@@ -12,46 +12,7 @@ angular.module("main", [
     'PostParentDirective',
     'Crypto'])
 
-.provider('urlConstructor', function UrlConstructorProvider() {
-	/**
-	Used for constructing client app urls - different from restful endpoint urls
-
-	Nicer if we can parse the URL segments, and automatically generate these functions!
-	*/
-	this.mapping = {}; // state -> function
-
-	this.register = function(state, func) {
-		this.mapping[state] = func;
-	};	
-
-	this.$get = function UrlConstructorFactory() {
-
-		return this.mapping;
-
-		// return new function() {
-		// 	this.latest = function() {
-		// 		return '/latest';
-		// 	};
-		// 	this.createblog = function() {
-		// 		return '/createblog'
-		// 	};
-		// 	this.blog = function(id) {
-		// 		return '/blog/' + id;
-		// 	};
-		// 	this.editblog = function(id) {
-		// 		return '/blog/' + id + '/edit';
-		// 	};
-		// 	this.post = function(id) {
-		// 		return '/post/' + id;
-		// 	};
-		// 	this.createpost = function(id) {
-		// 		return '/blog/' + id + '/createpost';
-		// 	};
-		// };
-	};
-})
-
-.config(function($stateProvider, $urlRouterProvider, urlConstructorProvider) {
+.config(function($stateProvider, $urlRouterProvider) {
 
 	$urlRouterProvider.otherwise('/');
 
@@ -96,25 +57,6 @@ angular.module("main", [
             url: '/:editionId',
             templateUrl: '/static/blog/dist/app/revisions/revisions.editions.tpl.html'
         });
-
-	urlConstructorProvider.register('latest', function() {
-		return '/latest';
-	});
-	urlConstructorProvider.register('createblog', function() {
-		return '/createblog';
-	});
-	urlConstructorProvider.register('blog', function(id) {
-		return '/blog/' + id;
-	})
-	urlConstructorProvider.register('editblog', function(id) {
-		return '/blog/' + id + '/edit';
-	});
-	urlConstructorProvider.register('post', function(id) {
-		return '/post/' + id;
-	});
-	urlConstructorProvider.register('createpost', function(id) {
-		return '/blog/' + id + '/createpost';
-	});
 })
 
 .controller('NavCtrl', function($scope, BlogsEndpoint) {

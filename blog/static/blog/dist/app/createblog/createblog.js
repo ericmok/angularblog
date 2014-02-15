@@ -1,6 +1,6 @@
 angular.module('main')
 
-.controller('CreateBlogCtrl', function($scope, $http, urls, $state, auth) {
+.controller('CreateBlogCtrl', function($scope, $http, urls, $state, $timeout, auth) {
 
 	$scope.blog = {
 		title: '',
@@ -25,7 +25,13 @@ angular.module('main')
 			}
 		}).success(function(response) {
 			console.log(response);
-			$state.go('blog', {blogId: response.id});
+
+			$timeout(function() {
+
+				// I know this is really messy, but give server delay...
+				$state.go('blog', {blogId: response.id});
+			}, 1000);
+
 		}).error(function(response) {
 			console.log(response);
 		});

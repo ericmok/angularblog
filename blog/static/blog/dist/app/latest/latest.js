@@ -7,9 +7,6 @@ angular.module('main')
     
 	$scope.posts = {results: []};
 
-//	RequestCache.getURL(urls.posts).then(function(response) {
-//		$scope.posts = response;
-//	});
 	PostsEndpoint.fetchAll().then(function(data) {
 		$scope.posts = data;
         $scope.isBootstrapping = false;
@@ -42,7 +39,7 @@ angular.module('main')
     };
 })
 
-.controller('BlogsCtrl', function($scope, $rootScope, $state, urls, RequestCache, auth) {
+.controller('BlogsCtrl', function($scope, $rootScope, $state, urls, BlogsEndpoint, RequestCache, auth) {
 
 	$scope.blogs = {};
 
@@ -55,9 +52,10 @@ angular.module('main')
 		}
 	}
 
-	RequestCache.getURL(urls.blogs).then(function(response) {
-		$scope.blogs = response;
-	}, function(response) {
-		$scope.blogs = ['No blogs to display.'];
-	});
+    BlogsEndpoint.fetchAll().then(function(data) {
+        $scope.blogs = data;
+    }, function(data) {
+        $scope.blogs = ['No blogs to display.'];
+    });
+
 });

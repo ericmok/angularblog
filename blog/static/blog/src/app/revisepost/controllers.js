@@ -21,6 +21,7 @@ angular.module('main')
         $scope.edition.title = data.title;
         $scope.edition.content = PostsEndpoint.flattenContent(data.content);
         
+        
         // Allow function definition if the model exists
         $scope.submitRevision = function() {
             

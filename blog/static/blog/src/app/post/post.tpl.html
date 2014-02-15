@@ -8,8 +8,7 @@
 			ng-class="{'col-xs-7': $index === currentPointer, 'current-panel': $index === currentPointer, 'col-xs-5': $index == currentPointer + 1,'zoom-small': loading && $index === currentPointer + 1}" 
 			ng-hide="($index < currentPointer) || ($index > currentPointer + 1)"
 			class="sidebar-panel" >
-		
-            
+
         <!-- Main Post -->
 		<div ng-if="$index === currentPointer">
 			<article class="post" ng-repeat="comment in panel.results">
