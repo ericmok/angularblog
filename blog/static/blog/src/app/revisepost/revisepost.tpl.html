@@ -10,7 +10,7 @@
 			<div>
 				<login-form></login-form>
 			</div>
-            <button class="btn btn-primary" ng-click="submitRevision()">Submit Revision</button>
+            <button class="btn btn-primary" ng-click="submitRevision()"  ng-disabled="!revisionFormIsModified()">Submit Revision</button>
         </div>
         <div ng-show="submitLoading" class="alert alert-info">
             Your request is processing...

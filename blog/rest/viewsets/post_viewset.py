@@ -383,6 +383,8 @@ def create_post(title, author, parent_content_type, parent_id, content):
 
 def patch_post(post, content):
     """
+    TODO: Check if new content actually has new content - otherwise duplicate editions will exist...
+
     Patch request will create a new Edition (version) of the post if 
     the content is different.
 
