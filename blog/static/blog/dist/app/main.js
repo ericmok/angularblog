@@ -232,8 +232,15 @@ angular.module('Endpoints', ['AjaxCaching', 'Urls', 'Security'])
 	
 	return {
 		cache: [],
-		fetch: function(id) {
+		invalidate: function(id) {
+			RequestCache.invalidateURL(urls.blogs + '/' + id);
+		},
+		fetch: function(id, fresh) {
 			var self = this;
+
+			if (fresh) {
+				this.invalidate(id);
+			}
 
 			for (var i = 0, n = this.cache.length; i < n; i++) {
 

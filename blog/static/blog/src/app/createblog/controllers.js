@@ -4,8 +4,11 @@ angular.module('main')
 
 	$scope.blog = {
 		title: '',
-		description: ''
+		description: ''	
 	};
+
+	$scope.error = '';
+	$scope.attemptedCreationRequest = false;
 
 	$scope.createBlog = function() {
 		console.log("create blog");
@@ -25,15 +28,16 @@ angular.module('main')
 			}
 		}).success(function(response) {
 			console.log(response);
+			$scope.attemptedCreationRequest = true;
 
-			$timeout(function() {
-
-				// I know this is really messy, but give server delay...
-				$state.go('blog', {blogId: response.id});
-			}, 1000);
+			$state.go('blog', {blogId: $scope.blog.title});
 
 		}).error(function(response) {
 			console.log(response);
+			// TODO: Make a proper error
+			$scope.error = response.status;
+
+			$scope.attemptedCreationRequest = true;
 		});
 	};
 });
