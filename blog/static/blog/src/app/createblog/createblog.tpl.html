@@ -14,6 +14,9 @@
 				<label for="description">Description:</label>
 				<textarea name="description" class="form-control" placeholder="Enter description here..." cols="60" rows="12" ng-model="blog.description" ng-required></textarea>
 			</div>
+			<div ng-show="attemptedCreationRequest && error">
+				{{error}}
+			</div>
 			<button ng-click="createBlog()" class="btn btn-primary">Create Blog</button>
 		</form>
 	</section>

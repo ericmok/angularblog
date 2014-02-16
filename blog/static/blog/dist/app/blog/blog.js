@@ -4,7 +4,7 @@ angular.module('main')
 	
 	// Warning:	latest.js contains BlogsCtrl
 	
-	console.log($stateParams.blogId);
+	console.log('BlogCtrl', $stateParams.blogId);
 	$scope.blogId = $stateParams.blogId;
 	$scope.blog = null;
 	$scope.posts = [];
