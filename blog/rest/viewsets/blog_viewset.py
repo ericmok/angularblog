@@ -95,7 +95,7 @@ class BlogViewSet(viewsets.GenericViewSet,
                 if len( Blog.objects.filter(title__iexact = duplicate_title_check) ) > 0:
                     raise IntegrityError
 
-                new_blog = Blog.objects.create(title = blog_serializer.object.title, creator = request.user)
+                new_blog = Blog.objects.create(title = blog_serializer.object.title, creator = request.user, description = blog_serializer.object.description)
                 return Response({"status": "Created: %s" % (blog_serializer.object.title,)}, status = 201)
             except IntegrityError:
                 return Response({"error": "A blog with that name already exists."}, status = 409)
