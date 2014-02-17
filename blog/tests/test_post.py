@@ -11,33 +11,12 @@ import json
 from django.contrib.auth.models import User
 from blog.rest.sessions import *
 from blog.models import *
+from blog.rest.viewsets.post_viewset import *
 
 import warnings
 import pdb
 
-ROOT_URL = 'http://localhost:8000/blog'
-
-AUTH_URL = ROOT_URL + '/api-tokens'
-
-SIGNIN_URL_FRAG = '/blog/sign-in'
-SIGNIN_URL = ROOT_URL + '/sign-in'
-USERS_URL = ROOT_URL + '/api/users'
-BLOGS_URL = ROOT_URL + '/api/blogs'
-POSTS_URL = ROOT_URL + '/api/posts'
-SENTENCES_URL = ROOT_URL + '/api/sentences'
-
-TEST_USER_ALICE = {
-	"username": "alice",
-	"password": "testtest"
-}
-
-TEST_USER_BOBBY = {
-	"username": "bobby",
-	"password": "testtest"
-}
-
-TEST_USER_ALICE_JSON = json.dumps(TEST_USER_ALICE)
-TEST_USER_BOBBY_JSON = json.dumps(TEST_USER_BOBBY)
+from config import *
 
 class PostViewsetUtils(TestCase):
 	fixtures = ['nice_fixture3.json']
@@ -58,6 +37,36 @@ class PostViewsetUtils(TestCase):
 		self.assertTrue(get_parent_blog_of_model('sentence', 1).is_restricted)
 		self.assertFalse(get_parent_blog_of_model('blog', 2).is_restricted)
 
+	def test_can_split_content_into_blocks(self):
+		result = split_content_into_blocks('This is a test [[[ block 1 \n\n\n test ]]] Interim text \n\n\n This is another paragraph')
+		#print('split content into blocks %s' % [result])
+		self.assertEqual(len(result), 4)
+		self.assertTrue(result[0].mode, 't')
+		self.assertTrue(result[1].mode, 'c')
+		self.assertTrue(result[2].mode, 't')
+		self.assertTrue(result[3].mode, 't')
+
+		result = split_content_into_blocks('This is a test \n\n\n[[[ block 1 \n\n\n test ]]]\n\n\n Interim text \n\n\n This is another paragraph')
+		#print('split content into blocks %s' % [result])
+		self.assertEqual(len(result), 4)
+		self.assertTrue(result[0].mode, 't')
+		self.assertTrue(result[1].mode, 'c')
+		self.assertTrue(result[2].mode, 't')
+		self.assertTrue(result[3].mode, 't')
+
+
+	def test_can_split_block_into_nodes(self):
+		# Note I added the [[[ ]]], even though this will normally not be in a block.
+		# Just testing behavior
+		test_block = Block('t', 'Test1 @[Test2]@ Test3 [[[ Test4 ]]] Test5 @[ Test6 ]@ Test7')
+		result = split_block_into_nodes(test_block)
+		#print('split_block_into_nodes %s' % result)
+		self.assertEqual(len(result), 5)
+		self.assertTrue(result[0].mode, 't') #1
+		self.assertTrue(result[1].mode, 'c') #2
+		self.assertTrue(result[2].mode, 't') #3/4/5
+		self.assertTrue(result[3].mode, 'c') #6 
+		self.assertTrue(result[4].mode, 't') #7
 
 class PostEndPoint(TestCase):
 	fixtures = ['nice_fixture3.json']
@@ -284,6 +293,36 @@ class CreatingPost(TestCase):
 		response = self.client.post(POSTS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
 		jres = json.loads(response.content)
 		self.assertEqual(jres['number_paragraphs'], 5)
+
+
+	def test_can_handle_code_blocks_with_new_lines_within_them(self):
+		"""
+		Assumptions:
+		Post creation response includes a 'post' param
+
+		This handles the following scenario:
+		This is a code block. [[[
+			function() {
+				console.log('test');
+			}
+		]]]
+
+		Notice how there are new lines within the block. 
+		"""
+		payload = {
+			"title": "Code Test",
+			"parent_content_type": "blog",
+			"parent_id": 1,
+			"content": 'The following is a code block. [[[ \n\n\nfunction() {\nconsole.log();\n}\n]]]'
+		}	
+		response = self.client.post(POSTS_URL, data=payload, HTTP_X_AUTHORIZATION=self.token)
+		jres = json.loads(response.content)
+		self.assertEqual(jres['number_paragraphs'], 2)
+
+		self.assertEqual( len(jres['post']['content']['paragraphs']), 2 )
+		self.assertEqual( jres['post']['content']['paragraphs'][0]['sentences'][0]['text'], 'The following is a code block.' )
+		self.assertIn( 'console.log', jres['post']['content']['paragraphs'][1]['sentences'][0]['text'] )
+		self.assertEqual( jres['post']['content']['paragraphs'][1]['sentences'][0]['text'], '[[[ \n\n\nfunction() {\nconsole.log();\n}\n]]]' )
 
 
 	def test_can_treat_AT_code_blocks_as_extra_sentences(self):
