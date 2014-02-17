@@ -31,6 +31,7 @@ from django.db.models import F
 Block = collections.namedtuple('Block', ['mode', 'text'])
 Node = collections.namedtuple('Node', ['mode', 'text'])
 
+#TODO: Make a standard for this...
 # 't' = text
 # 'c' = code
 BLOCK_MODE_TEXT = 't'
@@ -68,10 +69,13 @@ def split_content_into_blocks(content):
     Should that be a [[[blocked]]]? 
 
     """
-    CODE_BLOCK_REGEX = '(\[\[\[.*?\]\]\])'
-    PARAGRAPH_SPLIT_REGEX = '\n[\s]*?\n[\s]*?\n'
+    # Special Regex...The dot should also match new lines
+    CODE_BLOCK_REGEX = '(\[\[\[.*?\]\]\])' 
+
+    # Should be able to handle variable number new lines ...
+    PARAGRAPH_SPLIT_REGEX = r'\n[\s]*?\n[\s]*?'
     
-    code_blocks = re.split(CODE_BLOCK_REGEX, content)
+    #code_blocks = re.split(CODE_BLOCK_REGEX, content)
 
 
     blocks = []
@@ -79,11 +83,14 @@ def split_content_into_blocks(content):
     temp_string = ''
 
     def search(txt):
-        return re.search(CODE_BLOCK_REGEX, txt)
+        # Note that the re.DOTALL flag is set for CODE_BLOCK_REGEX matching
+        return re.search(CODE_BLOCK_REGEX, txt, re.DOTALL) 
     
+    # Text Before Match [[[ Text Inside ]]] Text After
     # Breaks text before match into paragraphs, keeps the match itself intact
     # Appends to blocks
     def consume_match(blocks, txt, match):
+        # Go one step further than:
         #blocks.append( Block(BLOCK_MODE_TEXT, txt[:match.start()] ) )
         consume_non_code_match(blocks, txt[:match.start()])
         blocks.append( Block(BLOCK_MODE_CODE, txt[match.start() : match.end()] ) )
@@ -100,7 +107,6 @@ def split_content_into_blocks(content):
         return txt[match.end():]
 
     while len(remaining_text) > 0:
-
         match = search(remaining_text)
 
         if match is not None:
