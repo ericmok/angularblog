@@ -70,10 +70,10 @@ def split_content_into_blocks(content):
 
     """
     # Special Regex...The dot should also match new lines
-    CODE_BLOCK_REGEX = '(\[\[\[.*?\]\]\])' 
+    CODE_BLOCK_REGEX = '\s*(\[\[\[.*?\]\]\])\s*' 
 
     # Should be able to handle variable number new lines ...
-    PARAGRAPH_SPLIT_REGEX = r'\n[\s]*?\n[\s]*?'
+    PARAGRAPH_SPLIT_REGEX = r'\s\s\s*'
     
     #code_blocks = re.split(CODE_BLOCK_REGEX, content)
 

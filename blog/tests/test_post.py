@@ -46,6 +46,15 @@ class PostViewsetUtils(TestCase):
 		self.assertTrue(result[2].mode, 't')
 		self.assertTrue(result[3].mode, 't')
 
+		result = split_content_into_blocks('This is a test \n\n\n[[[ block 1 \n\n\n test ]]]\n\n\n Interim text \n\n\n This is another paragraph')
+		#print('split content into blocks %s' % [result])
+		self.assertEqual(len(result), 4)
+		self.assertTrue(result[0].mode, 't')
+		self.assertTrue(result[1].mode, 'c')
+		self.assertTrue(result[2].mode, 't')
+		self.assertTrue(result[3].mode, 't')
+
+
 	def test_can_split_block_into_nodes(self):
 		# Note I added the [[[ ]]], even though this will normally not be in a block.
 		# Just testing behavior
