@@ -7,6 +7,7 @@
         	<address>By {{post.author}} on:<br/>
                 <a reference-model parent-content-type="{{post.parent_content_type}}" parent-id="{{post.parent_id}}">{{post.parent_repr}}</a>
             </address>
+            <a ui-sref="revisepost({postId: post.id})" class="btn btn-info">Continue Revising Post</a>
 		</div>
         <h3>Revisions:</h3>
         <div class="list-group">
