@@ -6,6 +6,12 @@ filter('moment', function() {
     };
 }).
 
+filter('momentdate', function() {
+	return function(date) {
+        return moment(date).format('LL');
+    };
+}).
+
 filter('momentverbose', function() {
     return function(date) {
         return moment(date).format('LLLL');
