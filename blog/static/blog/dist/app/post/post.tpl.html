@@ -26,7 +26,7 @@
                                     <h1>{{comment.title}}</h1> 
                                 </div>
                                 <h4 class="author">
-                                    By {{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]
+                                    By {{comment.author}} on {{comment.editions[0].created | momentdate}}
                                 </h4>
                             </hgroup>
 
@@ -92,7 +92,8 @@
 							<h1 style="margin-right: 1.4em; vertical-align: middle; display: inline;">{{comment.title}}</h1> 
                             <a style="vertical-align: middle" class="btn btn-info" ui-sref="post({postId: comment.id})">Go to Post to Reply &gt;&gt;</a>
 						</div>
-						<h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
+						<h4 class="author">{{comment.author}} ({{comment.editions[0].created | moment}})</h4>
+						<!-- [{{comment.parent_content_type}} / {{comment.parent_id}}] -->
 					</hgroup>
 				</header>
 
@@ -171,7 +172,8 @@
 							<h2 style="margin-right: 1.4em; vertical-align: middle; display: inline;">{{comment.title}}</h2> 
 							<a style="vertical-align: middle" class="btn btn-info" ui-sref="post({postId: comment.id})">Go to Post to Reply &gt;&gt;</a>
 						</div>
-						<h4 class="author">{{comment.author}} on [{{comment.parent_content_type}} / {{comment.parent_id}}]</h4>
+						<h4 class="author">{{comment.author}} ({{comment.editions[0].created | moment}})</h4>
+						<!--[{{comment.parent_content_type}} / {{comment.parent_id}}]-->
 					</hgroup>
 					<div class="well well-sm">
 						<blockquote>
