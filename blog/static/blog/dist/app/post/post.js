@@ -136,11 +136,10 @@ angular.module('main')
 			 After the user has indicated their intent to 
 			 look at a sentence, go make AJAX request
 			 */
-			RequestCache.getURL(urls.sentences + '/' + sentenceId + '/comments').then(function(data) {
+			RequestCache.getURL(urls.sentences + '/' + sentenceId + '/all_comments').then(function(data) {
 
-				// Update the sidebar
 				$scope.sidebars[$scope.currentPointer + 1] = data;
-		
+				
 				
 				// Update the URL if the user has stayed very long on the sentence
 				$scope.urlChangeTimer = $timeout(function() {
@@ -159,6 +158,7 @@ angular.module('main')
 
                 if ($scope.currentlySelectedSentenceObj && $scope.currentlySelectedSentenceObj.previous_version !== null) {
                     SentencesEndpoint.fetch($scope.currentlySelectedSentenceObj.previous_version).then(function(data) {
+
                         // Previous data loading...
                         $scope.sidebars[$scope.currentPointer + 1].results.concat(data.results);
                     });
