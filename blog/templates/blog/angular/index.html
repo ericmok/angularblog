@@ -35,15 +35,9 @@
 	<body>
 	{% verbatim %}
 		<div class="container">
-			<nav class="navbar navbar-default" role="navigation">
-				<div class="navbar-brand">eri5 prototype</div>
-				<form class="navbar-form navbar-left">
-					<div class="form-group">
-						<input type="text" class="form-control" placeholder="Login" />
-					</div>
-					<button type="submit" class="btn btn-primary">Login</button>
-				</form>
-			</nav>
+			<div class="row">
+
+			</div>
 			<div class="jumbotron">
 				<div class="col-lg-7">
 					<hgroup>
@@ -53,7 +47,7 @@
 					<p>
 						A site for rigorous internet commentary:
 					</p> 
-					<button class="btn btn-primary">Go to Blogs</button>
+					<a class="btn btn-primary" href="/">Go to Blogs</a>
 				</div>
 				<div class="col-lg-5">
 					<img src="/static/blog/assets/jumbotron1.png" class="img-responsive" style="margin-top: 1.3em" />
@@ -75,8 +69,7 @@
 						<img src="/static/blog/assets/logical_fallacy1.svg" class="img-responsive col-md-12 col-sm-6" />
 						<p class="col-md-12 col-sm-6 col-xs-12">
 							<b>Not Implemented</b><br/>
-							Choose from a list of <a href="http://en.wikipedia.org/wiki/List_of_fallacies">fallacies</a> and tag it onto groups of sentences.
-							Sentences are grouped into arguments that are filed into a database for entailment analysis. 
+							Mark a group of sentences with <a href="http://en.wikipedia.org/wiki/List_of_fallacies">logical fallacy</a> tags.
 							When users make a new post, they can refer to previous arguments made by other users.
 						</p>
 						<div style="clear: both;"></div>
@@ -97,7 +90,6 @@
 							<b>Under Development</b><br/>
 							A wall of text can have so many pieces, it can be hard to analyze rigorously. 
 							Users can comment, score, and tag individual sentences instead of the entire post.
-							As users create new long-form posts, they can see previously tagged sentences for reference.
 						</p>
 						<div style="clear: both;"></div>
 					</div>
@@ -123,7 +115,7 @@
 				</div>
 				<div style="clear: both;"></div>
 			</div>
-
+			
 			<div class="jumbotron">
 				<header>
 					<hgroup>
@@ -138,13 +130,8 @@
 					It lowers the barrier of entry for people who have an opinion to have a public voice.
 
 					Unfortunately, producing rigorous discussion on the internet is notoriously hard.
-				</p>
-				<p>
-					The culture of adhominem and the abuse of rhetoric is a problem.
 
-					Opinions of people are projected onto the internet in the form of textual posts.
-
-					The longer posts are, the harder it is to throroughly criticize it with precision.
+					The larger a wall of text is, the less users will engage in thorough criticism.
 				</p>
 				<p>
 					This website is a toy to show how long form commenting might be possible.

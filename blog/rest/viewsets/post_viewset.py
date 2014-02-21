@@ -221,7 +221,7 @@ def for_each_node_in_content(content):
 
 
 
-def get_closest_sentence_model_to_text(text, sentence_models, cutoff = 0.4):
+def get_closest_sentence_model_to_text(text, sentence_models, cutoff = 0.49):
     """
     Given text, get the best Sentence model that most closely represents it
 
@@ -456,7 +456,7 @@ def patch_post(post, content):
 
             # Gets the match to the new string
             # A match is a (ratio, Sentence)
-            match = get_closest_sentence_model_to_text(node.text, old_sentence_models, cutoff = 0.4)
+            match = get_closest_sentence_model_to_text(node.text, old_sentence_models, cutoff = 0.49)
 
             #self.note("Node: %s" % (node,))
             #self.note("Closest Match: " + str( match ))

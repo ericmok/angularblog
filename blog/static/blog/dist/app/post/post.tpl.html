@@ -38,7 +38,10 @@
                                   ng-class="{'sentence-selected': sen.id == currentlySelectedSentenceId}" 
                                   ng-mouseover="updateSidebar(sen.id, $parent.$parent.$index)" 
                                   ng-mouseout="cancelTimers()">
-                                {{sen.text}}
+                                <span ng-switch="sen.mode">
+                                	<span ng-switch-when="c" style="white-space: pre">{{sen.text}}</span>
+                                	<span ng-switch-default>{{sen.text}}</span>
+                                </span>
                                 <span class="badge" ng-if="sen.number_replies > 0">{{sen.number_replies}}</span>
                             </span>
                         </p>
